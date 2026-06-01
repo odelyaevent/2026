@@ -703,9 +703,16 @@ async function loadPhotos() {
     renderPhotos(allPhotosList);
     // Clear any existing timer
     if (shuffleTimer) clearInterval(shuffleTimer);
-    // Reshuffle every 7 seconds
-    shuffleTimer = setInterval(() => {
+// Refresh from server every 15 seconds + reshuffle every 7 seconds
+    shuffleTimer = setInterval(async () => {
       if (document.getElementById('photos-screen').style.display !== 'none') {
+        try {
+          const res = await fetch(`${TUNNEL_URL}/list-photos`);
+          const newList = await res.json();
+          if (newList.length !== allPhotosList.length) {
+            allPhotosList = newList;
+          }
+        } catch(e) {}
         renderPhotos(allPhotosList);
       }
     }, 7000);
