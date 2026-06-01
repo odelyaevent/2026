@@ -717,6 +717,10 @@ async function loadPhotos() {
 async function uploadPhotos(files) {
   if (!files.length) return;
   if (!currentGuestData) { alert('Please login first.'); return; }
+  if (!TUNNEL_URL) {
+    await loadTunnelUrl();
+  }
+  if (!TUNNEL_URL) { alert('Server not ready. Please try again.'); return; }
   const progressEl = document.getElementById('upload-progress');
   progressEl.style.display = 'block';
   progressEl.textContent   = `⏳ Uploading ${files.length} photo(s)... please wait`;
