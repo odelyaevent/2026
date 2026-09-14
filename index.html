@@ -256,8 +256,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 // ============================================================
     // ⚙️ EVENT CONFIGURATION — loaded from Firebase
     // ============================================================
-    let EVENT_START_DATE = '2026-05-21'; // fallback
-    let EVENT_END_DATE   = '2026-05-22'; // fallback
+	let EVENT_START_DATE = '2026-11-21'; // fallback
+    let EVENT_END_DATE   = '2026-11-22'; // fallback
     // ============================================================
 
     async function loadEventConfig() {
@@ -277,10 +277,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const end   = new Date(EVENT_END_DATE);
       let dayNum  = 1;
       while (current <= end) {
-        days.push({
+	  days.push({
           num:   dayNum,
           date:  current.toISOString().split('T')[0],
-          label: `Day ${dayNum} — ${current.toLocaleDateString('en-IN', { day:'numeric', month:'long' })}`
+          label: `${current.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}`
         });
         current.setDate(current.getDate() + 1);
         dayNum++;
