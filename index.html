@@ -40,7 +40,7 @@
     :root{--saffron:#E8560A;--gold:#FFD700;--deep-blue:#0D2B5E;--light-blue:#1A4A9E;--cream:#FDF6E3;--white:#FFFFFF;--red:#CC0000;--success:#1A7A3C;--border:#FFD70044;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:var(--cream);min-height:100vh;padding-bottom:40px;font-size:18px;}
-header{position:relative;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));padding:16px 14px 18px;text-align:center;border-bottom:4px solid var(--gold);}
+.site-header{position:relative;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));padding:16px 14px 18px;text-align:center;border-bottom:4px solid var(--gold);}
 .logo-wrap{position:absolute;top:14px;left:14px;width:60px;height:60px;border-radius:50%;background:var(--cream);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
 .logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .logo-wrap span{font-size:0.5rem;color:var(--deep-blue);font-weight:700;text-align:center;line-height:1.2;padding:2px;}
@@ -75,6 +75,18 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
     .btn:active{transform:scale(0.97);}
     .btn:disabled{opacity:0.6;cursor:not-allowed;}
+.landing-screen{display:none;padding:30px 18px;}
+.landing-welcome{text-align:center;margin-bottom:30px;}
+.landing-title{font-family:'Lato',sans-serif;color:var(--deep-blue);font-size:1.4rem;font-weight:700;margin-bottom:8px;}
+.landing-subtitle{color:#555;font-size:1rem;}
+.btn-login{width:100%;padding:22px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));color:white;font-family:'Lato',sans-serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 16px #0D2B5E33;margin-top:90px;margin-bottom:48px;}
+.btn-register{width:100%;padding:22px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',sans-serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 16px #E8560A44;}
+
+@media (min-width:768px){
+  .landing-screen{max-width:480px;margin:0 auto;padding:50px 24px;}
+  .btn-login{margin-top:60px;margin-bottom:32px;}
+  .site-header{padding:24px 20px 26px;}
+}
     .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     #pending-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid #FFCA28;padding:28px 18px;text-align:center;}
@@ -92,7 +104,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 </head>
 <body>
 
-<header style="position:relative;">
+<header class="site-header">
     <div class="logo-wrap">
       <img src="logo.png" alt="Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
       <span style="display:none">RKMVP<br>LOGO</span>
@@ -108,14 +120,14 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   </div>
 
   <!-- LANDING SCREEN -->
-  <div id="landing-screen" style="display:none;padding:30px 18px;">
-    <div style="text-align:center;margin-bottom:30px;">
-      <div style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.4rem;font-weight:700;margin-bottom:8px;">Welcome!</div>
-      <div style="color:#555;font-size:1rem;">Please choose an option to continue.</div>
+<div id="landing-screen" class="landing-screen">
+    <div class="landing-welcome">
+      <div class="landing-title">Welcome!</div>
+      <div class="landing-subtitle">Please choose an option to continue.</div>
     </div>
-    <button onclick="showLogin()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));color:white;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;margin-bottom:16px;letter-spacing:0.05em;box-shadow:0 4px 16px #0D2B5E33;">Login</button>
-    <button onclick="showRegistration()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 16px #E8560A44;">New Registration</button>
-  </div>
+    <button onclick="showLogin()" class="btn-login">Login</button>
+    <button onclick="showRegistration()" class="btn-register">New Registration</button>
+</div>
   
   <!-- SCREEN 1: REGISTRATION -->
   <div class="card" id="reg-card" style="display:none">
