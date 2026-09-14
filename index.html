@@ -222,8 +222,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       <div class="amount-box">
         <div class="amount-label">Total Payable Amount</div>
-        <div class="amount-value" id="amount-display">Rs. 10/-</div>
-        <div class="amount-breakdown" id="amount-breakdown">Guest: Rs. 10/-</div>
+        <div class="amount-value" id="amount-display"></div>
+        <div class="amount-breakdown" id="amount-breakdown"></div>
       </div>
 
       <button class="btn" id="btn-finish" onclick="submitReg()">FINISH &amp; REGISTER</button>
@@ -254,9 +254,16 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   <script>
 
 // ============================================================
+    // 💰 AMOUNT CONFIGURATION — EDIT HERE
+    // ============================================================
+    let ALUMNI_FEE = 20;   // Alumni Member: Rs. 20/-
+    let FAMILY_FEE = 5;    // Family Member: Rs. 5/-
+    // ============================================================
+
+    // ============================================================
     // ⚙️ EVENT CONFIGURATION — loaded from Firebase
     // ============================================================
-	let EVENT_START_DATE = '2026-11-21'; // fallback
+    let EVENT_START_DATE = '2026-11-21'; // fallback
     let EVENT_END_DATE   = '2026-11-22'; // fallback
     // ============================================================
 
@@ -329,13 +336,13 @@ function populateBatchYears() {
       updateAmount();
     }
 
-    function updateAmount() {
+function updateAmount() {
       const fam   = parseInt(document.getElementById('family').value) || 0;
-      const total = 10 + fam * 5;
+      const total = ALUMNI_FEE + fam * FAMILY_FEE;
       document.getElementById('amount-display').textContent   = `Rs. ${total}/-`;
       document.getElementById('amount-breakdown').textContent = fam === 0
-        ? 'Guest: Rs. 10/-'
-        : `Guest: Rs. 10/-  +  ${fam} × Rs. 5/- = Rs. ${total}/-`;
+        ? `Guest: Rs. ${ALUMNI_FEE}/-`
+        : `Guest: Rs. ${ALUMNI_FEE}/-  +  ${fam} × Rs. ${FAMILY_FEE}/- = Rs. ${total}/-`;
     }
 
     function getMealSelections() {
@@ -485,7 +492,7 @@ function startRealtimeListener(docId) {
           btn.disabled=false; btn.innerHTML='FINISH &amp; REGISTER'; return;
         }
 
-const amount    = 10 + family * 5;
+const amount    = ALUMNI_FEE + family * FAMILY_FEE;
         const finalName = toTitleCase(name.trim());
 
 const docRef = await window._addDoc(window._collection(window._db,'guests'), {
@@ -620,7 +627,7 @@ async function attemptAutoLogin() {
       await loadEventConfig();
       generateMealCheckboxes();
       populateBatchYears();
-      setTimeout(() => { updateMealPreviews(); }, 100);
+      setTimeout(() => { updateMealPreviews(); updateAmount(); }, 100);
 
 document.getElementById('name').addEventListener('input', function() {
         const pos = this.selectionStart;
