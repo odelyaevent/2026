@@ -83,11 +83,6 @@
     #pending-screen h3{font-family:'Lato',serif;color:#856404;font-size:1.2rem;margin-bottom:10px;}
     #pending-screen p{color:#555;font-size:1rem;line-height:1.8;}
     .pending-badge{display:inline-block;background:#FFF3CD;color:#856404;border:1px solid #FFCA28;border-radius:20px;padding:6px 18px;font-size:0.9rem;font-weight:700;margin-top:16px;}
-    #bankqr-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid var(--success);padding:24px 18px;text-align:center;}
-    #bankqr-screen h3{font-family:'Lato',serif;color:var(--success);font-size:1.2rem;margin-bottom:8px;}
-    #bankqr-screen p{color:#555;font-size:0.95rem;margin-bottom:16px;}
-    #bankqr-screen img{width:240px;height:240px;border:3px solid var(--gold);border-radius:12px;object-fit:contain;}
-    .amount-due{font-size:1.5rem;font-weight:900;color:var(--red);font-family:'Lato',serif;margin-top:14px;}
     .guest-info-box{margin-top:14px;background:#F7FAFF;border-radius:8px;padding:14px;text-align:left;font-size:0.95rem;color:#333;line-height:2;}
     .guest-info-box strong{color:var(--deep-blue);}
     #pin-screen{display:none;}
@@ -217,15 +212,6 @@
     <h3>Pending for Approval</h3>
     <p>Your registration is received!<br>Please go to the <strong>front desk</strong><br>and tell them your Security PIN.<br>The attendant will process your payment.</p>
     <div class="pending-badge">⏳ Waiting for Approval</div>
-  </div>
-
-  <!-- SCREEN 4: BANK QR -->
-  <div id="bankqr-screen">
-    <h3>Scan to Pay</h3>
-    <p>Please scan the QR code below using<br>GPay / PhonePe / any UPI app.</p>
-    <img src="bank-qr.png" alt="Bank QR Code"/>
-    <div class="amount-due" id="bankqr-amount"></div>
-    <div class="guest-info-box" id="bankqr-info"></div>
   </div>
 
   <script>
@@ -359,7 +345,7 @@
     }
 
 function hideAll() {
-      ['reg-card','pin-screen','pending-screen','bankqr-screen','landing-screen','loading-screen'].forEach(id => {
+      ['reg-card','pin-screen','pending-screen','landing-screen','loading-screen'].forEach(id => {
         document.getElementById(id).style.display = 'none';
       });
     }
@@ -374,19 +360,6 @@ function hideAll() {
       document.getElementById('reg-card').style.display = 'block';
     }
 
-    function showBankQR(name, amount, family) {
-      hideAll();
-      document.getElementById('bankqr-amount').textContent = `Amount Payable: Rs. ${amount}/-`;
-      document.getElementById('bankqr-info').innerHTML = `
-        <strong>Name:</strong> ${name}<br>
-        <strong>Family Members:</strong> ${family}<br>
-        <strong>Total People:</strong> ${family+1}<br>
-        <strong>Amount:</strong> <span style="color:var(--red);font-weight:700">Rs. ${amount}/-</span>
-      `;
-      document.getElementById('bankqr-screen').style.display = 'block';
-      window.scrollTo({ top:0, behavior:'smooth' });
-    }
-
     function startRealtimeListener(docId) {
       if (!window._firebaseReady) return;
       const ref = window._doc(window._db,'guests',docId);
@@ -396,9 +369,6 @@ function hideAll() {
         if (data.approved) {
           const pin = localStorage.getItem('rkmvp_pin') || '';
           window.location.href = `guest.html?pin=${encodeURIComponent(pin)}`;
-        } else if (data.bankQrVisible) {
-          showBankQR(data.name, data.amount, data.familyCount||0);
-        }
       });
     }
 
@@ -498,8 +468,6 @@ const docId = snap.docs[0].id;
         if (g.approved) {
           window.location.href = `guest.html?pin=${encodeURIComponent(pin)}`;
           return;
-        } else if (g.bankQrVisible) {
-          showBankQR(g.name, g.amount, g.familyCount||0);
         } else {
           document.getElementById('pending-screen').style.display = 'block';
         }
