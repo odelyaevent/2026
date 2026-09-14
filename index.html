@@ -91,7 +91,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .pending-badge{display:inline-block;background:#FFF3CD;color:#856404;border:1px solid #FFCA28;border-radius:20px;padding:6px 18px;font-size:0.9rem;font-weight:700;margin-top:16px;}
     .guest-info-box{margin-top:14px;background:#F7FAFF;border-radius:8px;padding:14px;text-align:left;font-size:0.95rem;color:#333;line-height:2;}
     .guest-info-box strong{color:var(--deep-blue);}
-#pin-screen{display:none;}
+.pin-screen-wrap{display:none;min-height:calc(100vh - 140px);align-items:center;justify-content:center;padding:0 14px;}
+.pin-screen-wrap .card{width:100%;margin:0;}
 #pin-screen .card-body{text-align:center;}
 .pin-instruction{color:#555;font-size:1.1rem;margin-bottom:20px;line-height:1.7;font-weight:700;}
 .pin-input{width:100%;font-size:1.4rem;letter-spacing:0.35em;text-align:center;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;background:#F7FAFF;-webkit-appearance:none;box-sizing:border-box;}
@@ -103,6 +104,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   .btn-login{margin-top:60px;margin-bottom:32px;}
   .site-header{padding:24px 20px 26px;}
   .pin-input{font-size:1.8rem;letter-spacing:0.4em;}
+  .pin-screen-wrap{min-height:calc(100vh - 180px);}
+  .pin-screen-wrap .card{max-width:420px;}
 }
 
 </style>
@@ -206,7 +209,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   </div>
 
   <!-- SCREEN 2: PIN ENTRY -->
-<div id="pin-screen">
+<div id="pin-screen" class="pin-screen-wrap">
     <div class="card">
       <div class="card-header"><h2 class="pin-header-title">Login</h2></div>
       <div class="card-body">
@@ -384,7 +387,7 @@ function pushScreenState(screenName) {
 
 function showLogin() {
       hideAll();
-      document.getElementById('pin-screen').style.display = 'block';
+      document.getElementById('pin-screen').style.display = 'flex';
       const pinInput = document.getElementById('return-pin');
       pinInput.value = '';
       document.getElementById('err-return-pin').style.display = 'none';
