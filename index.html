@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RKMVP Alumni Reunion 2026</title>
-  <meta property="og:title" content="RKMVP Alumni Association – Reunion 2026"/>
+  <meta property="og:title" content="RKMVP Alumni Reunion 2026"/>
   <meta property="og:description" content="Delegate Registration – Reunion 2026"/>
   <meta property="og:url" content="https://odelyaevent.github.io/rkmvp/"/>
   <meta property="og:image" content="https://odelyaevent.github.io/rkmvp/logo.png"/>
@@ -50,7 +50,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .card{background:var(--white);margin:22px 14px 0;border-radius:14px;border:1.5px solid var(--border);box-shadow:0 4px 24px #0D2B5E18;overflow:hidden;}
     .card-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:14px 18px;}
     .card-header h2{font-family:'Lato',serif;color:var(--gold);font-size:clamp(1.1rem,4.5vw,1.3rem);letter-spacing:0.05em;}
-    .card-body{padding:22px 18px;}
+    .pin-header-title{text-align:center;}
+	.card-body{padding:22px 18px;}
     .inline-field{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
     .inline-field label{font-weight:700;color:var(--deep-blue);font-size:1rem;white-space:nowrap;min-width:120px;flex-shrink:0;}
     .inline-field label .req{color:var(--red);margin-left:3px;}
@@ -207,7 +208,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   <!-- SCREEN 2: PIN ENTRY -->
 <div id="pin-screen">
     <div class="card">
-      <div class="card-header"><h2>Welcome Back!</h2></div>
+      <div class="card-header"><h2 class="pin-header-title">Login</h2></div>
       <div class="card-body">
         <p class="pin-instruction">Enter 6-digit Login PIN</p>
         <input type="password" id="return-pin" class="pin-input" placeholder="••••••" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code"/>
@@ -364,6 +365,22 @@ function hideAll() {
         document.getElementById(id).style.display = 'none';
       });
     }
+
+function pushScreenState(screenName) {
+      history.pushState({ screen: screenName }, '', '');
+    }
+
+    window.addEventListener('popstate', (e) => {
+      const screen = e.state && e.state.screen;
+      if (screen === 'landing' || !screen) {
+        hideAll();
+        document.getElementById('landing-screen').style.display = 'block';
+      } else if (screen === 'login') {
+        showLogin();
+      } else if (screen === 'registration') {
+        showRegistration();
+      }
+    });
 
 function showLogin() {
       hideAll();
