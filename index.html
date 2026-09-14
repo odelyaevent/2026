@@ -389,11 +389,13 @@ function showLogin() {
       pinInput.value = '';
       document.getElementById('err-return-pin').style.display = 'none';
       setTimeout(() => pinInput.focus(), 150);
+      pushScreenState('login');
     }
 
-    function showRegistration() {
+function showRegistration() {
       hideAll();
       document.getElementById('reg-card').style.display = 'block';
+      pushScreenState('registration');
     }
 
 function startRealtimeListener(docId) {
@@ -610,10 +612,11 @@ document.getElementById('return-pin').addEventListener('input', function() {
       const found = await checkDeviceToken();
       if (found) return;
 
-      document.getElementById('loading-screen').style.display = 'none';
+document.getElementById('loading-screen').style.display = 'none';
 
       // Show landing page
       document.getElementById('landing-screen').style.display = 'block';
+      history.replaceState({ screen: 'landing' }, '', '');
     });
 
   </script>
