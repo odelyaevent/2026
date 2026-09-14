@@ -62,10 +62,15 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .select-field{width:100%;padding:12px 14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.25rem;font-family:'Lato',sans-serif;color:#1a1a1a;background:#F7FAFF;-webkit-appearance:none;box-sizing:border-box;}
 	.field-error{font-size:0.9rem;color:var(--red);margin-top:5px;display:none;font-weight:700;}
     .field-note{font-size:0.82rem;color:#7A8CA8;margin-top:4px;}
-    .amount-box{background:#FFF5F5;border:2px solid var(--red);border-radius:10px;padding:16px;margin:4px 0 20px;text-align:center;}
-    .amount-label{font-size:1.1rem;color:#555;margin-bottom:6px;}
-    .amount-value{font-size:clamp(1.6rem,7vw,2.2rem);font-weight:900;color:var(--red);font-family:'Lato',serif;}
-    .amount-breakdown{font-size:1rem;color:#888;margin-top:6px;}
+.amount-box{background:#FFF5F5;border:2px solid var(--red);border-radius:10px;padding:16px;margin:4px 0 20px;}
+.amount-label{font-size:1.1rem;color:#555;margin-bottom:10px;font-weight:700;text-align:left;}
+.amount-lines{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.amount-line-item{display:flex;justify-content:space-between;align-items:center;font-size:1rem;color:#333;text-align:left;}
+.amount-line-item .line-label{flex:1;}
+.amount-line-item .line-value{font-weight:700;color:#333;white-space:nowrap;margin-left:10px;}
+.amount-total-row{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--red);padding-top:12px;margin-top:4px;}
+.amount-total-row span:first-child{font-size:1.15rem;font-weight:700;color:#333;}
+.amount-value{font-size:clamp(1.5rem,6.5vw,2rem);font-weight:900;color:var(--red);font-family:'Lato',sans-serif;}
     .divider{height:1px;background:var(--border);margin:20px 0;}
     .section-header-bar{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));color:var(--gold);font-family:'Lato',sans-serif;font-size:clamp(1.1rem,4.5vw,1.3rem);font-weight:700;letter-spacing:0.05em;text-align:center;padding:14px 18px;border-radius:8px;margin-bottom:14px;}
 .section-header-note{text-align:center;font-size:0.85rem;color:#888;margin-top:-8px;margin-bottom:14px;font-style:italic;}
@@ -220,10 +225,13 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       <div class="divider"></div>
 
-      <div class="amount-box">
-        <div class="amount-label">Total Payable Amount</div>
-        <div class="amount-value" id="amount-display"></div>
-        <div class="amount-breakdown" id="amount-breakdown"></div>
+	  <div class="amount-box">
+        <div class="amount-label">Amount Breakdown</div>
+        <div class="amount-lines" id="amount-lines"></div>
+        <div class="amount-total-row">
+          <span>Total Payable</span>
+          <span class="amount-value" id="amount-display"></span>
+        </div>
       </div>
 
       <button class="btn" id="btn-finish" onclick="submitReg()">FINISH &amp; REGISTER</button>
@@ -340,12 +348,26 @@ function populateBatchYears() {
     }
 
 function updateAmount() {
-      const fam   = parseInt(document.getElementById('family').value) || 0;
-      const total = ALUMNI_FEE + fam * FAMILY_FEE;
-      document.getElementById('amount-display').textContent   = `Rs. ${total}/-`;
-      document.getElementById('amount-breakdown').textContent = fam === 0
-        ? `Guest: Rs. ${ALUMNI_FEE}/-`
-        : `Guest: Rs. ${ALUMNI_FEE}/-  +  ${fam} × Rs. ${FAMILY_FEE}/- = Rs. ${total}/-`;
+      const fam         = parseInt(document.getElementById('family').value) || 0;
+      const extraAlumni = parseInt(document.getElementById('extra-alumni').value) || 0;
+      const extraFamily = parseInt(document.getElementById('extra-family').value) || 0;
+
+      const totalAlumni = 1 + extraAlumni;
+      const totalFamily = fam + extraFamily;
+      const total = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
+
+      const lines = [];
+      lines.push({ label: `Alumni Member (${totalAlumni} × Rs. ${ALUMNI_FEE}/-)`, value: `Rs. ${totalAlumni*ALUMNI_FEE}/-` });
+      if (totalFamily > 0) {
+        lines.push({ label: `Family Members (${totalFamily} × Rs. ${FAMILY_FEE}/-)`, value: `Rs. ${totalFamily*FAMILY_FEE}/-` });
+      }
+
+      const linesHTML = lines.map(l =>
+        `<div class="amount-line-item"><span class="line-label">${l.label}</span><span class="line-value">${l.value}</span></div>`
+      ).join('');
+
+      document.getElementById('amount-lines').innerHTML = linesHTML;
+      document.getElementById('amount-display').textContent = `Rs. ${total}/-`;
     }
 
     function getMealSelections() {
@@ -498,7 +520,11 @@ function startRealtimeListener(docId) {
           btn.disabled=false; btn.innerHTML='FINISH &amp; REGISTER'; return;
         }
 
-const amount    = ALUMNI_FEE + family * FAMILY_FEE;
+const extraAlumni = parseInt(document.getElementById('extra-alumni').value) || 0;
+        const extraFamily = parseInt(document.getElementById('extra-family').value) || 0;
+        const totalAlumni  = 1 + extraAlumni;
+        const totalFamily  = family + extraFamily;
+        const amount = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
         const finalName = toTitleCase(name.trim());
 
 const docRef = await window._addDoc(window._collection(window._db,'guests'), {
@@ -652,12 +678,14 @@ document.getElementById('name').addEventListener('input', function() {
         updateAmount();
       });
 
-      document.getElementById('extra-alumni').addEventListener('input', () => {
+	  document.getElementById('extra-alumni').addEventListener('input', () => {
         updateMealPreviews();
+        updateAmount();
       });
 
       document.getElementById('extra-family').addEventListener('input', () => {
         updateMealPreviews();
+        updateAmount();
       });
 
 document.getElementById('return-pin').addEventListener('input', function() {
