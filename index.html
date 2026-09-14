@@ -65,9 +65,9 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 .amount-box{background:#FFF5F5;border:2px solid var(--red);border-radius:10px;padding:16px;margin:4px 0 20px;}
 .amount-label{font-size:1.1rem;color:#555;margin-bottom:10px;font-weight:700;text-align:left;}
 .amount-lines{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-.amount-line-item{display:flex;justify-content:space-between;align-items:center;font-size:1rem;color:#333;text-align:left;}
-.amount-line-item .line-label{flex:1;}
-.amount-line-item .line-value{font-weight:700;color:#333;white-space:nowrap;margin-left:10px;}
+.amount-line-item{display:flex;justify-content:space-between;align-items:center;font-size:1rem;color:#000000;text-align:left;}
+.amount-line-item .line-label{flex:1;color:#000000;}
+.amount-line-item .line-value{font-weight:700;color:#000000;white-space:nowrap;margin-left:10px;}
 .amount-total-row{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--red);padding-top:12px;margin-top:4px;}
 .amount-total-row span:first-child{font-size:1.15rem;font-weight:700;color:#333;}
 .amount-value{font-size:clamp(1.5rem,6.5vw,2rem);font-weight:900;color:var(--red);font-family:'Lato',sans-serif;}
@@ -223,10 +223,11 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <div class="section-header-bar">Select Your Meals</div>
       <div id="meal-days-container"></div>
 
-      <div class="divider"></div>
+	  <div class="divider"></div>
 
-	  <div class="amount-box">
-        <div class="amount-label">Amount Breakdown</div>
+      <div class="section-header-bar">Payment</div>
+
+      <div class="amount-box">
         <div class="amount-lines" id="amount-lines"></div>
         <div class="amount-total-row">
           <span>Total Payable</span>
