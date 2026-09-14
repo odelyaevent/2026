@@ -37,9 +37,25 @@
     window._signIn=signInWithEmailAndPassword;
     window._signOut=signOut;
     window._firebaseReady=true;
+        let _firstNullSeen = false;
+    let _loginTimer = null;
     onAuthStateChanged(auth, user => {
-      if (user) showDashboard(user.email);
-      else showLogin();
+      if (user) {
+        if (_loginTimer) { clearTimeout(_loginTimer); _loginTimer = null; }
+        _firstNullSeen = false;
+        showDashboard(user.email);
+      } else {
+        if (!_firstNullSeen) {
+          _firstNullSeen = true;
+          // Wait 700ms — Firebase may deliver the restored session next.
+          _loginTimer = setTimeout(() => {
+            _loginTimer = null;
+            showLogin();
+          }, 700);
+        } else {
+          showLogin();
+        }
+      }
     });
   </script>
   <style>
@@ -462,6 +478,7 @@ header h1{padding:0 74px 0 74px;}
 async function showDashboard(email) {
     document.getElementById('login-section').style.display    = 'none';
     document.getElementById('dashboard-section').style.display = 'block';
+    loadAllGuests();
     try {
       const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
       if (configSnap.exists()) {
