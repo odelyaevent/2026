@@ -8,6 +8,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="manifest" href="normal-admin-manifest.json"/>
+<meta name="theme-color" content="#0D2B5E"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script type="module">
@@ -39,7 +42,6 @@
       else showLogin();
     });
   </script>
-
   <style>
     :root{--saffron:#E8560A;--gold:#FFD700;--deep-blue:#0D2B5E;--light-blue:#1A4A9E;--cream:#FDF6E3;--white:#FFFFFF;--red:#CC0000;--success:#1A7A3C;--border:#FFD70044;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -202,6 +204,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <label>Password</label>
       <input type="password" id="admin-pass" placeholder="Password" autocomplete="current-password"/>
       <button class="btn-main" id="btn-login" onclick="adminLogin()">LOGIN</button>
+	  <button class="btn-main" id="btn-install-pwa" style="display:none;margin-top:10px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));" onclick="installPWA()">📲 INSTALL PWA</button>
     </div>
   </div>
 </div>
@@ -1441,6 +1444,43 @@ async function saveEventConfig() {
   window.addEventListener('load', () => {
     document.getElementById('search-val')?.addEventListener('keydown', e => { if(e.key==='Enter') searchGuest(); });
     document.getElementById('admin-pass')?.addEventListener('keydown', e => { if(e.key==='Enter') adminLogin(); });
+  });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('admin-sw.js', { scope: '/rkmvp/admin.html' });
+  }
+</script>
+
+<script>
+  let deferredPrompt = null;
+
+  function isPWAInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => {
+      if (!isPWAInstalled()) {
+        document.getElementById('btn-install-pwa').style.display = 'block';
+      }
+    }, 2000);
+  });
+
+  async function installPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('btn-install-pwa').style.display = 'none';
+  }
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('btn-install-pwa').style.display = 'none';
+    deferredPrompt = null;
   });
 </script>
 </body>
