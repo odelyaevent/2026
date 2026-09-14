@@ -7,7 +7,7 @@
   <meta property="og:title" content="RKMVP Alumni Association – Reunion 2026"/>
   <meta property="og:description" content="Delegate Registration – Reunion 2026"/>
   <meta property="og:url" content="https://odelyaevent.github.io/rkmvp-reunion-2026/"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -35,16 +35,16 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Lato',sans-serif;background:var(--cream);min-height:100vh;padding-bottom:40px;font-size:18px;}
     header{background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));padding:22px 18px 18px;text-align:center;border-bottom:4px solid var(--gold);}
-    header h1{font-family:'Cinzel',serif;color:var(--white);font-size:clamp(1.5rem,6.5vw,2.2rem);letter-spacing:0.04em;text-shadow:0 2px 8px #00000055;}
+    header h1{font-family:'Lato',serif;color:var(--white);font-size:clamp(1.5rem,6.5vw,2.2rem);letter-spacing:0.04em;text-shadow:0 2px 8px #00000055;}
     header p.address{color:#B8CFFF;font-size:clamp(0.85rem,3.5vw,1rem);margin-top:6px;}
     .reunion-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;}
     .logo-wrap{width:56px;height:56px;border-radius:50%;background:var(--cream);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
     .logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
     .logo-wrap span{font-size:0.55rem;color:var(--deep-blue);font-weight:700;text-align:center;line-height:1.2;padding:2px;}
-    .reunion-title{font-family:'Cinzel',serif;color:var(--gold);font-size:clamp(1.4rem,6.5vw,2.2rem);font-weight:900;letter-spacing:0.06em;text-shadow:0 2px 10px #00000066;}
+    .reunion-title{font-family:'Lato',serif;color:var(--gold);font-size:clamp(1.4rem,6.5vw,2.2rem);font-weight:900;letter-spacing:0.06em;text-shadow:0 2px 10px #00000066;}
     .card{background:var(--white);margin:22px 14px 0;border-radius:14px;border:1.5px solid var(--border);box-shadow:0 4px 24px #0D2B5E18;overflow:hidden;}
     .card-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:14px 18px;}
-    .card-header h2{font-family:'Cinzel',serif;color:var(--gold);font-size:clamp(1.1rem,4.5vw,1.3rem);letter-spacing:0.05em;}
+    .card-header h2{font-family:'Lato',serif;color:var(--gold);font-size:clamp(1.1rem,4.5vw,1.3rem);letter-spacing:0.05em;}
     .card-body{padding:22px 18px;}
     .inline-field{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
     .inline-field label{font-weight:700;color:var(--deep-blue);font-size:1rem;white-space:nowrap;min-width:120px;flex-shrink:0;}
@@ -56,10 +56,10 @@
     .field-note{font-size:0.82rem;color:#7A8CA8;margin-top:4px;}
     .amount-box{background:#FFF5F5;border:2px solid var(--red);border-radius:10px;padding:16px;margin:4px 0 20px;text-align:center;}
     .amount-label{font-size:0.95rem;color:#555;margin-bottom:6px;}
-    .amount-value{font-size:clamp(1.6rem,7vw,2.2rem);font-weight:900;color:var(--red);font-family:'Cinzel',serif;}
+    .amount-value{font-size:clamp(1.6rem,7vw,2.2rem);font-weight:900;color:var(--red);font-family:'Lato',serif;}
     .amount-breakdown{font-size:0.85rem;color:#888;margin-top:6px;}
     .divider{height:1px;background:var(--border);margin:20px 0;}
-    .meal-section-title{font-family:'Cinzel',serif;font-size:1.2rem;color:#000000;font-weight:700;margin-bottom:14px;letter-spacing:0.04em;text-align:center;}
+    .meal-section-title{font-family:'Lato',serif;font-size:1.2rem;color:#000000;font-weight:700;margin-bottom:14px;letter-spacing:0.04em;text-align:center;}
     .meal-day-title{font-size:0.95rem;font-weight:700;color:var(--light-blue);margin-bottom:10px;margin-top:14px;text-transform:uppercase;letter-spacing:0.04em;}
     .meal-checks{display:flex;flex-direction:column;gap:12px;}
     .meal-check-item{display:flex;align-items:center;gap:14px;padding:12px 14px;background:#F7FAFF;border-radius:10px;border:1.5px solid #E0E8F8;cursor:pointer;}
@@ -67,21 +67,21 @@
     .meal-check-item label{font-size:1rem;font-weight:700;color:#333;cursor:pointer;flex:1;}
     .meal-check-item .meal-icon{font-size:1.4rem;}
     .meal-check-item .meal-count-preview{font-size:0.8rem;color:#888;margin-left:auto;}
-    .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
+    .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
     .btn:active{transform:scale(0.97);}
     .btn:disabled{opacity:0.6;cursor:not-allowed;}
     .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     #pending-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid #FFCA28;padding:28px 18px;text-align:center;}
     #pending-screen .icon{font-size:3.5rem;margin-bottom:14px;}
-    #pending-screen h3{font-family:'Cinzel',serif;color:#856404;font-size:1.2rem;margin-bottom:10px;}
+    #pending-screen h3{font-family:'Lato',serif;color:#856404;font-size:1.2rem;margin-bottom:10px;}
     #pending-screen p{color:#555;font-size:1rem;line-height:1.8;}
     .pending-badge{display:inline-block;background:#FFF3CD;color:#856404;border:1px solid #FFCA28;border-radius:20px;padding:6px 18px;font-size:0.9rem;font-weight:700;margin-top:16px;}
     #bankqr-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid var(--success);padding:24px 18px;text-align:center;}
-    #bankqr-screen h3{font-family:'Cinzel',serif;color:var(--success);font-size:1.2rem;margin-bottom:8px;}
+    #bankqr-screen h3{font-family:'Lato',serif;color:var(--success);font-size:1.2rem;margin-bottom:8px;}
     #bankqr-screen p{color:#555;font-size:0.95rem;margin-bottom:16px;}
     #bankqr-screen img{width:240px;height:240px;border:3px solid var(--gold);border-radius:12px;object-fit:contain;}
-    .amount-due{font-size:1.5rem;font-weight:900;color:var(--red);font-family:'Cinzel',serif;margin-top:14px;}
+    .amount-due{font-size:1.5rem;font-weight:900;color:var(--red);font-family:'Lato',serif;margin-top:14px;}
     .guest-info-box{margin-top:14px;background:#F7FAFF;border-radius:8px;padding:14px;text-align:left;font-size:0.95rem;color:#333;line-height:2;}
     .guest-info-box strong{color:var(--deep-blue);}
     #pin-screen{display:none;}
@@ -106,18 +106,18 @@
 
 <!-- LOADING SCREEN -->
   <div id="loading-screen" style="display:none;text-align:center;padding:60px 18px;">
-    <div style="font-family:'Cinzel',serif;color:var(--deep-blue);font-size:1.2rem;margin-bottom:16px;">Checking your device...</div>
+    <div style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.2rem;margin-bottom:16px;">Checking your device...</div>
     <div style="display:inline-block;width:36px;height:36px;border:4px solid #C5D3E8;border-top-color:var(--deep-blue);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
   </div>
 
   <!-- LANDING SCREEN -->
   <div id="landing-screen" style="display:none;padding:30px 18px;">
     <div style="text-align:center;margin-bottom:30px;">
-      <div style="font-family:'Cinzel',serif;color:var(--deep-blue);font-size:1.4rem;font-weight:700;margin-bottom:8px;">Welcome!</div>
+      <div style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.4rem;font-weight:700;margin-bottom:8px;">Welcome!</div>
       <div style="color:#555;font-size:1rem;">Please choose an option to continue.</div>
     </div>
-    <button onclick="showLogin()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));color:white;font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;margin-bottom:16px;letter-spacing:0.05em;box-shadow:0 4px 16px #0D2B5E33;">Login</button>
-    <button onclick="showRegistration()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 16px #E8560A44;">New Registration</button>
+    <button onclick="showLogin()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));color:white;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;margin-bottom:16px;letter-spacing:0.05em;box-shadow:0 4px 16px #0D2B5E33;">Login</button>
+    <button onclick="showRegistration()" style="width:100%;padding:22px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 16px #E8560A44;">New Registration</button>
   </div>
   
   <!-- SCREEN 1: REGISTRATION -->
