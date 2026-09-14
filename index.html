@@ -577,8 +577,6 @@ async function submitReg(paymentChoice) {
           openRazorpayCheckout(docRef.id, finalName, amount);
         } else {
           document.getElementById('pending-screen').style.display = 'block';
-        } else {
-          document.getElementById('pending-screen').style.display = 'block';
         }
 
         startRealtimeListener(docRef.id);
