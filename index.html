@@ -459,7 +459,7 @@ function startRealtimeListener(docId) {
         }
 
 const amount    = 10 + family * 5;
-        const finalName = capitalizeFirstOnly(name.trim());
+        const finalName = toTitleCase(name.trim());
 
 const docRef = await window._addDoc(window._collection(window._db,'guests'), {
           name:          finalName,
@@ -597,7 +597,7 @@ async function attemptAutoLogin() {
 
 document.getElementById('name').addEventListener('input', function() {
         const pos = this.selectionStart;
-        this.value = capitalizeFirstOnly(this.value.replace(/[^a-zA-Z ]/g,''));
+        this.value = toTitleCase(this.value.replace(/[^a-zA-Z ]/g,''));
         this.setSelectionRange(pos, pos);
       });
 
