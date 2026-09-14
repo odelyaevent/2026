@@ -317,7 +317,10 @@ function populateBatchYears() {
     }
 
     function updateMealPreviews() {
-      const total = (parseInt(document.getElementById('family').value) || 0) + 1;
+      const fam        = parseInt(document.getElementById('family').value) || 0;
+      const extraAlumni = parseInt(document.getElementById('extra-alumni').value) || 0;
+      const extraFamily = parseInt(document.getElementById('extra-family').value) || 0;
+      const total = 1 + fam + extraAlumni + extraFamily;
       getEventDays().forEach(day => {
         ['lunch','dinner'].forEach(meal => {
           const id = `d${day.num}-${meal}`;
@@ -346,7 +349,10 @@ function updateAmount() {
     }
 
     function getMealSelections() {
-      const total  = (parseInt(document.getElementById('family').value) || 0) + 1;
+      const fam        = parseInt(document.getElementById('family').value) || 0;
+      const extraAlumni = parseInt(document.getElementById('extra-alumni').value) || 0;
+      const extraFamily = parseInt(document.getElementById('extra-family').value) || 0;
+      const total  = 1 + fam + extraAlumni + extraFamily;
       const result = {};
       getEventDays().forEach(day => {
 	  result[`day${day.num}`] = {
@@ -644,6 +650,14 @@ document.getElementById('name').addEventListener('input', function() {
       document.getElementById('family').addEventListener('input', () => {
         updateMealPreviews();
         updateAmount();
+      });
+
+      document.getElementById('extra-alumni').addEventListener('input', () => {
+        updateMealPreviews();
+      });
+
+      document.getElementById('extra-family').addEventListener('input', () => {
+        updateMealPreviews();
       });
 
 document.getElementById('return-pin').addEventListener('input', function() {
