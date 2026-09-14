@@ -81,9 +81,11 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .meal-check-item label{font-size:1.2rem;font-weight:700;color:#333;cursor:pointer;flex:1;}
     .meal-check-item .meal-icon{font-size:1.4rem;}
     .meal-check-item .meal-count-preview{font-size:1rem;color:#888;margin-left:auto;}
-    .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
-    .btn:active{transform:scale(0.97);}
-    .btn:disabled{opacity:0.6;cursor:not-allowed;}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-pay-now{margin-bottom:14px;}
+.btn-pay-later{background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));box-shadow:0 4px 16px #0D2B5E33;}
 .landing-screen{display:none;padding:30px 18px;}
 .landing-welcome{text-align:center;margin-bottom:30px;}
 .landing-title{font-family:'Lato',sans-serif;color:var(--deep-blue);font-size:1.4rem;font-weight:700;margin-bottom:8px;}
@@ -97,6 +99,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     #pending-screen h3{font-family:'Lato',serif;color:#856404;font-size:1.2rem;margin-bottom:10px;}
     #pending-screen p{color:#555;font-size:1rem;line-height:1.8;}
     .pending-badge{display:inline-block;background:#FFF3CD;color:#856404;border:1px solid #FFCA28;border-radius:20px;padding:6px 18px;font-size:0.9rem;font-weight:700;margin-top:16px;}
+#payment-redirect-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid var(--light-blue);padding:28px 18px;text-align:center;}
+#payment-redirect-screen .icon{font-size:3.5rem;margin-bottom:14px;}
+#payment-redirect-screen h3{font-family:'Lato',sans-serif;color:var(--light-blue);font-size:1.2rem;margin-bottom:10px;}
+#payment-redirect-screen p{color:#555;font-size:1rem;line-height:1.8;}
 .pin-screen-wrap{display:none;min-height:calc(100vh - 140px);align-items:center;justify-content:center;padding:0 14px;}
 .pin-screen-wrap .card{width:100%;margin:0;}
 #pin-screen .card-body{text-align:center;}
@@ -235,7 +241,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         </div>
       </div>
 
-      <button class="btn" id="btn-finish" onclick="submitReg()">FINISH &amp; REGISTER</button>
+      <button class="btn btn-pay-now" id="btn-pay-now" onclick="submitReg('now')">Pay Now</button>
+      <button class="btn btn-pay-later" id="btn-pay-later" onclick="submitReg('later')">Pay Later</button>
     </div>
   </div>
 
@@ -252,12 +259,19 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     </div>
 </div>
 
-  <!-- SCREEN 3: PENDING -->
+<!-- SCREEN 3: PENDING (Payment Pending) -->
   <div id="pending-screen">
     <div class="icon">⏳</div>
-    <h3>Pending for Approval</h3>
-    <p>Your registration is received!<br>Please go to the <strong>front desk</strong><br>and tell them your Security PIN.<br>The attendant will process your payment.</p>
-    <div class="pending-badge">⏳ Waiting for Approval</div>
+    <h3>Payment Pending</h3>
+    <p>Your registration is received!<br>Your <strong>payment is pending</strong>.<br>Please complete payment to confirm your seat.</p>
+    <div class="pending-badge">⏳ Payment Pending</div>
+  </div>
+
+  <!-- SCREEN: REDIRECTING TO PAYMENT -->
+  <div id="payment-redirect-screen">
+    <div class="icon">💳</div>
+    <h3>Redirecting to Payment</h3>
+    <p>Please wait, connecting to secure payment gateway...</p>
   </div>
 
   <script>
@@ -428,7 +442,7 @@ function isValidPin(p) {
     }
 
 function hideAll() {
-      ['reg-card','pin-screen','pending-screen','landing-screen','loading-screen'].forEach(id => {
+      ['reg-card','pin-screen','pending-screen','payment-redirect-screen','landing-screen','loading-screen'].forEach(id => {
         document.getElementById(id).style.display = 'none';
       });
     }
@@ -483,7 +497,7 @@ function startRealtimeListener(docId) {
       location.reload();
     }
 
-    async function submitReg() {
+async function submitReg(paymentChoice) {
       const batch  = document.getElementById('batch').value.trim();
       const name   = document.getElementById('name').value.trim();
       const family = parseInt(document.getElementById('family').value) || 0;
@@ -491,8 +505,11 @@ function startRealtimeListener(docId) {
       const pin2   = document.getElementById('pin2').value.trim();
       let valid = true;
 
-	const division = document.getElementById('division').value;
-      const batchNum = parseInt(batch);
+      const division     = document.getElementById('division').value;
+      const batchNum      = parseInt(batch);
+      const extraAlumni  = parseInt(document.getElementById('extra-alumni').value) || 0;
+      const extraFamily  = parseInt(document.getElementById('extra-family').value) || 0;
+
       if (!batch || batchNum < 1960 || batchNum > 2025) { markErr('batch','err-batch',true); valid=false; } else markErr('batch','err-batch',false);
 
       const nameWords = name.trim().split(/\s+/).filter(w => w.length > 0);
@@ -504,53 +521,68 @@ function startRealtimeListener(docId) {
       } else markErr('name','err-name',false);
 
       if (!isValidPin(pin)) { markErr('pin','err-pin',true,'Avoid serial or repeated digits.'); valid=false; } else markErr('pin','err-pin',false);
-	  if (!division) { markErr('division','err-division',true); valid=false; } else markErr('division','err-division',false);
+      if (!division) { markErr('division','err-division',true); valid=false; } else markErr('division','err-division',false);
       if (pin !== pin2) { markErr('pin2','err-pin2',true); valid=false; } else markErr('pin2','err-pin2',false);
       if (!valid) return;
       if (!window._firebaseReady) { alert('Loading... please try again.'); return; }
 
-      const btn = document.getElementById('btn-finish');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Saving...';
+      const btnNow   = document.getElementById('btn-pay-now');
+      const btnLater = document.getElementById('btn-pay-later');
+      btnNow.disabled = true;
+      btnLater.disabled = true;
+      const clickedBtn = paymentChoice === 'now' ? btnNow : btnLater;
+      const originalLabel = clickedBtn.innerHTML;
+      clickedBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
       try {
         const q    = window._query(window._collection(window._db,'guests'), window._where('pin','==',pin));
         const snap = await window._getDocs(q);
         if (!snap.empty) {
           markErr('pin','err-pin',true,'❌ This PIN is already taken. Please choose another!');
-          btn.disabled=false; btn.innerHTML='FINISH &amp; REGISTER'; return;
+          btnNow.disabled=false; btnLater.disabled=false; clickedBtn.innerHTML=originalLabel; return;
         }
 
-const extraAlumni = parseInt(document.getElementById('extra-alumni').value) || 0;
-        const extraFamily = parseInt(document.getElementById('extra-family').value) || 0;
         const totalAlumni  = 1 + extraAlumni;
         const totalFamily  = family + extraFamily;
         const amount = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
         const finalName = toTitleCase(name.trim());
 
-const docRef = await window._addDoc(window._collection(window._db,'guests'), {
-          name:          finalName,
-          batch:         batchNum,
-          division:      division,
-          familyCount:   family,
-          pin:           pin,
-          amount:        amount,
-          approved:      false,
-          mealsRequired: getMealSelections(),
-          meals:         Object.fromEntries(getEventDays().map(d => [`day${d.num}`,{lunch:0,dinner:0}])),
-          registeredAt:  new Date().toISOString()
+        const docRef = await window._addDoc(window._collection(window._db,'guests'), {
+          name:              finalName,
+          batch:             batchNum,
+          division:          division,
+          familyCount:       family,
+          extraAlumniCount:  extraAlumni,
+          extraFamilyCount:  extraFamily,
+          totalAlumniCount:  totalAlumni,
+          totalFamilyCount:  totalFamily,
+          pin:               pin,
+          amount:            amount,
+          approved:          false,
+          paymentChoice:     paymentChoice,
+          paymentStatus:     'pending',
+          mealsRequired:     getMealSelections(),
+          meals:             Object.fromEntries(getEventDays().map(d => [`day${d.num}`,{lunch:0,dinner:0}])),
+          registeredAt:      new Date().toISOString()
         });
 
-		localStorage.setItem('rkmvp_pin', pin);
+        localStorage.setItem('rkmvp_pin', pin);
         await saveDeviceToken(docRef.id, family);
         hideAll();
-        document.getElementById('pending-screen').style.display = 'block';
+
+        if (paymentChoice === 'now') {
+          document.getElementById('payment-redirect-screen').style.display = 'block';
+          // TODO: trigger Razorpay checkout here in the next step
+        } else {
+          document.getElementById('pending-screen').style.display = 'block';
+        }
+
         startRealtimeListener(docRef.id);
 
       } catch(e) {
         console.error(e);
         alert('Something went wrong. Please try again.');
-        btn.disabled=false; btn.innerHTML='FINISH &amp; REGISTER';
+        btnNow.disabled=false; btnLater.disabled=false; clickedBtn.innerHTML=originalLabel;
       }
     }
 
