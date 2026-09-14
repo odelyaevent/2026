@@ -150,8 +150,9 @@ header h1{padding:0 74px 0 74px;}
     .food-table tr:nth-child(even){background:#F7FAFF;}
     .food-table .total-row{background:#FFF3CD!important;font-weight:700;color:var(--deep-blue);}
     /* ALL GUESTS */
-    .filter-row{padding:10px 14px 0;display:flex;gap:8px;flex-wrap:wrap;}
-    .filter-row select{flex:1;min-width:120px;padding:9px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:0.85rem;background:#F7FAFF;font-family:'Lato',sans-serif;}
+    .filter-row{padding:14px 14px 6px;display:flex;gap:8px;flex-wrap:wrap;}
+    .filter-row select{flex:1;width:100%;padding:16px 20px;border:3px solid var(--gold);border-radius:12px;font-size:1.3rem;font-weight:700;background:var(--white);color:#1a1a1a;font-family:'Lato',sans-serif;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--deep-blue) 50%),linear-gradient(135deg,var(--deep-blue) 50%,transparent 50%);background-position:calc(100% - 22px) center,calc(100% - 16px) center;background-size:6px 6px,6px 6px;background-repeat:no-repeat;}
+    .filter-row select:focus{outline:none;border-color:var(--saffron);box-shadow:0 0 0 4px #FFD70044;}
     .list-count{padding:6px 14px;font-size:0.78rem;color:#777;}
     .no-results{text-align:center;padding:30px 14px;color:#888;font-size:0.88rem;}
     /* CONFIG BOX */
@@ -242,7 +243,7 @@ header h1{padding:0 74px 0 74px;}
 
   <!-- ALL GUESTS TAB -->
   <div id="tab-all" class="tab-content active">
-    <div class="filter-row">
+    <div class="filter-row" style="background:var(--deep-blue);">
       <select id="filter-status" onchange="loadAllGuests()">
         <option value="all">All Guests</option>
         <option value="pending">Pending Only</option>
