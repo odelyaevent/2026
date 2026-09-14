@@ -66,17 +66,17 @@ header h1{padding:0 74px 0 74px;}
 	.btn-sm{padding:6px 14px;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;}
     .btn-logout{background:var(--red);color:white;}
     /* LOGIN */
-    #login-section{display:block;}
+    #login-section{display:block;width:100%;}
     .login-card{background:var(--white);margin:60px auto 30px;max-width:420px;width:calc(100% - 28px);border-radius:14px;border:1.5px solid var(--border);box-shadow:0 4px 24px #0D2B5E18;overflow:hidden;}
     .card-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:12px 18px;}
     .card-header h2{font-family:'Lato',serif;color:var(--gold);font-size:1.2rem;letter-spacing:0.05em;text-align:center;}
     .card-body{padding:22px 18px;}
     label{display:block;font-weight:700;color:var(--deep-blue);font-size:1rem;margin-bottom:6px;}
-    input[type=email],input[type=password],input[type=text],input[type=number]{width:100%;padding:13px 14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.05rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;-webkit-appearance:none;}
+    input[type=email],input[type=password],input[type=text],input[type=number]{width:100%;padding:14px 15px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;-webkit-appearance:none;}
     input:focus{outline:none;border-color:var(--light-blue);box-shadow:0 0 0 3px #1A4A9E22;}
     .btn-main{width:100%;padding:15px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.06em;border:none;border-radius:10px;cursor:pointer;}
     .btn-main:disabled{opacity:0.6;cursor:not-allowed;}
-    .err-msg{color:var(--red);font-size:0.82rem;margin-bottom:10px;display:none;font-weight:700;}
+    .err-msg{color:var(--red);font-size:1rem;margin-bottom:10px;display:none;font-weight:700;text-align:center;}
     .spinner{display:inline-block;width:16px;height:16px;border:3px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     /* DASHBOARD */
@@ -213,12 +213,11 @@ header h1{padding:0 74px 0 74px;}
   <div class="login-card">
     <div class="card-header"><h2>Admin Login</h2></div>
     <div class="card-body">
-      <div class="err-msg" id="login-err">❌ Invalid email or password.</div>
+      <div class="err-msg" id="login-err">Wrong Credentials</div>
       <label>Email</label>
       <input type="email" id="admin-email" placeholder="admin@email.com" autocomplete="email"/>
       <label>Password</label>
       <input type="password" id="admin-pass" placeholder="Password" autocomplete="current-password"/>
-      <button class="btn-main" id="btn-login" onclick="adminLogin()">LOGIN</button>
 	  <button class="btn-main" id="btn-install-pwa" style="display:none;margin-top:10px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));" onclick="installPWA()">📲 INSTALL PWA</button>
     </div>
   </div>
@@ -428,18 +427,30 @@ header h1{padding:0 74px 0 74px;}
   }
 
   // ── AUTH ──
+  let loginInFlight = false;
   function adminLogin() {
+    if (loginInFlight) return;
     const email = document.getElementById('admin-email').value.trim();
     const pass  = document.getElementById('admin-pass').value.trim();
-    const btn   = document.getElementById('btn-login');
     const err   = document.getElementById('login-err');
+    if (!email || !pass) return;
+
+    loginInFlight = true;
     err.style.display = 'none';
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Logging in...';
-    window._signIn(window._auth, email, pass).catch(() => {
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'LOGIN';
-    });
+
+    window._signIn(window._auth, email, pass)
+      .then(() => {
+        loginInFlight = false;
+        // onAuthStateChanged will switch to dashboard automatically
+      })
+      .catch(() => {
+        loginInFlight = false;
+        err.textContent = 'Wrong Credentials';
+        err.style.display = 'block';
+        // clear password so the user can retype
+        document.getElementById('admin-pass').value = '';
+        document.getElementById('admin-pass').focus();
+      });
   }
 
   function adminLogout() {
@@ -450,11 +461,11 @@ header h1{padding:0 74px 0 74px;}
   function showLogin() {
     document.getElementById('login-section').style.display    = 'block';
     document.getElementById('dashboard-section').style.display = 'none';
-    const btn = document.getElementById('btn-login');
-    btn.disabled = false; btn.textContent = 'LOGIN';
     document.getElementById('admin-email').value = '';
     document.getElementById('admin-pass').value  = '';
     document.getElementById('login-err').style.display = 'none';
+    loginInFlight = false;
+    document.getElementById('admin-email').focus();
   }
 
 async function showDashboard(email) {
@@ -1455,8 +1466,19 @@ async function saveEventConfig() {
   // Enter key support
   window.addEventListener('load', () => {
     document.getElementById('search-val')?.addEventListener('keydown', e => { if(e.key==='Enter') searchGuest(); });
-    document.getElementById('admin-pass')?.addEventListener('keydown', e => { if(e.key==='Enter') adminLogin(); });
+
+    // Auto-login: fire when both email and password have a value
+    const emailEl = document.getElementById('admin-email');
+    const passEl  = document.getElementById('admin-pass');
+    function tryAutoLogin() {
+      const email = emailEl.value.trim();
+      const pass  = passEl.value.trim();
+      if (email && pass) adminLogin();
+    }
+    emailEl?.addEventListener('input', tryAutoLogin);
+    passEl?.addEventListener('input',  tryAutoLogin);
   });
+  
 </script>
 
 <script>
