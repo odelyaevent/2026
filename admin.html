@@ -443,7 +443,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 async function showDashboard(email) {
     document.getElementById('login-section').style.display    = 'none';
     document.getElementById('dashboard-section').style.display = 'block';
-    document.getElementById('admin-email-display').textContent = email;
+    document.getElementById('admin-email-display').textContent = 'email';
     try {
       const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
       if (configSnap.exists()) {
