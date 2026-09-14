@@ -160,38 +160,21 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       <div class="divider"></div>
 
-<div class="inline-field">
-        <label for="tshirt">T-Shirt Size</label>
-        <select id="tshirt" style="flex:1;padding:12px 14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.1rem;font-family:'Lato',sans-serif;color:#1a1a1a;background:#F7FAFF;">
-          <option value="0">Select</option>
-          <option value="26">26</option>
-          <option value="28">28</option>
-          <option value="30">30</option>
-          <option value="32">32</option>
-          <option value="34">34</option>
-          <option value="36">36</option>
-          <option value="38">38</option>
-          <option value="40">40</option>
-          <option value="42">42</option>
-          <option value="44">44</option>
-		  </select> <span style="font-size:1rem;font-weight:700;color:var(--deep-blue);">cm</span>
-      </div>
-
       <div class="inline-field">
-        <label for="pin">Security PIN<span class="req">*</span></label>
-        <input type="password" id="pin" placeholder="6-digit" maxlength="6" inputmode="numeric" autocomplete="new-password"/>
+        <label for="pin">Login PIN<span class="req">*</span></label>
+        <input type="password" id="pin" placeholder="6-digit" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password"/>
       </div>
       <div class="field-error" id="err-pin">Avoid serial or repeated digits.</div>
 
       <div class="inline-field" style="margin-top:14px;">
         <label for="pin2">Confirm PIN<span class="req">*</span></label>
-        <input type="password" id="pin2" placeholder="Re-enter" maxlength="6" inputmode="numeric" autocomplete="new-password"/>
+        <input type="password" id="pin2" placeholder="Re-enter" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password"/>
       </div>
       <div class="field-error" id="err-pin2" style="margin-bottom:10px;">PINs do not match.</div>
 
       <div class="divider"></div>
 
-      <div class="meal-section-title">🍽 Select Your Meals</div>
+      <div class="meal-section-title">Select Your Meals</div>
       <div id="meal-days-container"></div>
 
       <div class="divider"></div>
@@ -273,7 +256,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     function updateMealPreviews() {
       const total = (parseInt(document.getElementById('family').value) || 0) + 1;
       getEventDays().forEach(day => {
-        ['breakfast','lunch','dinner'].forEach(meal => {
+        ['lunch','dinner'].forEach(meal => {
           const id = `d${day.num}-${meal}`;
           const cb = document.getElementById(id);
           const pr = document.getElementById('prev-'+id);
@@ -303,8 +286,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const total  = (parseInt(document.getElementById('family').value) || 0) + 1;
       const result = {};
       getEventDays().forEach(day => {
-        result[`day${day.num}`] = {
-          breakfast: document.getElementById(`d${day.num}-breakfast`)?.checked ? total : 0,
+	  result[`day${day.num}`] = {
           lunch:     document.getElementById(`d${day.num}-lunch`)?.checked     ? total : 0,
           dinner:    document.getElementById(`d${day.num}-dinner`)?.checked    ? total : 0
         };
@@ -317,22 +299,14 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       container.innerHTML = '';
       getEventDays().forEach(day => {
         container.innerHTML += `
-          <div class="meal-day-title">📅 ${day.label}</div>
+          <div class="meal-day-title">${day.label}</div>
           <div class="meal-checks">
-            <div class="meal-check-item" onclick="toggleCheck('d${day.num}-breakfast')">
-              <span class="meal-icon">🍳</span>
-              <label for="d${day.num}-breakfast">Breakfast</label>
-              <span class="meal-count-preview" id="prev-d${day.num}-breakfast">0 person(s)</span>
-              <input type="checkbox" id="d${day.num}-breakfast" onclick="event.stopPropagation();updateMealPreviews();updateAmount()"/>
-            </div>
             <div class="meal-check-item" onclick="toggleCheck('d${day.num}-lunch')">
-              <span class="meal-icon">🍽</span>
               <label for="d${day.num}-lunch">Lunch</label>
               <span class="meal-count-preview" id="prev-d${day.num}-lunch">0 person(s)</span>
               <input type="checkbox" id="d${day.num}-lunch" onclick="event.stopPropagation();updateMealPreviews();updateAmount()"/>
             </div>
             <div class="meal-check-item" onclick="toggleCheck('d${day.num}-dinner')">
-              <span class="meal-icon">🌙</span>
               <label for="d${day.num}-dinner">Dinner</label>
               <span class="meal-count-preview" id="prev-d${day.num}-dinner">0 person(s)</span>
               <input type="checkbox" id="d${day.num}-dinner" onclick="event.stopPropagation();updateMealPreviews();updateAmount()"/>
@@ -453,8 +427,7 @@ function startRealtimeListener(docId) {
           btn.disabled=false; btn.innerHTML='FINISH &amp; REGISTER'; return;
         }
 
-        const amount    = 10 + family * 5;
-		const tshirt = parseInt(document.getElementById('tshirt').value) || 0;
+const amount    = 10 + family * 5;
         const finalName = toTitleCase(name.trim());
 
 const docRef = await window._addDoc(window._collection(window._db,'guests'), {
@@ -465,8 +438,7 @@ const docRef = await window._addDoc(window._collection(window._db,'guests'), {
           amount:        amount,
           approved:      false,
           mealsRequired: getMealSelections(),
-          meals:         Object.fromEntries(getEventDays().map(d => [`day${d.num}`,{breakfast:0,lunch:0,dinner:0}])),
-		  tshirtSize:    tshirt,
+          meals:         Object.fromEntries(getEventDays().map(d => [`day${d.num}`,{lunch:0,dinner:0}])),
           registeredAt:  new Date().toISOString()
         });
 
@@ -594,6 +566,12 @@ async function attemptAutoLogin() {
         const pos = this.selectionStart;
         this.value = toTitleCase(this.value);
         this.setSelectionRange(pos, pos);
+      });
+
+      ['pin','pin2'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+          this.value = this.value.replace(/\D/g,'').slice(0,6);
+        });
       });
 
       document.getElementById('family').addEventListener('input', () => {
