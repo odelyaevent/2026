@@ -49,7 +49,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 .reunion-dates{font-size:0.85em;font-weight:700;color:#FFE9A0;}
     .card{background:var(--white);margin:22px 14px 0;border-radius:14px;border:1.5px solid var(--border);box-shadow:0 4px 24px #0D2B5E18;overflow:hidden;}
     .card-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:14px 18px;}
-    .card-header h2{font-family:'Lato',serif;color:var(--gold);font-size:clamp(1.1rem,4.5vw,1.3rem);letter-spacing:0.05em;}
+    .card-header h2{font-family:'Lato',sans-serif;color:var(--gold);font-size:clamp(1.1rem,4.5vw,1.3rem);letter-spacing:0.05em;text-align:center;}
     .pin-header-title{text-align:center;}
 	.card-body{padding:22px 14px;}
 .inline-field{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-bottom:18px;}
@@ -67,7 +67,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .amount-value{font-size:clamp(1.6rem,7vw,2.2rem);font-weight:900;color:var(--red);font-family:'Lato',serif;}
     .amount-breakdown{font-size:1rem;color:#888;margin-top:6px;}
     .divider{height:1px;background:var(--border);margin:20px 0;}
-    .meal-section-title{font-family:'Lato',sans-serif;font-size:1.4rem;color:#000000;font-weight:700;margin-bottom:14px;letter-spacing:0.04em;text-align:center;}
+    .section-header-bar{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));color:var(--gold);font-family:'Lato',sans-serif;font-size:clamp(1.1rem,4.5vw,1.3rem);font-weight:700;letter-spacing:0.05em;text-align:center;padding:14px 18px;border-radius:8px;margin-bottom:14px;}
+.section-header-note{text-align:center;font-size:0.85rem;color:#888;margin-top:-8px;margin-bottom:14px;font-style:italic;}
     .meal-day-title{font-size:1.15rem;font-weight:700;color:var(--light-blue);margin-bottom:10px;margin-top:14px;text-transform:uppercase;letter-spacing:0.04em;}
     .meal-checks{display:flex;flex-direction:column;gap:12px;}
     .meal-check-item{display:flex;align-items:center;gap:14px;padding:12px 14px;background:#F7FAFF;border-radius:10px;border:1.5px solid #E0E8F8;cursor:pointer;}
@@ -197,9 +198,24 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       </div>
       <div class="field-error" id="err-pin2" style="margin-bottom:10px;">PINs do not match.</div>
 
+<div class="divider"></div>
+
+      <div class="section-header-bar">Additional</div>
+      <div class="section-header-note">(Optional)</div>
+
+      <div class="inline-field">
+        <label for="extra-alumni">No. of Extra Alumni Members</label>
+        <input type="number" id="extra-alumni" placeholder="0" min="0" max="20" value="0" autocomplete="off"/>
+      </div>
+
+      <div class="inline-field">
+        <label for="extra-family">No. of Their Family Members</label>
+        <input type="number" id="extra-family" placeholder="0" min="0" max="20" value="0" autocomplete="off"/>
+      </div>
+
       <div class="divider"></div>
 
-      <div class="meal-section-title">Select Your Meals</div>
+      <div class="section-header-bar">Select Your Meals</div>
       <div id="meal-days-container"></div>
 
       <div class="divider"></div>
