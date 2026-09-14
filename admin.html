@@ -442,7 +442,10 @@ header h1{padding:0 74px 0 74px;}
     });
   }
 
-  function adminLogout() { window._signOut(window._auth); }
+  function adminLogout() {
+    document.getElementById('header-person-menu').classList.remove('open');
+    window._signOut(window._auth);
+}
 
   function showLogin() {
     document.getElementById('login-section').style.display    = 'block';
@@ -1495,7 +1498,11 @@ async function saveEventConfig() {
 <script>
   function togglePersonMenu() {
     document.getElementById('header-person-menu').classList.toggle('open');
-  }
+}
+document.getElementById('header-person-menu').addEventListener('click', function() {
+    this.classList.remove('open');
+});
+
   document.addEventListener('click', function(e) {
     const wrap = document.querySelector('.header-person-wrap');
     const menu = document.getElementById('header-person-menu');
