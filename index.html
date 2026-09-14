@@ -360,7 +360,7 @@ function hideAll() {
       document.getElementById('reg-card').style.display = 'block';
     }
 
-    function startRealtimeListener(docId) {
+function startRealtimeListener(docId) {
       if (!window._firebaseReady) return;
       const ref = window._doc(window._db,'guests',docId);
       window._onSnapshot(ref, snap => {
@@ -369,6 +369,7 @@ function hideAll() {
         if (data.approved) {
           const pin = localStorage.getItem('rkmvp_pin') || '';
           window.location.href = `guest.html?pin=${encodeURIComponent(pin)}`;
+        }
       });
     }
 
