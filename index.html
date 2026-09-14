@@ -142,7 +142,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     <div class="card-body">
 
       <div class="inline-field">
-        <label for="batch">Batch Year<span class="req">*</span></label>
+        <label for="batch">Batch<span class="req">*</span></label>
         <select id="batch" class="select-field">
           <option value="">Select</option>
         </select>
@@ -162,7 +162,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       <div class="inline-field">
         <label for="name">Full Name<span class="req">*</span></label>
-        <input type="text" id="name" placeholder="First and Last Name" autocomplete="off"/>
+        <input type="text" id="name" placeholder="Full Name" autocomplete="off"/>
       </div>
       <div class="field-error" id="err-name">Please Type Your Full Name</div>
 
@@ -595,9 +595,9 @@ async function attemptAutoLogin() {
       populateBatchYears();
       setTimeout(() => { updateMealPreviews(); }, 100);
 
-      document.getElementById('name').addEventListener('input', function() {
+document.getElementById('name').addEventListener('input', function() {
         const pos = this.selectionStart;
-        this.value = capitalizeFirstOnly(this.value);
+        this.value = capitalizeFirstOnly(this.value.replace(/[^a-zA-Z ]/g,''));
         this.setSelectionRange(pos, pos);
       });
 
