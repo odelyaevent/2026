@@ -632,7 +632,7 @@ function openRazorpayCheckout(docId, name, amount) {
         modal: {
           ondismiss: function() {
               document.getElementById('payment-redirect-screen').innerHTML =
-              '<h3>Payment Not Completed</h3><p style="font-size:1.4rem;font-weight:900;color:var(--red);">Please refresh the page & try again.</p><button class="btn btn-pay-now" style="margin-top:22px;" onclick="location.reload()">Refresh</button>';
+              '<h3>Payment Not Completed</h3><p style="font-size:1.4rem;font-weight:900;color:var(--red);">Please refresh the page<br>and try again.</p><button class="btn btn-pay-now" style="margin-top:22px;" onclick="location.reload()">Refresh</button>';
           }
         }
       };
