@@ -82,7 +82,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .meal-check-item label{font-size:1.2rem;font-weight:700;color:#333;cursor:pointer;flex:1;}
     .meal-check-item .meal-icon{font-size:1.4rem;}
     .meal-check-item .meal-count-preview{font-size:1rem;color:#888;margin-left:auto;}
-.btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.1rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:var(--white);font-family:'Lato',serif;font-size:1.5rem;font-weight:700;letter-spacing:0.08em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 16px #E8560A44;transition:transform 0.15s,opacity 0.15s;}
 .btn:active{transform:scale(0.97);}
 .btn:disabled{opacity:0.6;cursor:not-allowed;}
 .btn-pay-now{margin-bottom:14px;}
@@ -96,10 +96,11 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     #pending-screen{display:none;width:100%;background:var(--white);padding:28px 20px;box-sizing:border-box;}
-    .pending-field{display:flex;flex-direction:column;text-align:left;margin-bottom:16px;}
-    .pf-label{font-size:1.1rem;font-weight:700;color:var(--deep-blue);}
+    .pending-field{display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+    .pf-label{font-size:1.5rem;font-weight:700;color:var(--gold);white-space:nowrap;}
     .pf-value{font-size:1.5rem;font-weight:900;color:#000;word-break:break-word;}
-    .pending-msg{font-size:1.3rem;font-weight:900;color:var(--red);text-align:left;margin-top:22px;}
+    .pending-msg{font-size:1.3rem;font-weight:900;color:var(--red);text-align:center;margin-top:22px;}
+    #btn-pending-pay{margin-top:22px;}
 #payment-redirect-screen{display:none;margin:22px 14px 0;background:var(--white);border-radius:14px;border:2px solid var(--light-blue);padding:28px 18px;text-align:center;}
 #payment-redirect-screen .icon{font-size:3.5rem;margin-bottom:14px;}
 #payment-redirect-screen h3{font-family:'Lato',sans-serif;color:var(--light-blue);font-size:1.2rem;margin-bottom:10px;}
