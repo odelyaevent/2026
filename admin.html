@@ -97,11 +97,22 @@ header h1{padding:0 74px 0 74px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     /* DASHBOARD */
     #dashboard-section{display:none;}
-    .tabs{display:flex;background:var(--deep-blue);overflow-x:auto;}
-    .tab{flex:1;min-width:60px;padding:11px 4px;text-align:center;font-family:'Lato',serif;font-size:0.85rem;color:#FFFFFF;cursor:pointer;border-bottom:3px solid transparent;letter-spacing:0.02em;transition:all 0.2s;white-space:nowrap;}
-    .tab.active{color:var(--gold);border-bottom-color:var(--gold);background:#1A4A9E;}
+    /* VERTICAL TAB MENU */
+    #tab-menu{display:flex;flex-direction:column;gap:10px;padding:14px;}
+    .tab-btn{width:100%;padding:22px 18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;}
+    .tab-btn:active{background:#DCE7FA;border-color:var(--light-blue);}
+    #tab-menu.hidden{display:none;}
+    /* TAB CONTENT */
+    #tab-content-wrap{display:none;}
+    #tab-content-wrap.visible{display:block;}
     .tab-content{display:none;}
     .tab-content.active{display:block;}
+    /* BACK LINK */
+    #back-to-menu{display:block;width:calc(100% - 28px);margin:14px;padding:18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;}
+    #back-to-menu:active{background:#DCE7FA;}
+    @media (min-width:768px){
+      .tab-btn, #back-to-menu{font-size:1.6rem;}
+    }
     /* GLOBAL SEARCH */
     #global-search-wrap{padding:14px 14px 6px;background:var(--deep-blue);}
     #global-search{width:100%;padding:16px 20px;border:3px solid var(--gold);border-radius:12px;font-size:1.3rem;font-family:'Lato',sans-serif;background:var(--white);color:#1a1a1a;font-weight:700;-webkit-appearance:none;}
@@ -242,18 +253,22 @@ header h1{padding:0 74px 0 74px;}
 <!-- DASHBOARD -->
 <div id="dashboard-section" style="display:none;">
 
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('all')">Guests</div>
-    <div class="tab" onclick="switchTab('food')">Estimate</div>
-    <div class="tab" onclick="switchTab('stats')">Stats</div>
-    <div class="tab" onclick="switchTab('event')">Event</div>
-  </div>
-
   <!-- GLOBAL SEARCH BAR -->
   <div id="global-search-wrap">
     <input type="text" id="global-search" placeholder="Search by name, mobile or batch year..." autocomplete="off"/>
   </div>
   <div id="global-search-results"></div>
+
+  <!-- VERTICAL TAB MENU -->
+  <div id="tab-menu">
+    <div class="tab-btn" onclick="switchTab('event')">Event</div>
+    <div class="tab-btn" onclick="switchTab('all')">Guests</div>
+    <div class="tab-btn" onclick="switchTab('food')">Estimate</div>
+    <div class="tab-btn" onclick="switchTab('stats')">Stats</div>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div id="tab-content-wrap">
 
   <!-- ALL GUESTS TAB -->
   <div id="tab-all" class="tab-content active">
@@ -391,6 +406,7 @@ header h1{padding:0 74px 0 74px;}
       <div class="stat-card"><div class="stat-num" id="st-family">—</div><div class="stat-label">With Family</div></div>
     </div>
   </div>
+  </div>
 </div>
 
 <script>
@@ -484,6 +500,7 @@ async function showDashboard(email) {
     document.getElementById('login-section').style.display    = 'none';
     document.getElementById('dashboard-section').style.display = 'block';
     loadAllGuests();
+    closeTab();
     try {
       const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
       if (configSnap.exists()) {
@@ -498,16 +515,53 @@ async function showDashboard(email) {
   }
 
   // ── TABS ──
-  function switchTab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  function switchTab(name, pushHistory) {
+    // hide the menu, show the content
+    document.getElementById('tab-menu').classList.add('hidden');
+    document.getElementById('tab-content-wrap').classList.add('visible');
+
+    // activate the requested tab content
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    const tabs = ['all','food','stats','event'];
-    document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
     document.getElementById('tab-'+name).classList.add('active');
+
+    // add a back button at the top of the content area
+    addBackButton();
+
+    // push browser history so back button returns to the menu
+    if (pushHistory !== false) {
+      history.pushState({ tabOpen: name }, '', '');
+    }
+
+    // load data for the tab
+    if (name === 'all')   loadAllGuests();
     if (name === 'stats') loadStats();
     if (name === 'food')  loadFoodSummary();
     if (name === 'event') loadEventConfig();
   }
+
+  function addBackButton() {
+    const wrap = document.getElementById('tab-content-wrap');
+    if (document.getElementById('back-to-menu')) return; // already there
+    const btn = document.createElement('button');
+    btn.id = 'back-to-menu';
+    btn.textContent = '← Back to Menu';
+    btn.onclick = closeTab;
+    wrap.insertBefore(btn, wrap.firstChild);
+  }
+
+  function closeTab(fromHistory) {
+    document.getElementById('tab-menu').classList.remove('hidden');
+    document.getElementById('tab-content-wrap').classList.remove('visible');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const back = document.getElementById('back-to-menu');
+    if (back) back.remove();
+  }
+
+  window.addEventListener('popstate', () => {
+    // any browser-back press inside the dashboard closes the tab
+    const wrapVisible = document.getElementById('tab-content-wrap').classList.contains('visible');
+    if (wrapVisible) closeTab(true);
+  });
 
   // ── BUILD GUEST CARD ──
 function buildCard(docId, g) {
