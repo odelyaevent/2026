@@ -293,7 +293,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   </div>
 
   <script>
-
 // ============================================================
     // 💰 AMOUNT CONFIGURATION — EDIT HERE
     // ============================================================
@@ -316,8 +315,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         const snap = await window._getDoc(window._doc(window._db,'config','event'));
         if (!snap.exists()) return;
         const d = snap.data();
-        if (d.startDate) EVENT_START_DATE = d.startDate;
-        if (d.endDate)   EVENT_END_DATE   = d.endDate;
+        if (d.startDate)  EVENT_START_DATE = d.startDate;
+        if (d.endDate)    EVENT_END_DATE   = d.endDate;
+        if (d.alumniFee)  ALUMNI_FEE       = d.alumniFee;
+        if (d.familyFee)  FAMILY_FEE       = d.familyFee;
       } catch(e) { console.error(e); }
     }
 
