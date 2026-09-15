@@ -741,7 +741,7 @@ async function attemptAutoLogin() {
     }
 
     async function saveDeviceToken(docId, familyCount) {
-      const maxDevices = (familyCount||0) + 1 + 1;
+      const maxDevices = (familyCount||0) + 1 + 3;
       let token = localStorage.getItem('rkmvp_device_token');
       if (!token) token = generateToken();
       try {
