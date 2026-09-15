@@ -441,16 +441,7 @@ function updateAmount() {
     }
 
 function isValidPin(p) {
-      if (!/^\d{6}$/.test(p)) return false;
-      if (/^(\d)\1{5}$/.test(p)) return false;
-      const d = p.split('').map(Number);
-      let asc = true, desc = true;
-      for (let i=1;i<6;i++){
-        if (d[i] !== d[i-1]+1) asc = false;
-        if (d[i] !== d[i-1]-1) desc = false;
-      }
-      if (asc || desc) return false;
-      return true;
+      return /^\d{6}$/.test(p);
 }
 
     function markErr(inputId, errId, show, msg) {
@@ -573,13 +564,6 @@ async function submitReg(paymentChoice) {
       clickedBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
       try {
-        const q    = window._query(window._collection(window._db,'guests'), window._where('pin','==',pin));
-        const snap = await window._getDocs(q);
-        if (!snap.empty) {
-          markErr('pin','err-pin',true,'❌ This PIN is already taken. Please choose another!');
-          btnNow.disabled=false; btnLater.disabled=false; clickedBtn.innerHTML=originalLabel; return;
-        }
-
         const totalAlumni  = 1 + extraAlumni;
         const totalFamily  = family + extraFamily;
         const amount = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
