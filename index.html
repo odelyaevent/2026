@@ -192,9 +192,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <div class="field-error" id="err-name">Please Type Your Full Name</div>
 
       <div class="inline-field">
-        <label for="family">Family Members</label>
-        <input type="number" id="family" placeholder="0" min="0" max="20" value="0" autocomplete="off"/>
+        <label for="whatsapp">WhatsApp No.<span class="req">*</span></label>
+        <input type="text" id="whatsapp" placeholder="10-digit number" maxlength="10" inputmode="numeric" pattern="[0-9]*" autocomplete="off"/>
       </div>
+      <div class="field-error" id="err-whatsapp">Please enter a valid 10-digit WhatsApp number.</div>
 
       <div class="divider"></div>
 
@@ -216,13 +217,23 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <div class="section-header-note">(Optional)</div>
 
       <div class="inline-field">
+        <label for="address">Address</label>
+        <input type="text" id="address" placeholder="Address" maxlength="100" autocomplete="off"/>
+      </div>
+
+      <div class="inline-field">
+        <label for="family">Your Family Members</label>
+        <input type="number" id="family" placeholder="0" min="0" max="20" autocomplete="off"/>
+      </div>
+
+      <div class="inline-field">
         <label for="extra-alumni">No. of Extra Alumni Members</label>
-        <input type="number" id="extra-alumni" placeholder="0" min="0" max="20" value="0" autocomplete="off"/>
+        <input type="number" id="extra-alumni" placeholder="0" min="0" max="20" autocomplete="off"/>
       </div>
 
       <div class="inline-field">
         <label for="extra-family">No. of Their Family Members</label>
-        <input type="number" id="extra-family" placeholder="0" min="0" max="20" value="0" autocomplete="off"/>
+        <input type="number" id="extra-family" placeholder="0" min="0" max="20" autocomplete="off"/>
       </div>
 
       <div class="divider"></div>
@@ -500,11 +511,13 @@ function startRealtimeListener(docId) {
     }
 
 async function submitReg(paymentChoice) {
-      const batch  = document.getElementById('batch').value.trim();
-      const name   = document.getElementById('name').value.trim();
-      const family = parseInt(document.getElementById('family').value) || 0;
-      const pin    = document.getElementById('pin').value.trim();
-      const pin2   = document.getElementById('pin2').value.trim();
+      const batch    = document.getElementById('batch').value.trim();
+      const name     = document.getElementById('name').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value.trim();
+      const address  = document.getElementById('address').value.trim();
+      const family   = parseInt(document.getElementById('family').value) || 0;
+      const pin      = document.getElementById('pin').value.trim();
+      const pin2     = document.getElementById('pin2').value.trim();
       let valid = true;
 
       const division     = document.getElementById('division').value;
@@ -522,6 +535,7 @@ async function submitReg(paymentChoice) {
         valid=false;
       } else markErr('name','err-name',false);
 
+      if (!/^\d{10}$/.test(whatsapp)) { markErr('whatsapp','err-whatsapp',true); valid=false; } else markErr('whatsapp','err-whatsapp',false);
       if (!isValidPin(pin)) { markErr('pin','err-pin',true,'Avoid serial or repeated digits.'); valid=false; } else markErr('pin','err-pin',false);
       if (!division) { markErr('division','err-division',true); valid=false; } else markErr('division','err-division',false);
       if (pin !== pin2) { markErr('pin2','err-pin2',true); valid=false; } else markErr('pin2','err-pin2',false);
@@ -551,6 +565,8 @@ async function submitReg(paymentChoice) {
 
         const docRef = await window._addDoc(window._collection(window._db,'guests'), {
           name:              finalName,
+          whatsapp:          whatsapp,
+          address:           address,
           batch:             batchNum,
           division:          division,
           familyCount:       family,
@@ -735,6 +751,10 @@ document.getElementById('name').addEventListener('input', function() {
         document.getElementById(id).addEventListener('input', function() {
           this.value = this.value.replace(/\D/g,'').slice(0,6);
         });
+      });
+
+      document.getElementById('whatsapp').addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g,'').slice(0,10);
       });
 
       document.getElementById('family').addEventListener('input', () => {
