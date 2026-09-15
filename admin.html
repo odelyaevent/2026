@@ -340,47 +340,44 @@ header h1{padding:0 74px 0 74px;}
 
       <div class="field-row" style="margin-top:10px;">
         <label>Start Date</label>
-        <input type="text" id="ev-start" placeholder="2026-05-21"/>
+        <input type="date" id="ev-start"/>
       </div>
       <div class="field-row">
         <label>End Date</label>
-        <input type="text" id="ev-end" placeholder="2026-05-22"/>
+        <input type="date" id="ev-end"/>
       </div>
 
-      <div class="section-title" style="padding:14px 0 4px;">Meal Timings (24hr)</div>
+      <div class="section-title" style="padding:14px 0 4px;">Meal Timings</div>
 
-      <div class="field-row">
-        <label>Breakfast Start</label>
-        <input type="number" id="ev-bs" placeholder="7" min="0" max="23"/>
-      </div>
-      <div class="field-row">
-        <label>Breakfast End</label>
-        <input type="number" id="ev-be" placeholder="11" min="0" max="23"/>
-      </div>
       <div class="field-row">
         <label>Lunch Start</label>
-        <input type="number" id="ev-ls" placeholder="12" min="0" max="23"/>
+        <select id="ev-ls"></select>
       </div>
       <div class="field-row">
         <label>Lunch End</label>
-        <input type="number" id="ev-le" placeholder="16" min="0" max="23"/>
+        <select id="ev-le"></select>
       </div>
       <div class="field-row">
         <label>Dinner Start</label>
-        <input type="number" id="ev-ds" placeholder="18" min="0" max="23"/>
+        <select id="ev-ds"></select>
       </div>
       <div class="field-row">
         <label>Dinner End</label>
-        <input type="number" id="ev-de" placeholder="23" min="0" max="23"/>
+        <select id="ev-de"></select>
       </div>
 
-      <!-- GIFT ITEMS CONFIG -->
-      <div class="section-title" style="padding:14px 0 4px;">🎁 Gift Items</div>
-      <div id="gift-config-list"></div>
-      <button class="btn-excel" onclick="addGiftConfigItem()" style="background:var(--light-blue);margin-top:4px;">+ Add Gift Item</button>
+      <div class="section-title" style="padding:14px 0 4px;">Fees</div>
 
-      <!-- PROGRAMS CONFIG -->
-      <div class="section-title" style="padding:14px 0 4px;">📋 Programs</div>
+      <div class="field-row">
+        <label>Alumni Fee</label>
+        <input type="number" id="ev-alumni-fee" placeholder="20" min="0"/>
+      </div>
+      <div class="field-row">
+        <label>Family Fee</label>
+        <input type="number" id="ev-family-fee" placeholder="5" min="0"/>
+      </div>
+
+      <div class="section-title" style="padding:14px 0 4px;">Programs</div>
       <div id="programs-config-container"></div>
 
       <button class="btn-excel" onclick="saveEventConfig()" style="margin-top:14px;">Save Event Config</button>
@@ -415,6 +412,23 @@ header h1{padding:0 74px 0 74px;}
     dinner:    { start: 18, end: 23 }
   };
   // ============================================================
+
+  function getEventDaysFrom(startStr, endStr) {
+    const days = [];
+    let current = new Date(startStr);
+    const end   = new Date(endStr);
+    let dayNum  = 1;
+    while (current <= end) {
+      days.push({
+        num:   dayNum,
+        date:  current.toISOString().split('T')[0],
+        label: `Day ${dayNum} - ${current.toLocaleDateString('en-IN',{day:'numeric',month:'long'})}`
+      });
+      current.setDate(current.getDate()+1);
+      dayNum++;
+    }
+    return days;
+  }
 
   function getEventDays() {
     const days = [];
@@ -640,34 +654,6 @@ function buildCard(docId, g, giftItems) {
     el.textContent = text; el.className = `action-msg ${type}`;
     el.style.display = 'block';
     setTimeout(() => el.style.display='none', 3000);
-  }
-
-// ── GIFT CONFIG RENDER ──
-  function renderGiftConfigList(items) {
-    const container = document.getElementById('gift-config-list');
-    container.innerHTML = '';
-    if (!items.length) {
-      addGiftConfigItem(); return;
-    }
-    items.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'gift-config-row';
-      row.innerHTML = `
-        <input type="text" class="gift-config-input" value="${item}" placeholder="e.g. T-Shirt"/>
-        <button class="btn-remove-item" onclick="this.parentElement.remove()">✕ Remove</button>`;
-      container.appendChild(row);
-    });
-  }
-
-  function addGiftConfigItem() {
-    const container = document.getElementById('gift-config-list');
-    const row = document.createElement('div');
-    row.className = 'gift-config-row';
-    row.innerHTML = `
-      <input type="text" class="gift-config-input" placeholder="e.g. T-Shirt"/>
-      <button class="btn-remove-item" onclick="this.parentElement.remove()">✕ Remove</button>`;
-    container.appendChild(row);
-    row.querySelector('input').focus();
   }
 
   // ── PROGRAMS CONFIG RENDER ──
@@ -1369,64 +1355,84 @@ async function loadStats() {
     } catch(e) { console.error(e); alert('Error generating report. Try again.'); }
   }
 
+  // ── TIME DROPDOWN BUILDER ──
+  function buildTimeOptions() {
+    const opts = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const hour12 = h % 12 === 0 ? 12 : h % 12;
+        const ampm   = h < 12 ? 'AM' : 'PM';
+        const mm     = m.toString().padStart(2, '0');
+        opts.push(`${hour12}:${mm} ${ampm}`);
+      }
+    }
+    return opts;
+  }
+
+  function fillTimeSelect(id) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '';
+    buildTimeOptions().forEach(t => {
+      const o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      sel.appendChild(o);
+    });
+  }
+
+  function fillAllTimeSelects() {
+    ['ev-ls','ev-le','ev-ds','ev-de'].forEach(fillTimeSelect);
+  }
+
 // ── EVENT CONFIG ──
 async function loadEventConfig() {
     if (!window._firebaseReady) return;
+    fillAllTimeSelects();
     try {
       const snap = await window._getDoc(window._doc(window._db,'config','event'));
       if (!snap.exists()) {
-        renderGiftConfigList([]);
         renderProgramsConfig({});
         return;
       }
       const d = snap.data();
-      document.getElementById('ev-start').value = d.startDate || '';
-      document.getElementById('ev-end').value   = d.endDate   || '';
-      document.getElementById('ev-bs').value    = d.breakfastStart ?? '';
-      document.getElementById('ev-be').value    = d.breakfastEnd   ?? '';
-      document.getElementById('ev-ls').value    = d.lunchStart     ?? '';
-      document.getElementById('ev-le').value    = d.lunchEnd       ?? '';
-      document.getElementById('ev-ds').value    = d.dinnerStart    ?? '';
-      document.getElementById('ev-de').value    = d.dinnerEnd      ?? '';
-      renderGiftConfigList(d.giftItems || []);
-      renderProgramsConfig(d.programs  || {});
+      document.getElementById('ev-start').value      = d.startDate  || '';
+      document.getElementById('ev-end').value        = d.endDate    || '';
+      document.getElementById('ev-ls').value         = d.lunchStart  || '12:00 PM';
+      document.getElementById('ev-le').value         = d.lunchEnd    || '5:00 PM';
+      document.getElementById('ev-ds').value         = d.dinnerStart || '6:00 PM';
+      document.getElementById('ev-de').value         = d.dinnerEnd   || '11:00 PM';
+      document.getElementById('ev-alumni-fee').value = d.alumniFee   ?? 20;
+      document.getElementById('ev-family-fee').value = d.familyFee   ?? 5;
+      renderProgramsConfig(d.programs || {});
     } catch(e) { console.error(e); }
   }
 
 async function saveEventConfig() {
     if (!window._firebaseReady) return;
-    const startDate      = document.getElementById('ev-start').value.trim();
-    const endDate        = document.getElementById('ev-end').value.trim();
-    const breakfastStart = parseInt(document.getElementById('ev-bs').value);
-    const breakfastEnd   = parseInt(document.getElementById('ev-be').value);
-    const lunchStart     = parseInt(document.getElementById('ev-ls').value);
-    const lunchEnd       = parseInt(document.getElementById('ev-le').value);
-    const dinnerStart    = parseInt(document.getElementById('ev-ds').value);
-    const dinnerEnd      = parseInt(document.getElementById('ev-de').value);
+    const startDate  = document.getElementById('ev-start').value;
+    const endDate    = document.getElementById('ev-end').value;
+    const lunchStart  = document.getElementById('ev-ls').value;
+    const lunchEnd    = document.getElementById('ev-le').value;
+    const dinnerStart = document.getElementById('ev-ds').value;
+    const dinnerEnd   = document.getElementById('ev-de').value;
+    const alumniFee  = parseInt(document.getElementById('ev-alumni-fee').value);
+    const familyFee  = parseInt(document.getElementById('ev-family-fee').value);
 
     const msgEl = document.getElementById('ev-msg');
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
-      msgEl.textContent = '❌ Please enter dates in YYYY-MM-DD format.';
+    if (!startDate || !endDate) {
+      msgEl.textContent = 'Please select start and end dates.';
       msgEl.style.background='#F8D7DA'; msgEl.style.color='#721C24';
       msgEl.style.display='block'; return;
     }
-    if ([breakfastStart,breakfastEnd,lunchStart,lunchEnd,dinnerStart,dinnerEnd].some(isNaN)) {
-      msgEl.textContent = '❌ Please fill all meal timing fields.';
+    if (isNaN(alumniFee) || isNaN(familyFee)) {
+      msgEl.textContent = 'Please enter both fees.';
       msgEl.style.background='#F8D7DA'; msgEl.style.color='#721C24';
       msgEl.style.display='block'; return;
     }
 
-    // Collect gift items
-    const giftItems = [];
-    document.querySelectorAll('.gift-config-input').forEach(inp => {
-      const val = inp.value.trim();
-      if (val) giftItems.push(val);
-    });
-
-    // Collect programs per day
     const programs = {};
-    const days = getEventDays();
+    const days = getEventDaysFrom(startDate, endDate);
     days.forEach(day => {
       const items = [];
       document.querySelectorAll(`.program-input-day${day.num}`).forEach(inp => {
@@ -1440,19 +1446,18 @@ async function saveEventConfig() {
       const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
       await setDoc(window._doc(window._db,'config','event'), {
         startDate, endDate,
-        breakfastStart, breakfastEnd,
         lunchStart, lunchEnd,
         dinnerStart, dinnerEnd,
-        giftItems,
+        alumniFee, familyFee,
         programs
       });
-      msgEl.textContent = '✅ Event config saved!';
+      msgEl.textContent = 'Event config saved!';
       msgEl.style.background='#D4EDDA'; msgEl.style.color='#155724';
       msgEl.style.display='block';
       setTimeout(() => msgEl.style.display='none', 4000);
     } catch(e) {
       console.error(e);
-      msgEl.textContent = '❌ Error saving. Try again.';
+      msgEl.textContent = 'Error saving. Try again.';
       msgEl.style.background='#F8D7DA'; msgEl.style.color='#721C24';
       msgEl.style.display='block';
     }
