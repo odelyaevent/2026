@@ -143,11 +143,9 @@ header h1{padding:0 74px 0 74px;}
     .meal-row .of{font-size:0.72rem;color:#999;}
     .action-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px;}
     .abtn{flex:1;padding:9px 6px;border:none;border-radius:8px;font-weight:700;font-size:0.78rem;cursor:pointer;min-width:90px;font-family:'Lato',sans-serif;}
-    .abtn-generate{background:var(--light-blue);color:white;}
     .abtn-approve{background:var(--success);color:white;}
     .abtn-unapprove{background:#888;color:white;}
     .abtn-save{background:var(--saffron);color:white;}
-    .abtn-hide{background:#555;color:white;}
     .action-msg{font-size:0.78rem;font-weight:700;margin-top:6px;display:none;padding:6px 10px;border-radius:6px;}
     .action-msg.ok{background:#D4EDDA;color:#155724;}
     .action-msg.err{background:#F8D7DA;color:#721C24;}
@@ -218,7 +216,7 @@ header h1{padding:0 74px 0 74px;}
     <h1>RKMVP Alumni</h1>
     <div class="reunion-title">Admin Panel</div>
     <div class="header-person-wrap">
-      <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
+      <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">Menu</button>
       <div class="header-person-menu" id="header-person-menu">
         <button onclick="shareLink()">Share Link</button>
         <button onclick="adminLogout()">Logout</button>
@@ -236,7 +234,7 @@ header h1{padding:0 74px 0 74px;}
       <input type="email" id="admin-email" placeholder="admin@email.com" autocomplete="email"/>
       <label>Password</label>
       <input type="password" id="admin-pass" placeholder="Password" autocomplete="current-password"/>
-	  <button class="btn-main" id="btn-install-pwa" style="display:none;margin-top:10px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));" onclick="installPWA()">📲 INSTALL PWA</button>
+	  <button class="btn-main" id="btn-install-pwa" style="display:none;margin-top:10px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));" onclick="installPWA()">INSTALL PWA</button>
     </div>
   </div>
 </div>
@@ -253,7 +251,7 @@ header h1{padding:0 74px 0 74px;}
 
   <!-- GLOBAL SEARCH BAR -->
   <div id="global-search-wrap">
-    <input type="text" id="global-search" placeholder="🔍  Search by name, mobile or batch year..." autocomplete="off"/>
+    <input type="text" id="global-search" placeholder="Search by name, mobile or batch year..." autocomplete="off"/>
   </div>
   <div id="global-search-results"></div>
 
@@ -277,22 +275,15 @@ header h1{padding:0 74px 0 74px;}
 	  <div class="section-title">Food Requirements (Pre-registered)</div>
     <div style="padding:0 14px;">
       <table class="food-table" id="food-required-table">
-        <thead><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr></thead>
+        <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
         <tbody id="food-required-body"></tbody>
       </table>
     </div>
     <div class="section-title">Actual Attendance (Scanned)</div>
     <div style="padding:0 14px;">
       <table class="food-table" id="food-actual-table">
-        <thead><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr></thead>
+        <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
         <tbody id="food-actual-body"></tbody>
-      </table>
-    </div>
-<div class="section-title">T-Shirt Requirements</div>
-    <div style="padding:0 14px;">
-      <table class="food-table" id="tshirt-table">
-        <thead><tr><th>Size (cm)</th><th>Count</th></tr></thead>
-        <tbody id="tshirt-body"></tbody>
       </table>
     </div>
 
@@ -390,7 +381,7 @@ header h1{padding:0 74px 0 74px;}
   <!-- STATS TAB -->
   <div id="tab-stats" class="tab-content">
     <div class="config-box" id="event-config-display"></div>
-<button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;">⚠️ Master Clear</button>    
+<button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;">Master Clear</button>    
 	  <div class="stats-grid">
       <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total Registered</div></div>
       <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved</div></div>
@@ -406,13 +397,11 @@ header h1{padding:0 74px 0 74px;}
   // ============================================================
   // ⚙️ EVENT CONFIGURATION — CHANGE THESE FOR YOUR EVENT
   // ============================================================
-  let EVENT_START_DATE = '2026-11-21'; // ← CHANGE THIS
-  let EVENT_END_DATE   = '2026-11-22'; // ← CHANGE THIS
-  let MEAL_TIMES = {
-    breakfast: { start: 7,  end: 11 },
-    lunch:     { start: 12, end: 17 },
-    dinner:    { start: 18, end: 23 }
-  };
+  let EVENT_START_DATE = '2026-11-21';
+  let EVENT_END_DATE   = '2026-11-22';
+  let ALUMNI_FEE       = 20;
+  let FAMILY_FEE       = 5;
+  
   // ============================================================
 
   function getEventDaysFrom(startStr, endStr) {
@@ -441,7 +430,7 @@ header h1{padding:0 74px 0 74px;}
       days.push({
         num:   dayNum,
         date:  current.toISOString().split('T')[0],
-        label: `Day ${dayNum} — ${current.toLocaleDateString('en-IN',{day:'numeric',month:'long'})}`
+        label: `Day ${dayNum} - ${current.toLocaleDateString('en-IN',{day:'numeric',month:'long'})}`
       });
       current.setDate(current.getDate()+1);
       dayNum++;
@@ -501,11 +490,8 @@ async function showDashboard(email) {
         const cd = configSnap.data();
         if (cd.startDate) EVENT_START_DATE = cd.startDate;
         if (cd.endDate)   EVENT_END_DATE   = cd.endDate;
-        MEAL_TIMES = {
-          breakfast: { start: cd.breakfastStart??7,  end: cd.breakfastEnd??11 },
-          lunch:     { start: cd.lunchStart??12,     end: cd.lunchEnd??16     },
-          dinner:    { start: cd.dinnerStart??18,    end: cd.dinnerEnd??23    }
-        };
+        if (cd.alumniFee) ALUMNI_FEE = cd.alumniFee;
+        if (cd.familyFee) FAMILY_FEE = cd.familyFee;
       }
     } catch(e) { console.error(e); }
     loadStats();
@@ -524,13 +510,12 @@ async function showDashboard(email) {
   }
 
   // ── BUILD GUEST CARD ──
-function buildCard(docId, g, giftItems) {
+function buildCard(docId, g) {
     const days   = getEventDays();
     const total  = (g.familyCount||0)+1;
     const m      = g.meals || {};
     const mr     = g.mealsRequired || {};
     const approved  = g.approved || false;
-    const sizes  = [26,28,30,32,34,36,38,40,42,44];
 
     let mealSections = '';
     days.forEach(day => {
@@ -538,13 +523,8 @@ function buildCard(docId, g, giftItems) {
       const dmr = mr[`day${day.num}`] || {};
       mealSections += `
         <div class="meal-section">
-          <div class="meal-section-day">📅 ${day.label}</div>
+          <div class="meal-section-day">${day.label}</div>
           <div class="meal-inline">
-            <div class="meal-inline-item">
-              <label>Breakfast</label>
-              <input type="number" id="d${day.num}b-${docId}" value="${dm.breakfast||0}" min="0" max="${total}"/>
-              <span class="req-badge ${dmr.breakfast>0?'selected':''}">Req. ${dmr.breakfast||0}</span>
-            </div>
             <div class="meal-inline-item">
               <label>Lunch</label>
               <input type="number" id="d${day.num}l-${docId}" value="${dm.lunch||0}" min="0" max="${total}"/>
@@ -559,36 +539,19 @@ function buildCard(docId, g, giftItems) {
         </div>`;
     });
 
-    const sizeOptions = sizes.map(s =>
-      `<option value="${s}" ${(g.tshirtSize||0)===s?'selected':''}>${s}</option>`
-    ).join('');
-
-    // ── GIFT ITEMS SECTION ──
-    let giftSection = '';
-    if (giftItems && giftItems.length > 0) {
-      const giftsGiven = g.giftsGiven || {};
-      let giftRows = '';
-      giftItems.forEach(item => {
-        const received = giftsGiven[item] || false;
-        giftRows += `
-          <div class="gift-item-row" id="giftrow-${docId}-${item.replace(/\s+/g,'_')}">
-            <span class="gift-item-name">${item}</span>
-            <div class="gift-btns">
-              <button class="gift-btn ${received?'gift-btn-active':''}" onclick="setGift('${docId}','${item}',true)">✅ Received</button>
-              <button class="gift-btn ${!received?'gift-btn-due-active':''}" onclick="setGift('${docId}','${item}',false)">⏳ Due</button>
-            </div>
-          </div>`;
-      });
-      giftSection = `
-        <div class="gift-section">
-          <div class="gift-section-title">🎁 Gift Items</div>
-          <div class="gift-action-row">
-            <button class="abtn abtn-approve" onclick="setAllGifts('${docId}',true)">✅ Received All</button>
-            <button class="abtn abtn-unapprove" onclick="setAllGifts('${docId}',false)">⏳ Mark All Due</button>
+    // ── SINGLE GIFT ITEM SECTION ──
+    const giftReceived = g.giftReceived === true;
+    const giftSection = `
+      <div class="gift-section">
+        <div class="gift-section-title">Gift Item</div>
+        <div class="gift-item-row">
+          <span class="gift-item-name">Gift Item</span>
+          <div class="gift-btns">
+            <button class="gift-btn ${giftReceived?'gift-btn-active':''}" id="giftbtn-yes-${docId}" onclick="setGiftReceived('${docId}',true)">Received</button>
+            <button class="gift-btn ${!giftReceived?'gift-btn-due-active':''}" id="giftbtn-no-${docId}" onclick="setGiftReceived('${docId}',false)">Not Received</button>
           </div>
-          <div id="gift-list-${docId}">${giftRows}</div>
-        </div>`;
-    }
+        </div>
+      </div>`;
 
     return `
     <div class="guest-card" id="gc-${docId}">
@@ -597,53 +560,83 @@ function buildCard(docId, g, giftItems) {
           <div class="gc-name">${g.name}</div>
         </div>
         <span class="badge ${approved?'badge-approved':'badge-pending'}" id="badge-${docId}">
-          ${approved?'✅ Approved':'⏳ Pending'}
+          ${approved?'Approved':'Pending'}
         </span>
       </div>
       <div class="gc-body">
 
         <div class="field-row">
           <label>Batch Year</label>
-          <input type="number" id="e-batch-${docId}" value="${g.batch}"/>
+          <input type="number" id="e-batch-${docId}" value="${g.batch||''}"/>
+        </div>
+        <div class="field-row">
+          <label>Division</label>
+          <input type="text" id="e-division-${docId}" value="${g.division||''}"/>
         </div>
         <div class="field-row">
           <label>Full Name</label>
-          <input type="text" id="e-name-${docId}" value="${g.name}"/>
+          <input type="text" id="e-name-${docId}" value="${g.name||''}"/>
         </div>
         <div class="field-row">
-          <label>Family Members</label>
+          <label>WhatsApp</label>
+          <input type="text" id="e-whatsapp-${docId}" value="${g.whatsapp||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+        </div>
+        <div class="field-row">
+          <label>Address</label>
+          <input type="text" id="e-address-${docId}" value="${g.address||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+        </div>
+        <div class="field-row">
+          <label>Login PIN</label>
+          <input type="text" id="e-pin-${docId}" value="${g.pin||''}" maxlength="6"/>
+        </div>
+
+        <div class="field-row">
+          <label>Family Count</label>
           <input type="number" id="e-family-${docId}" value="${g.familyCount||0}" min="0"/>
         </div>
         <div class="field-row">
-          <label>T-Shirt Size</label>
-          <select id="e-tshirt-${docId}">
-            <option value="0" ${(g.tshirtSize||0)===0?'selected':''}>Not Specified</option>
-            ${sizeOptions}
-          </select>
+          <label>Extra Alumni</label>
+          <input type="number" id="e-extra-alumni-${docId}" value="${g.extraAlumniCount||0}" min="0"/>
         </div>
         <div class="field-row">
-          <label>Security PIN</label>
-          <input type="text" id="e-pin-${docId}" value="${g.pin}" maxlength="4"/>
+          <label>Extra Family</label>
+          <input type="number" id="e-extra-family-${docId}" value="${g.extraFamilyCount||0}" min="0"/>
         </div>
 
         ${mealSections}
 
         <div class="amount-row">
           <label>Amount Paid</label>
-          <span>Rs. ${g.amount||(10+(g.familyCount||0)*5)}/-</span>
+          <span>Rs. ${g.amount||0}/-</span>
+        </div>
+
+        <div class="field-row">
+          <label>Payment Choice</label>
+          <select id="e-pay-choice-${docId}">
+            <option value="later" ${g.paymentChoice==='later'?'selected':''}>Later</option>
+            <option value="now"   ${g.paymentChoice==='now'?'selected':''}>Now</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>Payment Status</label>
+          <select id="e-pay-status-${docId}">
+            <option value="pending" ${g.paymentStatus==='pending'?'selected':''}>Pending</option>
+            <option value="paid"    ${g.paymentStatus==='paid'?'selected':''}>Paid</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label>Registered At</label>
+          <input type="text" value="${(g.registeredAt||'').replace('T',' ').split('.')[0]||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
         </div>
 
         ${giftSection}
 
         <div class="action-row">
-          <button class="abtn abtn-generate" onclick="generateBankQR('${docId}')">💳 Bank QR</button>
-          <button class="abtn abtn-hide" onclick="hideBankQR('${docId}')">🙈 Hide QR</button>
-        </div>
-        <div class="action-row">
           <button class="abtn ${approved?'abtn-unapprove':'abtn-approve'}" id="appbtn-${docId}" onclick="toggleApprove('${docId}',${approved})">
-            ${approved?'❌ Unapprove':'✅ Approve'}
+            ${approved?'Unapprove':'Approve'}
           </button>
-          <button class="abtn abtn-save" onclick="saveGuest('${docId}')">💾 Save Changes</button>
+          <button class="abtn abtn-save" onclick="saveGuest('${docId}')">Save Changes</button>
         </div>
         <div class="action-msg" id="msg-${docId}"></div>
 
@@ -659,10 +652,10 @@ function buildCard(docId, g, giftItems) {
   }
 
   // ── PROGRAMS CONFIG RENDER ──
-  function renderProgramsConfig(programs) {
+    function renderProgramsConfig(programs, daysIn) {
     const container = document.getElementById('programs-config-container');
     container.innerHTML = '';
-    const days = getEventDays();
+    const days = daysIn || getEventDays();
     days.forEach(day => {
       const items = programs[`day${day.num}`] || [];
       let itemsHtml = items.length
@@ -677,7 +670,7 @@ function buildCard(docId, g, giftItems) {
            </div>`;
       container.innerHTML += `
         <div class="program-config-day">
-          <div class="program-config-day-title">📅 ${day.label}</div>
+          <div class="program-config-day-title">${day.label}</div>
           <div id="prog-items-day${day.num}">${itemsHtml}</div>
           <button class="btn-add-item" onclick="addProgramItem(${day.num})">+ Add Item</button>
         </div>`;
@@ -695,104 +688,76 @@ function buildCard(docId, g, giftItems) {
     row.querySelector('input').focus();
   }
 
-  // ── SET GIFT (single item) ──
-  async function setGift(docId, item, received) {
+  // ── SET GIFT RECEIVED ──
+  async function setGiftReceived(docId, received) {
     try {
-            await window._updateDoc(window._doc(window._db,'guests',docId), {
-        [`giftsGiven.${item}`]: received
-      });
+      await window._updateDoc(window._doc(window._db,'guests',docId), { giftReceived: received });
       clearSearchCache();
-      const key = item.replace(/\s+/g,'_');
-      const row = document.getElementById(`giftrow-${docId}-${key}`);
-      if (row) {
-        const btns = row.querySelectorAll('.gift-btn');
-        btns[0].className = `gift-btn ${received?'gift-btn-active':''}`;
-        btns[1].className = `gift-btn ${!received?'gift-btn-due-active':''}`;
-      }
-      showMsg(docId, received?`✅ ${item} marked Received!`:`⏳ ${item} marked Due.`, 'ok');
-    } catch(e) { showMsg(docId,'❌ Error. Try again.','err'); }
-  }
-
-  // ── SET ALL GIFTS ──
-  async function setAllGifts(docId, received) {
-    try {
-      const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
-      const giftItems  = configSnap.exists() ? (configSnap.data().giftItems || []) : [];
-      if (!giftItems.length) { showMsg(docId,'No gift items configured.','err'); return; }
-      const giftsGiven = {};
-      giftItems.forEach(item => giftsGiven[item] = received);
-      await window._updateDoc(window._doc(window._db,'guests',docId), { giftsGiven });
-      clearSearchCache();
-      // Update all buttons in the card
-      giftItems.forEach(item => {
-        const key = item.replace(/\s+/g,'_');
-        const row = document.getElementById(`giftrow-${docId}-${key}`);
-        if (row) {
-          const btns = row.querySelectorAll('.gift-btn');
-          btns[0].className = `gift-btn ${received?'gift-btn-active':''}`;
-          btns[1].className = `gift-btn ${!received?'gift-btn-due-active':''}`;
-        }
-      });
-      showMsg(docId, received?'✅ All gifts marked Received!':'⏳ All gifts marked Due.', 'ok');
-    } catch(e) { showMsg(docId,'❌ Error. Try again.','err'); }
-  }
-
-  // ── GENERATE BANK QR ──
-  async function generateBankQR(docId) {
-    try {
-      await window._updateDoc(window._doc(window._db,'guests',docId), { bankQrVisible: true });
-      showMsg(docId, '✅ Bank QR is now visible on guest screen!', 'ok');
-    } catch(e) { showMsg(docId, '❌ Error. Try again.', 'err'); }
-  }
-
-  // ── HIDE BANK QR ──
-  async function hideBankQR(docId) {
-    try {
-      await window._updateDoc(window._doc(window._db,'guests',docId), { bankQrVisible: false });
-      showMsg(docId, '✅ Bank QR hidden from guest screen.', 'ok');
-    } catch(e) { showMsg(docId, '❌ Error. Try again.', 'err'); }
+      const yesBtn = document.getElementById('giftbtn-yes-'+docId);
+      const noBtn  = document.getElementById('giftbtn-no-'+docId);
+      if (yesBtn) yesBtn.className = `gift-btn ${received?'gift-btn-active':''}`;
+      if (noBtn)  noBtn.className  = `gift-btn ${!received?'gift-btn-due-active':''}`;
+      showMsg(docId, received?'Gift marked Received.':'Gift marked Not Received.', 'ok');
+    } catch(e) { showMsg(docId,'Error. Try again.','err'); }
   }
 
   // ── TOGGLE APPROVE ──
   async function toggleApprove(docId, current) {
     const newVal = !current;
     try {
-      const update = { approved: newVal };
-      if (newVal) update.bankQrVisible = false;
-      await window._updateDoc(window._doc(window._db,'guests',docId), update);
+      await window._updateDoc(window._doc(window._db,'guests',docId), { approved: newVal });
       clearSearchCache();
       document.getElementById('badge-'+docId).className   = `badge ${newVal?'badge-approved':'badge-pending'}`;
-      document.getElementById('badge-'+docId).textContent = newVal?'✅ Approved':'⏳ Pending';
+      document.getElementById('badge-'+docId).textContent = newVal?'Approved':'Pending';
       const btn = document.getElementById('appbtn-'+docId);
-      btn.textContent = newVal?'❌ Unapprove':'✅ Approve';
+      btn.textContent = newVal?'Unapprove':'Approve';
       btn.className   = `abtn ${newVal?'abtn-unapprove':'abtn-approve'}`;
       btn.onclick     = () => toggleApprove(docId, newVal);
-      showMsg(docId, newVal?'✅ Guest approved!':'✅ Approval removed.', 'ok');
-    } catch(e) { showMsg(docId, '❌ Error. Try again.', 'err'); }
+      showMsg(docId, newVal?'Guest approved.':'Approval removed.', 'ok');
+    } catch(e) { showMsg(docId, 'Error. Try again.', 'err'); }
   }
 
   // ── SAVE GUEST ──
   async function saveGuest(docId) {
-    const days   = getEventDays();
-const name   = document.getElementById('e-name-'+docId).value.trim();
-    const batch  = parseInt(document.getElementById('e-batch-'+docId).value);
-    const family = parseInt(document.getElementById('e-family-'+docId).value)||0;
-    const tshirt = parseInt(document.getElementById('e-tshirt-'+docId).value)||0;
-    const pin    = document.getElementById('e-pin-'+docId).value.trim();
-    const amount = 10 + family * 5;
-    const meals  = {};
+    const days        = getEventDays();
+    const name        = document.getElementById('e-name-'+docId).value.trim();
+    const batch       = parseInt(document.getElementById('e-batch-'+docId).value);
+    const division    = document.getElementById('e-division-'+docId).value.trim();
+    const pin         = document.getElementById('e-pin-'+docId).value.trim();
+    const family      = parseInt(document.getElementById('e-family-'+docId).value)||0;
+    const extraAlumni = parseInt(document.getElementById('e-extra-alumni-'+docId).value)||0;
+    const extraFamily = parseInt(document.getElementById('e-extra-family-'+docId).value)||0;
+    const payChoice   = document.getElementById('e-pay-choice-'+docId).value;
+    const payStatus   = document.getElementById('e-pay-status-'+docId).value;
+
+    const totalAlumni = 1 + extraAlumni;
+    const totalFamily = family + extraFamily;
+    const amount      = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
+
+    const meals = {};
     days.forEach(day => {
       meals[`day${day.num}`] = {
-        breakfast: parseInt(document.getElementById(`d${day.num}b-${docId}`).value)||0,
-        lunch:     parseInt(document.getElementById(`d${day.num}l-${docId}`).value)||0,
-        dinner:    parseInt(document.getElementById(`d${day.num}d-${docId}`).value)||0
+        lunch:  parseInt(document.getElementById(`d${day.num}l-${docId}`).value)||0,
+        dinner: parseInt(document.getElementById(`d${day.num}d-${docId}`).value)||0
       };
     });
-try {
-      await window._updateDoc(window._doc(window._db,'guests',docId), { name, batch, familyCount:family, amount, meals, tshirtSize:tshirt, pin });
+
+    try {
+      await window._updateDoc(window._doc(window._db,'guests',docId), {
+        name, batch, division, pin,
+        familyCount:      family,
+        extraAlumniCount: extraAlumni,
+        extraFamilyCount: extraFamily,
+        totalAlumniCount: totalAlumni,
+        totalFamilyCount: totalFamily,
+        amount,
+        meals,
+        paymentChoice: payChoice,
+        paymentStatus: payStatus
+      });
       clearSearchCache();
-      showMsg(docId, '✅ Changes saved successfully!', 'ok');
-    } catch(e) { showMsg(docId, '❌ Error saving. Try again.', 'err'); }
+      showMsg(docId, 'Changes saved successfully!', 'ok');
+    } catch(e) { showMsg(docId, 'Error saving. Try again.', 'err'); }
   }
 
   // ── GLOBAL LIVE SEARCH ──
@@ -820,20 +785,20 @@ try {
         _allGuestsCache = snap.docs;
       }
 
-      // Fetch gift config once for the cards
-      const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
-      const giftItems  = configSnap.exists() ? (configSnap.data().giftItems || []) : [];
-
       const needle = val.toLowerCase();
 
       const matches = _allGuestsCache.filter(d => {
-        const g = d.data();
-        const name   = (g.name   || '').toLowerCase();
-        const mobile = (g.mobile || g.phone || '').toString().toLowerCase();
-        const batch  = (g.batch  || '').toString();
-        const pin    = (g.pin    || '').toString();
+        const g        = d.data();
+        const name     = (g.name     || '').toLowerCase();
+        const whatsapp = (g.whatsapp || '').toString().toLowerCase();
+        const address  = (g.address  || '').toLowerCase();
+        const division = (g.division || '').toLowerCase();
+        const batch    = (g.batch    || '').toString();
+        const pin      = (g.pin      || '').toString();
         return name.includes(needle)
-            || mobile.includes(needle)
+            || whatsapp.includes(needle)
+            || address.includes(needle)
+            || division.includes(needle)
             || batch.includes(needle)
             || pin.includes(needle);
       });
@@ -845,7 +810,7 @@ try {
       }
 
       res.innerHTML = `<div class="list-count">${matches.length} match(es)</div>`;
-      matches.forEach(d => res.innerHTML += buildCard(d.id, d.data(), giftItems));
+      matches.forEach(d => res.innerHTML += buildCard(d.id, d.data()));
       document.getElementById('all-guests-list').style.display = 'none';
 
     } catch(e) {
@@ -870,9 +835,6 @@ try {
     const list   = document.getElementById('all-guests-list');
     list.innerHTML = '<p style="padding:14px;color:#888;font-size:0.85rem;">Loading...</p>';
     try {
-      const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
-      const giftItems  = configSnap.exists() ? (configSnap.data().giftItems || []) : [];
-
       const snap = await window._getDocs(window._collection(window._db,'guests'));
       let docs = snap.docs;
       if (filter === 'pending')  docs = docs.filter(d => !d.data().approved);
@@ -880,7 +842,7 @@ try {
       document.getElementById('list-count').textContent = `Showing ${docs.length} guest(s)`;
       if (!docs.length) { list.innerHTML = '<p class="no-results">No guests found.</p>'; return; }
       list.innerHTML = '';
-      docs.forEach(d => list.innerHTML += buildCard(d.id, d.data(), giftItems));
+      docs.forEach(d => list.innerHTML += buildCard(d.id, d.data()));
     } catch(e) { list.innerHTML = '<p class="no-results">Error loading.</p>'; }
   }
 
@@ -892,9 +854,9 @@ try {
       const snap = await window._getDocs(window._collection(window._db,'guests'));
       const required = {}; const actual = {}; const guestSelected = {};
       days.forEach(day => {
-        required[day.num]      = { breakfast:0, lunch:0, dinner:0 };
-        actual[day.num]        = { breakfast:0, lunch:0, dinner:0 };
-        guestSelected[day.num] = { breakfast:0, lunch:0, dinner:0 };
+        required[day.num]      = { lunch:0, dinner:0 };
+        actual[day.num]        = { lunch:0, dinner:0 };
+        guestSelected[day.num] = { lunch:0, dinner:0 };
       });
 
       snap.docs.forEach(d => {
@@ -904,140 +866,92 @@ try {
         days.forEach(day => {
           const dmr = mr[`day${day.num}`] || {};
           const dma = ma[`day${day.num}`] || {};
-          required[day.num].breakfast += dmr.breakfast||0;
-          required[day.num].lunch     += dmr.lunch||0;
-          required[day.num].dinner    += dmr.dinner||0;
-          actual[day.num].breakfast   += dma.breakfast||0;
-          actual[day.num].lunch       += dma.lunch||0;
-          actual[day.num].dinner      += dma.dinner||0;
-          if ((dmr.breakfast||0)>0) guestSelected[day.num].breakfast++;
-          if ((dmr.lunch||0)>0)     guestSelected[day.num].lunch++;
-          if ((dmr.dinner||0)>0)    guestSelected[day.num].dinner++;
+          required[day.num].lunch  += dmr.lunch||0;
+          required[day.num].dinner += dmr.dinner||0;
+          actual[day.num].lunch    += dma.lunch||0;
+          actual[day.num].dinner   += dma.dinner||0;
+          if ((dmr.lunch||0)>0)  guestSelected[day.num].lunch++;
+          if ((dmr.dinner||0)>0) guestSelected[day.num].dinner++;
         });
       });
 
       // Build required table
 const totalGuests = snap.docs.length;
-      let reqHtml = ''; let rTotB=0,rTotL=0,rTotD=0;
+      let reqHtml = ''; let rTotL=0,rTotD=0;
       days.forEach(day => {
         const r = required[day.num];
-        rTotB+=r.breakfast; rTotL+=r.lunch; rTotD+=r.dinner;
-		const nsB = totalGuests - guestSelected[day.num].breakfast;
+        rTotL+=r.lunch; rTotD+=r.dinner;
         const nsL = totalGuests - guestSelected[day.num].lunch;
         const nsD = totalGuests - guestSelected[day.num].dinner;
-		reqHtml += `<tr><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${day.label}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.breakfast}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.lunch}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.dinner}</td></tr>`;
-        reqHtml += `<tr><td style="color:#555;font-style:italic;padding-left:18px;font-size:0.92rem;">Not Specified</td><td style="color:#555;font-size:0.92rem;">${nsB}</td><td style="color:#555;font-size:0.92rem;">${nsL}</td><td style="color:#555;font-size:0.92rem;">${nsD}</td></tr>`;
+        reqHtml += `<tr><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${day.label}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.lunch}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.dinner}</td></tr>`;
+        reqHtml += `<tr><td style="color:#555;font-style:italic;padding-left:18px;font-size:0.92rem;">Not Specified</td><td style="color:#555;font-size:0.92rem;">${nsL}</td><td style="color:#555;font-size:0.92rem;">${nsD}</td></tr>`;
       });
-      reqHtml += `<tr class="total-row"><td>TOTAL</td><td>${rTotB}</td><td>${rTotL}</td><td>${rTotD}</td></tr>`;
+      reqHtml += `<tr class="total-row"><td>TOTAL</td><td>${rTotL}</td><td>${rTotD}</td></tr>`;
       document.getElementById('food-required-body').innerHTML = reqHtml;
 
 // Fetch manual entries
       const manualData = {};
-      days.forEach(day => manualData[day.num] = {breakfast:0,lunch:0,dinner:0});
+      days.forEach(day => manualData[day.num] = {lunch:0,dinner:0});
       for (const day of days) {
         try {
           const mSnap = await window._getDoc(window._doc(window._db,'manualEntries',`day${day.num}`));
-          if (mSnap.exists()) {
+           if (mSnap.exists()) {
             const md = mSnap.data();
-            manualData[day.num].breakfast = md.breakfast||0;
-            manualData[day.num].lunch     = md.lunch||0;
-            manualData[day.num].dinner    = md.dinner||0;
+            manualData[day.num].lunch  = md.lunch||0;
+            manualData[day.num].dinner = md.dinner||0;
           }
         } catch(e) {}
       }
 
       // Build actual table
-      let actHtml = ''; let aTotB=0,aTotL=0,aTotD=0;
-      let mTotB=0,mTotL=0,mTotD=0;
+      let actHtml = ''; let aTotL=0,aTotD=0;
+      let mTotL=0,mTotD=0;
       days.forEach(day => {
         const a = actual[day.num];
         const mn = manualData[day.num];
-        aTotB+=a.breakfast; aTotL+=a.lunch; aTotD+=a.dinner;
-        mTotB+=mn.breakfast; mTotL+=mn.lunch; mTotD+=mn.dinner;
-        actHtml += `<tr><td>${day.label}</td><td>${a.breakfast}</td><td>${a.lunch}</td><td>${a.dinner}</td></tr>`;
-        actHtml += `<tr><td style="color:#856404;font-style:italic;padding-left:18px;">Manual Entry</td><td style="color:#856404;">${mn.breakfast}</td><td style="color:#856404;">${mn.lunch}</td><td style="color:#856404;">${mn.dinner}</td></tr>`;
+        aTotL+=a.lunch; aTotD+=a.dinner;
+        mTotL+=mn.lunch; mTotD+=mn.dinner;
+        actHtml += `<tr><td>${day.label}</td><td>${a.lunch}</td><td>${a.dinner}</td></tr>`;
+        actHtml += `<tr><td style="color:#856404;font-style:italic;padding-left:18px;">Manual Entry</td><td style="color:#856404;">${mn.lunch}</td><td style="color:#856404;">${mn.dinner}</td></tr>`;
       });
-      actHtml += `<tr class="total-row"><td>TOTAL (Scanned)</td><td>${aTotB}</td><td>${aTotL}</td><td>${aTotD}</td></tr>`;
-      actHtml += `<tr class="total-row"><td>TOTAL (Manual)</td><td>${mTotB}</td><td>${mTotL}</td><td>${mTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>TOTAL (Scanned)</td><td>${aTotL}</td><td>${aTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>TOTAL (Manual)</td><td>${mTotL}</td><td>${mTotD}</td></tr>`;
       document.getElementById('food-actual-body').innerHTML = actHtml;
 
-// T-shirt summary
-      const sizes = [26,28,30,32,34,36,38,40,42,44];
-      const tshirtCount = {};
-      sizes.forEach(s => tshirtCount[s] = 0);
-      let tshirtTotal = 0;
-      snap.docs.forEach(d => {
-        const g = d.data();
-        const s = g.tshirtSize || 0;
-        if (s > 0 && tshirtCount[s] !== undefined) {
-          tshirtCount[s]++;
-          tshirtTotal++;
-        }
-      });
-const notSpecified = snap.docs.length - tshirtTotal;
-      let tshirtHtml = '';
-      sizes.forEach(s => {
-        tshirtHtml += `<tr><td>${s} cm</td><td>${tshirtCount[s]}</td></tr>`;
-      });
-      tshirtHtml += `<tr class="total-row"><td>Total T-Shirt Required</td><td>${tshirtTotal}</td></tr>`;
-      tshirtHtml += `<tr><td>Not Specified</td><td>${notSpecified}</td></tr>`;
-document.getElementById('tshirt-body').innerHTML = tshirtHtml;
-
       // ── GIFT SUMMARY ──
-      const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
-      const giftItems  = configSnap.exists() ? (configSnap.data().giftItems || []) : [];
+      {
+        let giftRecvCount = 0;
+        let giftDueCount  = 0;
+        const dueguests   = [];
 
-      if (!giftItems.length) {
-        document.getElementById('gift-summary-section').innerHTML = '<p style="text-align:center;color:#888;padding:14px;">No gift items configured.</p>';
-        document.getElementById('gift-due-section').innerHTML = '';
-      } else {
-        // Count received and due per gift item
-        const giftReceived = {};
-        const giftDue      = {};
-        giftItems.forEach(item => { giftReceived[item]=0; giftDue[item]=0; });
-
-        // Guest due list
-        const dueguests = [];
         snap.docs.forEach(d => {
-          const g          = d.data();
-          const giftsGiven = g.giftsGiven || {};
-          const dueItems   = [];
-          giftItems.forEach((item, idx) => {
-            if (giftsGiven[item]) {
-              giftReceived[item]++;
-            } else {
-              giftDue[item]++;
-              dueItems.push(`${idx+1}. ${item}`);
-            }
-          });
-          if (dueItems.length > 0) {
-            dueguests.push({ name:g.name, batch:g.batch, pin:g.pin, dueItems });
+          const g = d.data();
+          if (g.giftReceived === true) {
+            giftRecvCount++;
+          } else {
+            giftDueCount++;
+            dueguests.push({ name:g.name, batch:g.batch, pin:g.pin });
           }
         });
 
-        // Gift summary table
-        let giftSummaryHtml = '';
-        giftItems.forEach(item => {
-          giftSummaryHtml += `<tr>
-            <td>${item}</td>
+        let giftSummaryHtml = `<tr>
+            <td>Gift Item</td>
             <td style="text-align:center;">${snap.docs.length}</td>
-            <td style="text-align:center;color:var(--success);font-weight:700;">${giftReceived[item]}</td>
-            <td style="text-align:center;color:var(--red);font-weight:700;">${giftDue[item]}</td>
+            <td style="text-align:center;color:var(--success);font-weight:700;">${giftRecvCount}</td>
+            <td style="text-align:center;color:var(--red);font-weight:700;">${giftDueCount}</td>
           </tr>`;
-        });
         document.getElementById('gift-summary-body').innerHTML = giftSummaryHtml;
 
-        // Gift due guest list table
         let dueguestHtml = '';
         if (!dueguests.length) {
-          dueguestHtml = '<tr><td colspan="4" style="text-align:center;color:var(--success);font-weight:700;padding:14px;">🎉 All guests have received all gift items!</td></tr>';
+          dueguestHtml = '<tr><td colspan="4" style="text-align:center;color:var(--success);font-weight:700;padding:14px;">All guests have received the gift item.</td></tr>';
         } else {
           dueguests.forEach(g => {
             dueguestHtml += `<tr>
               <td style="font-weight:700;">${g.name}</td>
               <td style="text-align:center;">${g.batch}</td>
               <td style="text-align:center;">${g.pin}</td>
-              <td style="color:var(--red);font-weight:700;">${g.dueItems.join(', ')}</td>
+              <td style="color:var(--red);font-weight:700;">Gift Item</td>
             </tr>`;
           });
         }
@@ -1058,6 +972,8 @@ async function loadStats() {
         const cd = configSnap.data();
         if (cd.startDate) EVENT_START_DATE = cd.startDate;
         if (cd.endDate)   EVENT_END_DATE   = cd.endDate;
+        if (cd.alumniFee) ALUMNI_FEE = cd.alumniFee;
+        if (cd.familyFee) FAMILY_FEE = cd.familyFee;
       }
     } catch(e) { console.error(e); }
 
@@ -1075,7 +991,9 @@ async function loadStats() {
         const g = d.data(); total++;
         if (g.approved) approved++; else pending++;
         people += (g.familyCount||0)+1;
-        amount += g.amount||(10+(g.familyCount||0)*5);
+        const gAlumni = g.totalAlumniCount || (1 + (g.extraAlumniCount||0));
+        const gFamily = g.totalFamilyCount || ((g.familyCount||0) + (g.extraFamilyCount||0));
+        amount += g.amount || ((gAlumni * ALUMNI_FEE) + (gFamily * FAMILY_FEE));
         if ((g.familyCount||0)>0) withFamily++;
       });
       document.getElementById('st-total').textContent    = total;
@@ -1095,13 +1013,11 @@ async function loadStats() {
       const days = getEventDays();
       const rows = [];
 
-      // Header row
-      const header = ['Name','Batch','PIN','Family Members','Total People','Amount (Rs.)','Status','Registered At'];
+            // Header row
+      const header = ['Name','Batch','Division','WhatsApp','Address','PIN','Family','Extra Alumni','Extra Family','Total Alumni','Total Family','Amount (Rs.)','Payment Choice','Payment Status','Status','Registered At'];
       days.forEach(day => {
-        header.push(`${day.label} - Breakfast Req`);
         header.push(`${day.label} - Lunch Req`);
         header.push(`${day.label} - Dinner Req`);
-        header.push(`${day.label} - Breakfast Actual`);
         header.push(`${day.label} - Lunch Actual`);
         header.push(`${day.label} - Dinner Actual`);
       });
@@ -1116,20 +1032,26 @@ async function loadStats() {
         const row = [
           g.name,
           g.batch,
+          g.division || '',
+          g.whatsapp || '',
+          g.address  || '',
           g.pin,
           g.familyCount||0,
-          total,
-          g.amount||(10+(g.familyCount||0)*5),
+          g.extraAlumniCount||0,
+          g.extraFamilyCount||0,
+          g.totalAlumniCount||(1+(g.extraAlumniCount||0)),
+          g.totalFamilyCount||((g.familyCount||0)+(g.extraFamilyCount||0)),
+          g.amount||0,
+          g.paymentChoice || '',
+          g.paymentStatus || '',
           g.approved ? 'Approved' : 'Pending',
           (g.registeredAt||'').split('T')[0]||''
         ];
         days.forEach(day => {
           const dmr = mr[`day${day.num}`] || {};
           const dma = ma[`day${day.num}`] || {};
-          row.push(dmr.breakfast||0);
           row.push(dmr.lunch||0);
           row.push(dmr.dinner||0);
-          row.push(dma.breakfast||0);
           row.push(dma.lunch||0);
           row.push(dma.dinner||0);
         });
@@ -1149,13 +1071,13 @@ async function loadStats() {
       XLSX.utils.book_append_sheet(wb, ws, 'Guests');
 
       // Food summary sheet
-      const foodRows = [['Food Requirements Summary'],[''],['Day','Breakfast Required','Lunch Required','Dinner Required','Breakfast Actual','Lunch Actual','Dinner Actual']];
+      const foodRows = [['Food Requirements Summary'],[''],['Day','Lunch Required','Dinner Required','Lunch Actual','Dinner Actual']];
       const fsnap = await window._getDocs(window._collection(window._db,'guests'));
-	  const required = {}; const actual = {}; const guestSelected = {};
+      const required = {}; const actual = {}; const guestSelected = {};
       days.forEach(day => {
-        required[day.num]     = { breakfast:0, lunch:0, dinner:0 };
-        actual[day.num]       = { breakfast:0, lunch:0, dinner:0 };
-        guestSelected[day.num]= { breakfast:0, lunch:0, dinner:0 };
+        required[day.num]      = { lunch:0, dinner:0 };
+        actual[day.num]        = { lunch:0, dinner:0 };
+        guestSelected[day.num] = { lunch:0, dinner:0 };
       });
 
       snap.docs.forEach(d => {
@@ -1165,21 +1087,17 @@ async function loadStats() {
         days.forEach(day => {
           const dmr = mr[`day${day.num}`] || {};
           const dma = ma[`day${day.num}`] || {};
-          required[day.num].breakfast += dmr.breakfast||0;
-          required[day.num].lunch     += dmr.lunch||0;
-          required[day.num].dinner    += dmr.dinner||0;
-          actual[day.num].breakfast   += dma.breakfast||0;
-          actual[day.num].lunch       += dma.lunch||0;
-          actual[day.num].dinner      += dma.dinner||0;
-          if ((dmr.breakfast||0)>0) guestSelected[day.num].breakfast++;
-          if ((dmr.lunch||0)>0)     guestSelected[day.num].lunch++;
-          if ((dmr.dinner||0)>0)    guestSelected[day.num].dinner++;
+          required[day.num].lunch  += dmr.lunch||0;
+          required[day.num].dinner += dmr.dinner||0;
+          actual[day.num].lunch    += dma.lunch||0;
+          actual[day.num].dinner   += dma.dinner||0;
         });
-      });;
+      });
       days.forEach(day => {
         const r=required[day.num]; const a=actual[day.num];
-        foodRows.push([day.label,r.breakfast,r.lunch,r.dinner,a.breakfast,a.lunch,a.dinner]);
+        foodRows.push([day.label,r.lunch,r.dinner,a.lunch,a.dinner]);
       });
+
       const ws2 = XLSX.utils.aoa_to_sheet(foodRows);
       ws2['!cols'] = foodRows[2].map(() => ({wch:22}));
       XLSX.utils.book_append_sheet(wb, ws2, 'Food Summary');
@@ -1206,56 +1124,52 @@ async function loadStats() {
 
       // Section 1: Food Requirements
       foodRows.push(['FOOD REQUIREMENTS (PRE-REGISTERED)']);
-      foodRows.push(['Day', 'Breakfast', 'Lunch', 'Dinner']);
+      foodRows.push(['Day', 'Lunch', 'Dinner']);
 
       const required = {}; const actual = {}; const guestSelected = {};
       days.forEach(day => {
-        required[day.num]      = { breakfast:0, lunch:0, dinner:0 };
-        actual[day.num]        = { breakfast:0, lunch:0, dinner:0 };
-        guestSelected[day.num] = { breakfast:0, lunch:0, dinner:0 };
+        required[day.num]      = { lunch:0, dinner:0 };
+        actual[day.num]        = { lunch:0, dinner:0 };
+        guestSelected[day.num] = { lunch:0, dinner:0 };
       });
       snap.docs.forEach(d => {
         const g=d.data(); const mr=g.mealsRequired||{}; const ma=g.meals||{};
         days.forEach(day => {
           const dmr=mr[`day${day.num}`]||{}; const dma=ma[`day${day.num}`]||{};
-          required[day.num].breakfast += dmr.breakfast||0;
-          required[day.num].lunch     += dmr.lunch||0;
-          required[day.num].dinner    += dmr.dinner||0;
-          actual[day.num].breakfast   += dma.breakfast||0;
-          actual[day.num].lunch       += dma.lunch||0;
-          actual[day.num].dinner      += dma.dinner||0;
-          if ((dmr.breakfast||0)>0) guestSelected[day.num].breakfast++;
-          if ((dmr.lunch||0)>0)     guestSelected[day.num].lunch++;
-          if ((dmr.dinner||0)>0)    guestSelected[day.num].dinner++;
+          required[day.num].lunch  += dmr.lunch||0;
+          required[day.num].dinner += dmr.dinner||0;
+          actual[day.num].lunch    += dma.lunch||0;
+          actual[day.num].dinner   += dma.dinner||0;
+          if ((dmr.lunch||0)>0)  guestSelected[day.num].lunch++;
+          if ((dmr.dinner||0)>0) guestSelected[day.num].dinner++;
         });
       });
 
       const totalGuests = snap.docs.length;
-      let rTotB=0,rTotL=0,rTotD=0;
+      let rTotL=0,rTotD=0;
       days.forEach(day => {
         const r = required[day.num];
-        rTotB+=r.breakfast; rTotL+=r.lunch; rTotD+=r.dinner;
-        const nsB = totalGuests - guestSelected[day.num].breakfast;
+        rTotL+=r.lunch; rTotD+=r.dinner;
         const nsL = totalGuests - guestSelected[day.num].lunch;
         const nsD = totalGuests - guestSelected[day.num].dinner;
-        foodRows.push([day.label, r.breakfast, r.lunch, r.dinner]);
-        foodRows.push(['  Not Specified', nsB, nsL, nsD]);
+        foodRows.push([day.label, r.lunch, r.dinner]);
+        foodRows.push(['  Not Specified', nsL, nsD]);
       });
-      foodRows.push(['TOTAL', rTotB, rTotL, rTotD]);
+      foodRows.push(['TOTAL', rTotL, rTotD]);
 
       foodRows.push(['']);
       foodRows.push(['']);
 
       // Section 2: Actual Attendance
       foodRows.push(['ACTUAL ATTENDANCE (SCANNED)']);
-      foodRows.push(['Day', 'Breakfast', 'Lunch', 'Dinner']);
-      let aTotB=0,aTotL=0,aTotD=0;
+      foodRows.push(['Day', 'Lunch', 'Dinner']);
+      let aTotL=0,aTotD=0;
       days.forEach(day => {
         const a = actual[day.num];
-        aTotB+=a.breakfast; aTotL+=a.lunch; aTotD+=a.dinner;
-        foodRows.push([day.label, a.breakfast, a.lunch, a.dinner]);
+        aTotL+=a.lunch; aTotD+=a.dinner;
+        foodRows.push([day.label, a.lunch, a.dinner]);
       });
-      foodRows.push(['TOTAL', aTotB, aTotL, aTotD]);
+      foodRows.push(['TOTAL', aTotL, aTotD]);
 
       const ws1 = XLSX.utils.aoa_to_sheet(foodRows);
       ws1['!cols'] = [{wch:36},{wch:16},{wch:16},{wch:16}];
@@ -1274,83 +1188,44 @@ async function loadStats() {
 
       XLSX.utils.book_append_sheet(wb, ws1, 'Food & Attendance');
 
-      // ── PAGE 2: T-SHIRT ──
-      const sizes = [26,28,30,32,34,36,38,40,42,44];
-      const tshirtCount = {};
-      sizes.forEach(s => tshirtCount[s]=0);
-      let tshirtTotal = 0;
+      // ── PAGE 3: GIFTS ──
+      let giftRecvCount = 0;
+      let giftDueCount  = 0;
+      const dueGuestRows = [];
+
       snap.docs.forEach(d => {
-        const s = d.data().tshirtSize || 0;
-        if (s>0 && tshirtCount[s]!==undefined) { tshirtCount[s]++; tshirtTotal++; }
-      });
-      const notSpecified = totalGuests - tshirtTotal;
-
-      const tshirtRows = [];
-      tshirtRows.push(['RKMVP Alumni Association — Reunion 2026']);
-      tshirtRows.push(['']);
-      tshirtRows.push(['T-SHIRT REQUIREMENTS']);
-      tshirtRows.push(['Size (cm)', 'Count']);
-      sizes.forEach(s => tshirtRows.push([`${s} cm`, tshirtCount[s]]));
-      tshirtRows.push(['Total T-Shirt Required', tshirtTotal]);
-      tshirtRows.push(['Not Specified', notSpecified]);
-
-      const ws2 = XLSX.utils.aoa_to_sheet(tshirtRows);
-      ws2['!cols'] = [{wch:28},{wch:16}];
-      ws2['!pageSetup'] = { paperSize:9, orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 };
-      if (ws2['A1']) ws2['A1'].s = { font:{ bold:true, sz:16 } };
-      if (ws2['A3']) ws2['A3'].s = { font:{ bold:true, sz:13 } };
-
-      XLSX.utils.book_append_sheet(wb, ws2, 'T-Shirt Requirements');
-
-// ── PAGE 3: GIFTS ──
-      const giftConfigSnap = await window._getDoc(window._doc(window._db,'config','event'));
-      const giftItemsList  = giftConfigSnap.exists() ? (giftConfigSnap.data().giftItems || []) : [];
-
-      if (giftItemsList.length > 0) {
-        const giftReceived = {};
-        const giftDue      = {};
-        giftItemsList.forEach(item => { giftReceived[item]=0; giftDue[item]=0; });
-        const dueGuestRows = [];
-
-        snap.docs.forEach(d => {
-          const g          = d.data();
-          const giftsGiven = g.giftsGiven || {};
-          const dueItems   = [];
-          giftItemsList.forEach((item, idx) => {
-            if (giftsGiven[item]) { giftReceived[item]++; }
-            else { giftDue[item]++; dueItems.push(`${idx+1}. ${item}`); }
-          });
-          if (dueItems.length > 0) {
-            dueGuestRows.push([g.name, g.batch, g.pin, dueItems.join(', ')]);
-          }
-        });
-
-        const giftRows = [];
-        giftRows.push(['RKMVP Alumni Association — Reunion 2026']);
-        giftRows.push(['']);
-        giftRows.push(['GIFT ITEMS SUMMARY']);
-        giftRows.push(['Gift Item', 'Total', 'Received', 'Due']);
-        giftItemsList.forEach(item => {
-          giftRows.push([item, snap.docs.length, giftReceived[item], giftDue[item]]);
-        });
-        giftRows.push(['']);
-        giftRows.push(['']);
-        giftRows.push(['GUESTS WITH DUE ITEMS']);
-        giftRows.push(['Name', 'Batch', 'PIN', 'Due Items']);
-        if (dueGuestRows.length === 0) {
-          giftRows.push(['All guests have received all gift items!','','','']);
+        const g = d.data();
+        if (g.giftReceived === true) {
+          giftRecvCount++;
         } else {
-          dueGuestRows.forEach(row => giftRows.push(row));
+          giftDueCount++;
+          dueGuestRows.push([g.name, g.batch, g.pin, 'Gift Item']);
         }
+      });
 
-        const ws3 = XLSX.utils.aoa_to_sheet(giftRows);
-        ws3['!cols'] = [{wch:30},{wch:10},{wch:10},{wch:50}];
-        ws3['!pageSetup'] = { paperSize:9, orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 };
-        if (ws3['A1']) ws3['A1'].s = { font:{ bold:true, sz:16 } };
-        if (ws3['A3']) ws3['A3'].s = { font:{ bold:true, sz:13 } };
-        if (ws3['A8']) ws3['A8'].s = { font:{ bold:true, sz:13 } };
-        XLSX.utils.book_append_sheet(wb, ws3, 'Gift Summary');
+      const giftRows = [];
+      giftRows.push(['RKMVP Alumni Association — Reunion 2026']);
+      giftRows.push(['']);
+      giftRows.push(['GIFT ITEMS SUMMARY']);
+      giftRows.push(['Gift Item', 'Total', 'Received', 'Due']);
+      giftRows.push(['Gift Item', snap.docs.length, giftRecvCount, giftDueCount]);
+      giftRows.push(['']);
+      giftRows.push(['']);
+      giftRows.push(['GUESTS WITH DUE ITEMS']);
+      giftRows.push(['Name', 'Batch', 'PIN', 'Due Items']);
+      if (dueGuestRows.length === 0) {
+        giftRows.push(['All guests have received the gift item.','','','']);
+      } else {
+        dueGuestRows.forEach(row => giftRows.push(row));
       }
+
+      const ws3 = XLSX.utils.aoa_to_sheet(giftRows);
+      ws3['!cols'] = [{wch:30},{wch:10},{wch:10},{wch:50}];
+      ws3['!pageSetup'] = { paperSize:9, orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 };
+      if (ws3['A1']) ws3['A1'].s = { font:{ bold:true, sz:16 } };
+      if (ws3['A3']) ws3['A3'].s = { font:{ bold:true, sz:13 } };
+      if (ws3['A8']) ws3['A8'].s = { font:{ bold:true, sz:13 } };
+      XLSX.utils.book_append_sheet(wb, ws3, 'Gift Summary');
 
       XLSX.writeFile(wb, `RKMVP_Estimate_${new Date().toISOString().split('T')[0]}.xlsx`);
 
@@ -1393,7 +1268,7 @@ async function loadEventConfig() {
     try {
       const snap = await window._getDoc(window._doc(window._db,'config','event'));
       if (!snap.exists()) {
-        renderProgramsConfig({});
+        renderProgramsConfig({}, getEventDays());
         return;
       }
       const d = snap.data();
@@ -1405,7 +1280,7 @@ async function loadEventConfig() {
       document.getElementById('ev-de').value         = d.dinnerEnd   || '11:00 PM';
       document.getElementById('ev-alumni-fee').value = d.alumniFee   ?? 20;
       document.getElementById('ev-family-fee').value = d.familyFee   ?? 5;
-      renderProgramsConfig(d.programs || {});
+      renderProgramsConfig(d.programs || {}, getEventDaysFrom(d.startDate || EVENT_START_DATE, d.endDate || EVENT_END_DATE));
     } catch(e) { console.error(e); }
   }
 
@@ -1453,6 +1328,10 @@ async function saveEventConfig() {
         alumniFee, familyFee,
         programs
       });
+      EVENT_START_DATE = startDate;
+      EVENT_END_DATE   = endDate;
+      ALUMNI_FEE       = alumniFee;
+      FAMILY_FEE       = familyFee;
       msgEl.textContent = 'Event config saved!';
       msgEl.style.background='#D4EDDA'; msgEl.style.color='#155724';
       msgEl.style.display='block';
@@ -1470,7 +1349,7 @@ async function saveEventConfig() {
     if (!window._firebaseReady) return;
 
     // Step 1 — first confirmation
-    const confirm1 = confirm('⚠️ WARNING!\n\nThis will permanently delete ALL guest registrations and manual entries.\n\nAre you sure you want to continue?');
+    const confirm1 = confirm('WARNING!\n\nThis will permanently delete ALL guest registrations and manual entries.\n\nAre you sure you want to continue?');
     if (!confirm1) return;
 
     // Step 2 — password confirmation
@@ -1487,12 +1366,12 @@ async function saveEventConfig() {
       await reauthenticateWithCredential(user, credential);
 
     } catch(e) {
-      alert('❌ Wrong password. Master Clear cancelled.');
+      alert('Wrong password. Master Clear cancelled.');
       return;
     }
 
     // Step 3 — final confirmation
-    const confirm2 = confirm('🚨 FINAL WARNING!\n\nAll guest data will be deleted permanently.\n\nPress OK to proceed.');
+    const confirm2 = confirm('FINAL WARNING!\n\nAll guest data will be deleted permanently.\n\nPress OK to proceed.');
     if (!confirm2) return;
 
     try {
@@ -1508,14 +1387,14 @@ async function saveEventConfig() {
       manualSnap.docs.forEach(d => batch2.delete(window._doc(window._db,'manualEntries',d.id)));
       await batch2.commit();
 
-      alert('✅ Master Clear complete!\n\nAll guest registrations and manual entries have been deleted.\n\nDatabase is ready for the event!');
+      alert('Master Clear complete!\n\nAll guest registrations and manual entries have been deleted.\n\nDatabase is ready for the event!');
 
       // Refresh stats
       loadStats();
 
     } catch(e) {
       console.error(e);
-      alert('❌ Error during Master Clear. Please try again.');
+      alert('Error during Master Clear. Please try again.');
     }
   }	
 	
