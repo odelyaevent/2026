@@ -477,10 +477,12 @@ function pushScreenState(screenName) {
 function showLogin() {
       hideAll();
       document.getElementById('pin-screen').style.display = 'flex';
+      const waInput  = document.getElementById('return-whatsapp');
       const pinInput = document.getElementById('return-pin');
+      waInput.value = '';
       pinInput.value = '';
       document.getElementById('err-return-pin').style.display = 'none';
-      setTimeout(() => pinInput.focus(), 150);
+      setTimeout(() => waInput.focus(), 150);
       pushScreenState('login');
     }
 
