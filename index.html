@@ -631,8 +631,8 @@ function openRazorpayCheckout(docId, name, amount) {
         theme: { color: "#0D2B5E" },
         modal: {
           ondismiss: function() {
-            document.getElementById('payment-redirect-screen').innerHTML =
-              '<div class="icon">⚠️</div><h3>Payment Not Completed</h3><p>You closed the payment window.<br>Your registration is saved.<br>Please go to the <strong>front desk</strong> to complete payment,<br>or try again by logging in with your PIN.</p>';
+              document.getElementById('payment-redirect-screen').innerHTML =
+              '<h3>Payment Not Completed</h3><p style="font-size:1.4rem;font-weight:900;color:var(--red);">Please refresh the page & try again.</p><button class="btn btn-pay-now" style="margin-top:22px;" onclick="location.reload()">Refresh</button>';
           }
         }
       };
