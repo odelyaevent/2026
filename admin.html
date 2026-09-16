@@ -637,7 +637,7 @@ function buildCard(docId, g) {
         </div>
         <div class="field-row">
           <label>WhatsApp</label>
-          <input type="text" id="e-whatsapp-${docId}" value="${g.whatsapp||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" id="e-whatsapp-${docId}" value="${g.whatsapp||''}" maxlength="10"/>
         </div>
         <div class="field-row">
           <label>Login PIN</label>
@@ -645,7 +645,7 @@ function buildCard(docId, g) {
         </div>
         <div class="field-row">
           <label>Address</label>
-          <input type="text" id="e-address-${docId}" value="${g.address||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" id="e-address-${docId}" value="${g.address||''}"/>
         </div>
 
         <div class="field-row">
@@ -781,6 +781,8 @@ function buildCard(docId, g) {
     const name        = document.getElementById('e-name-'+docId).value.trim();
     const batch       = parseInt(document.getElementById('e-batch-'+docId).value);
     const division    = document.getElementById('e-division-'+docId).value.trim();
+    const whatsapp    = document.getElementById('e-whatsapp-'+docId).value.trim();
+    const address     = document.getElementById('e-address-'+docId).value.trim();
     const pin         = document.getElementById('e-pin-'+docId).value.trim();
     const family      = parseInt(document.getElementById('e-family-'+docId).value)||0;
     const extraAlumni = parseInt(document.getElementById('e-extra-alumni-'+docId).value)||0;
@@ -803,6 +805,8 @@ function buildCard(docId, g) {
     try {
       await window._updateDoc(window._doc(window._db,'guests',docId), {
         name, batch, division, pin,
+        whatsapp,
+        address,
         familyCount:      family,
         extraAlumniCount: extraAlumni,
         extraFamilyCount: extraFamily,
