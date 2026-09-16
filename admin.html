@@ -658,7 +658,7 @@ function buildCard(docId, g) {
         ${mealSections}
 
         <div class="amount-row">
-          <label>${approved?'Amount Paid':'Amount Due'}</label>
+          <label id="amountlabel-${docId}">${approved?'Amount Paid':'Amount Due'}</label>
           <span>Rs. ${g.amount||0}/-</span>
         </div>
 
@@ -776,6 +776,9 @@ function buildCard(docId, g) {
         apBtn.classList.remove('abtn-disabled');
         dsBtn.classList.add('abtn-disabled');
       }
+
+      const amtLabel = document.getElementById('amountlabel-'+docId);
+      if (amtLabel) amtLabel.textContent = newVal ? 'Amount Paid' : 'Amount Due';
 
       apBtn.onclick = () => toggleApprove(docId, newVal);
       dsBtn.onclick = () => toggleApprove(docId, newVal);
