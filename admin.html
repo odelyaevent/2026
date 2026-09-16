@@ -406,6 +406,7 @@ header h1{padding:0 74px 0 74px;}
   <!-- REPORT TAB -->
   <div id="tab-report" class="tab-content">
     <div style="padding:14px;">
+      <button class="btn-report" onclick="reportEstimate()">Estimate Report</button>
       <button class="btn-report" onclick="reportStats()">Stats Report</button>
     </div>
   </div>
@@ -1140,6 +1141,205 @@ async function loadStats() {
       document.getElementById('st-family').textContent   = familyMembers;
            document.getElementById('st-amount').textContent   = approvedAmount;
     } catch(e) { console.error(e); }
+  }
+
+  // ── ESTIMATE REPORT ──
+  async function reportEstimate() {
+    if (!window._firebaseReady) return;
+    try {
+      const snap = await window._getDocs(window._collection(window._db,'guests'));
+      const days = getEventDays();
+
+      // Read config for header dates
+      let eventStart = EVENT_START_DATE;
+      let eventEnd   = EVENT_END_DATE;
+      try {
+        const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
+        if (configSnap.exists()) {
+          const cd = configSnap.data();
+          if (cd.startDate) eventStart = cd.startDate;
+          if (cd.endDate)   eventEnd   = cd.endDate;
+        }
+      } catch(e) {}
+
+      const fmt = (str) => new Date(str).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const headerLine3 = `${fmt(eventStart)} - ${fmt(eventEnd)}, Purulia RKM`;
+
+      // ── Compute all four sections ──
+      const required = {}; const actual = {};
+      days.forEach(day => {
+        required[day.num] = { lunch:0, dinner:0 };
+        actual[day.num]   = { lunch:0, dinner:0 };
+      });
+
+      snap.docs.forEach(d => {
+        const g  = d.data();
+        const mr = g.mealsRequired || {};
+        const ma = g.meals || {};
+        days.forEach(day => {
+          const dmr = mr[`day${day.num}`] || {};
+          const dma = ma[`day${day.num}`] || {};
+          required[day.num].lunch  += dmr.lunch||0;
+          required[day.num].dinner += dmr.dinner||0;
+          actual[day.num].lunch    += dma.lunch||0;
+          actual[day.num].dinner   += dma.dinner||0;
+        });
+      });
+
+      const manualData = {};
+      days.forEach(day => manualData[day.num] = {lunch:0,dinner:0});
+      for (const day of days) {
+        try {
+          const mSnap = await window._getDoc(window._doc(window._db,'manualEntries',`day${day.num}`));
+          if (mSnap.exists()) {
+            const md = mSnap.data();
+            manualData[day.num].lunch  = md.lunch||0;
+            manualData[day.num].dinner = md.dinner||0;
+          }
+        } catch(e) {}
+      }
+
+      // Gift Summary
+      let giftRecvCount = 0, giftDueCount = 0;
+      const dueguests = [];
+      snap.docs.forEach(d => {
+        const g = d.data();
+        if (g.giftReceived === true) {
+          giftRecvCount++;
+        } else {
+          giftDueCount++;
+          dueguests.push({ name:g.name, batch:g.batch, whatsapp:g.whatsapp, approved: g.approved === true });
+        }
+      });
+
+      // ── Build the worksheet ──
+      const rows = [];
+      const meta = []; // stores per-row style info for later
+
+      // Header
+      rows.push(['RKMVP Alumni Association']);
+      rows.push(['22nd Reunion 2026']);
+      rows.push([headerLine3]);
+      rows.push(['']);
+
+      // Sub-heading
+      rows.push(['Estimate Report']);
+      rows.push(['']);
+
+      // ── Tentative ──
+      rows.push(['Tentative']);
+      rows.push(['Date', 'Lunch', 'Dinner']);
+      days.forEach(day => {
+        const r = required[day.num];
+        const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        rows.push([dateLabel, r.lunch, r.dinner]);
+      });
+      rows.push(['__COLORED__']);   // divider marker
+
+      // ── Actual ──
+      rows.push(['Actual']);
+      rows.push(['Date', 'Lunch', 'Dinner']);
+      let aTotL=0, aTotD=0, mTotL=0, mTotD=0;
+      days.forEach(day => {
+        const a  = actual[day.num];
+        const mn = manualData[day.num];
+        aTotL+=a.lunch; aTotD+=a.dinner;
+        mTotL+=mn.lunch; mTotD+=mn.dinner;
+        const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        rows.push([`${dateLabel} - QR`, a.lunch, a.dinner]);
+        rows.push([`${dateLabel} - Manual`, mn.lunch, mn.dinner]);
+      });
+      rows.push(['Total QR', aTotL, aTotD]);
+      rows.push(['Total Manual', mTotL, mTotD]);
+      rows.push(['Sum', aTotL+mTotL, aTotD+mTotD]);
+      rows.push(['__COLORED__']);
+
+      // ── Gift Summary ──
+      rows.push(['Gift Summary']);
+      rows.push(['Total', 'Received', 'Due']);
+      rows.push([snap.docs.length, giftRecvCount, giftDueCount]);
+      rows.push(['__COLORED__']);
+
+      // ── Gift Due ──
+      rows.push(['Gift Due']);
+      rows.push(['Name', 'Batch', 'Mobile']);
+      if (dueguests.length === 0) {
+        rows.push(['All guests have received the gift item.', '', '']);
+      } else {
+        dueguests.forEach(g => {
+          rows.push([g.name, g.batch, g.whatsapp||'']);
+        });
+      }
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // Column widths
+      ws['!cols'] = [{ wch: 32 }, { wch: 14 }, { wch: 18 }];
+
+      // Portrait A4
+      ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      // Font 16 for all cells
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) continue;
+          ws[addr].s = { font: { sz: 16 } };
+        }
+      }
+
+      // Header rows 1-3 — bold red
+      ['A1','A2','A3'].forEach(addr => {
+        if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: 'CC0000' } } };
+      });
+
+      // "Estimate Report" (row 5) — bold green
+      if (ws['A5']) ws['A5'].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+
+      // Style each section title + the divider rows
+      rows.forEach((r, i) => {
+        const rowNum = i + 1;
+        const firstCell = r[0];
+        const addr = `A${rowNum}`;
+
+        // Section titles — bold green
+        if (['Tentative','Actual','Gift Summary','Gift Due'].includes(firstCell)) {
+          if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+        }
+
+        // Column header rows — bold
+        if (['Date','Total','Name'].includes(firstCell) && i > 5) {
+          for (let c = 0; c < 3; c++) {
+            const a = XLSX.utils.encode_cell({ r: i, c: c });
+            if (ws[a]) ws[a].s = { font: { sz: 16, bold: true } };
+          }
+        }
+
+        // Divider rows — fill light blue
+        if (firstCell === '__COLORED__') {
+          for (let c = 0; c < 3; c++) {
+            const a = XLSX.utils.encode_cell({ r: i, c: c });
+            if (!ws[a]) ws[a] = { t: 's', v: '' };
+            ws[a].s = { fill: { fgColor: { rgb: 'D6E4F7' } } };
+          }
+        }
+      });
+
+      // Row heights
+      ws['!rows'] = rows.map(r => ({ hpt: r[0] === '' || r[0] === '__COLORED__' ? 14 : 24 }));
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Estimate');
+
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `RKMVP_Report_Estimate_${today}.xlsx`);
+
+    } catch(e) {
+      console.error(e);
+      alert('Error generating report. Try again.');
+    }
   }
 
   // ── STATS REPORT ──
