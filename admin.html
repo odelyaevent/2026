@@ -1058,8 +1058,9 @@ async function loadStats() {
       document.getElementById('st-approved').textContent = approved;
       document.getElementById('st-pending').textContent  = pending;
       document.getElementById('st-family').textContent   = familyMembers;
-      document.getElementById('st-amount').textContent   = approvedAmount;
+           document.getElementById('st-amount').textContent   = approvedAmount;
     } catch(e) { console.error(e); }
+  }
 
   // ── EXCEL EXPORT ──
   async function exportExcel() {
