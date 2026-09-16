@@ -659,7 +659,7 @@ function buildCard(docId, g) {
 
         <div class="amount-row">
           <label id="amountlabel-${docId}">${approved?'Amount Paid':'Amount Due'}</label>
-          <span>Rs. ${g.amount||0}/-</span>
+          <span id="amountval-${docId}">Rs. ${g.amount||0}/-</span>
         </div>
 
         ${giftSection}
@@ -869,6 +869,8 @@ function buildCard(docId, g) {
       clearSearchCache();
       const saveBtn = document.getElementById('savebtn-'+docId);
       if (saveBtn) saveBtn.classList.add('abtn-disabled');
+      const amtVal = document.getElementById('amountval-'+docId);
+      if (amtVal) amtVal.textContent = `Rs. ${amount}/-`;
       showMsg(docId, 'Changes saved successfully!', 'ok');
     } catch(e) { showMsg(docId, 'Error saving. Try again.', 'err'); }
   }
