@@ -155,18 +155,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     </div>
   </header>
 
-  <!-- LOGIN -->
-  <div class="card" id="pin-card">
-    <div class="card-header"><h2>Guest Login</h2></div>
-    <div class="card-body" style="text-align:center;">
-      <p style="color:#555;font-size:1rem;margin-bottom:18px;line-height:1.6;">Enter your <strong>WhatsApp No.</strong><br>and <strong>Login PIN</strong></p>
-      <label>WhatsApp No.</label>
-      <input type="text" id="wa-input" maxlength="10" inputmode="numeric" pattern="[0-9]*" placeholder="10-digit number" autocomplete="off" style="letter-spacing:0.1em;"/>
-      <label style="margin-top:16px;">Login PIN</label>
-      <input type="password" id="pin-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="••••••" autocomplete="new-password"/>
-      <div class="field-error" id="pin-error">❌ Invalid Credentials</div>
-      <button class="btn" id="btn-enter" onclick="enterPortal()">ENTER</button>
-    </div>
+  <!-- LOADING -->
+  <div id="loading-screen" style="text-align:center;padding:60px 18px;">
+    <div style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.2rem;margin-bottom:16px;">Loading...</div>
+    <div style="display:inline-block;width:36px;height:36px;border:4px solid #C5D3E8;border-top-color:var(--deep-blue);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
   </div>
 
   <!-- NOT APPROVED -->
@@ -356,31 +348,29 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       } catch(e) { console.error(e); }
     }
 
-    async function enterPortal() {
-      const wa     = document.getElementById('wa-input').value.trim();
-      const pin    = document.getElementById('pin-input').value.trim();
-      const errEl  = document.getElementById('pin-error');
-      const btn    = document.getElementById('btn-enter');
-      const waInp  = document.getElementById('wa-input');
-      const pinInp = document.getElementById('pin-input');
-      errEl.style.display = 'none';
-      waInp.classList.remove('error');
-      pinInp.classList.remove('error');
+    // ── BOOT: VALIDATE CREDENTIALS AND SHOW MAIN MENU ──
+    async function bootGuest() {
+      // Read credentials from URL or localStorage
+      const params = new URLSearchParams(window.location.search);
+      const wa  = params.get('wa')  || localStorage.getItem('rkmvp_whatsapp') || '';
+      const pin = params.get('pin') || localStorage.getItem('rkmvp_pin')      || '';
 
-      if (!/^\d{10}$/.test(wa)) {
-        waInp.classList.add('error');
-        errEl.textContent = '❌ Please enter a valid 10-digit WhatsApp No.';
-        errEl.style.display = 'block'; return;
+      // No credentials → go to index.html
+      if (!wa || !pin) {
+        window.location.replace('index.html');
+        return;
       }
-      if (!/^\d{6}$/.test(pin)) {
-        pinInp.classList.add('error');
-        errEl.textContent = '❌ Please enter a valid 6-digit PIN.';
-        errEl.style.display = 'block'; return;
-      }
-      if (!window._firebaseReady) { alert('Loading...'); return; }
 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Loading...';
+      // Basic format check
+      if (!/^\d{10}$/.test(wa) || !/^\d{6}$/.test(pin)) {
+        window.location.replace('index.html');
+        return;
+      }
+
+      if (!window._firebaseReady) {
+        setTimeout(bootGuest, 200);
+        return;
+      }
 
       try {
         const q = window._query(
@@ -390,30 +380,35 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         );
         const snap = await window._getDocs(q);
 
+        // Wrong credentials → back to index.html
         if (snap.empty) {
-          waInp.classList.add('error');
-          pinInp.classList.add('error');
-          errEl.textContent = '❌ Invalid Credentials';
-          errEl.style.display = 'block';
-          btn.disabled = false; btn.innerHTML = 'ENTER'; return;
+          localStorage.removeItem('rkmvp_pin');
+          localStorage.removeItem('rkmvp_whatsapp');
+          localStorage.removeItem('rkmvp_device_token');
+          window.location.replace('index.html');
+          return;
         }
 
         const docId = snap.docs[0].id;
         const g     = snap.docs[0].data();
 
-        // Save login credentials for auto-login until event ends
+        // Save credentials for next time
         localStorage.setItem('rkmvp_pin', pin);
         localStorage.setItem('rkmvp_whatsapp', wa);
+
+        // Register device
         if (!isTokenExpired()) {
           await saveDeviceToken(docId, g.familyCount||0);
         }
 
-        document.getElementById('pin-card').style.display = 'none';
+        // Hide loading
+        const loader = document.getElementById('loading-screen');
+        if (loader) loader.style.display = 'none';
 
-        // Approval check
+        // Not approved → show notice
         if (!g.approved) {
           document.getElementById('not-approved-box').style.display = 'block';
-          btn.disabled = false; btn.innerHTML = 'ENTER'; return;
+          return;
         }
 
         // Event day check
@@ -431,22 +426,108 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
             subEl.textContent = 'Thank you for attending RKMVP Reunion 2026!';
           }
           document.getElementById('not-event-day-box').style.display = 'block';
-          btn.disabled = false; btn.innerHTML = 'ENTER'; return;
+          return;
         }
 
-        // Save globally
+        // All good — save globals and show main menu
         currentGuestData = g;
         currentDocId     = docId;
-
         document.getElementById('main-menu').style.display = 'block';
 
-        btn.disabled = false; btn.innerHTML = 'ENTER';
+        // Prepare meal screen in background (for later steps)
+        const total       = (g.familyCount||0)+1;
+        const currentMeal = getCurrentMeal();
+        const dayKey      = `day${eventDay.num}`;
+        const meals       = g.meals || {};
+
+        if (!currentMeal) {
+          document.getElementById('outside-hours').style.display = 'block';
+          document.getElementById('qr-section').style.display    = 'none';
+          document.getElementById('meal-label-display').textContent = '';
+          document.getElementById('meal-day-tag').textContent = eventDay.label;
+        } else {
+          const used      = (meals[dayKey] && meals[dayKey][currentMeal.key]) || 0;
+          const remaining = total - used;
+
+          if (remaining <= 0) {
+            showCompletion(currentMeal.label, eventDay.label, total);
+          } else {
+            const labelEl = document.getElementById('meal-label-display');
+            labelEl.textContent = currentMeal.label;
+            labelEl.className   = `meal-label ${currentMeal.cls}`;
+            document.getElementById('meal-day-tag').textContent = eventDay.label;
+
+            const qrData = JSON.stringify({
+              guestId: docId,
+              pin:     pin,
+              meal:    currentMeal.key,
+              day:     String(eventDay.num),
+              total:   total,
+              name:    g.name
+            });
+
+            document.getElementById('qr-canvas').innerHTML = '';
+            const canvas = document.createElement('canvas');
+            document.getElementById('qr-canvas').appendChild(canvas);
+            QRCode.toCanvas(canvas, qrData, {
+              width: 250, margin: 2,
+              color: { dark:'#000000', light:'#ffffff' }
+            });
+          }
+        }
+
+        // Realtime meal updates
+        setTimeout(() => { listenMealUpdates(docId, total, eventDay); }, 800);
+
+        // Watch for force logout from admin
+        watchForceLogout(docId);
 
       } catch(e) {
         console.error(e);
-        alert('Something went wrong. Please try again.');
-        btn.disabled = false; btn.innerHTML = 'ENTER';
+        window.location.replace('index.html');
       }
+    }
+
+    // ── FORCE LOGOUT LISTENER ──
+    function watchForceLogout(docId) {
+      if (!window._firebaseReady) return;
+      const ref = window._doc(window._db,'guests',docId);
+      let firstSnapshot = true;
+      window._onSnapshot(ref, snap => {
+        if (!snap.exists()) {
+          // Guest doc was deleted by admin
+          localStorage.removeItem('rkmvp_pin');
+          localStorage.removeItem('rkmvp_whatsapp');
+          localStorage.removeItem('rkmvp_device_token');
+          window.location.replace('index.html');
+          return;
+        }
+        const g = snap.data();
+        const forceAt = g.forceLogoutAt || '';
+
+        // Skip on the very first snapshot (just landing)
+        if (firstSnapshot) {
+          firstSnapshot = false;
+          localStorage.setItem('rkmvp_last_force', forceAt);
+          return;
+        }
+
+        // If forceLogoutAt changed since last seen → kick out
+        const lastForce = localStorage.getItem('rkmvp_last_force') || '';
+        if (forceAt && forceAt !== lastForce) {
+          localStorage.setItem('rkmvp_last_force', forceAt);
+          localStorage.removeItem('rkmvp_pin');
+          localStorage.removeItem('rkmvp_whatsapp');
+          localStorage.removeItem('rkmvp_device_token');
+          window.location.replace('index.html');
+        }
+
+        // Also kick if approval was removed
+        if (g.approved !== true) {
+          document.getElementById('main-menu').style.display = 'none';
+          document.getElementById('not-approved-box').style.display = 'block';
+        }
+      });
     }
 
     function showCompletion(mealLabel, dayLabel, total) {
@@ -800,7 +881,8 @@ function closeLightbox() {
       localStorage.removeItem('rkmvp_device_token');
       localStorage.removeItem('rkmvp_pin');
       localStorage.removeItem('rkmvp_whatsapp');
-      window.location.href = 'index.html';
+      localStorage.removeItem('rkmvp_last_force');
+      window.location.replace('index.html');
     }
 
     function notYou() {
@@ -809,11 +891,12 @@ function closeLightbox() {
       window.location.href = 'index.html';
     }
 
-    // Auto load from URL param or localStorage
-window.addEventListener('load', async () => {
+    // ── ON PAGE LOAD ──
+    window.addEventListener('load', async () => {
       await loadEventConfig();
-	  await loadTunnelUrl();
-document.getElementById('photo-file-input-gallery').addEventListener('change', e => {
+      await loadTunnelUrl();
+
+      document.getElementById('photo-file-input-gallery').addEventListener('change', e => {
         const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
         if (files.length) uploadPhotos(files);
         hideUploadOptions();
@@ -823,19 +906,9 @@ document.getElementById('photo-file-input-gallery').addEventListener('change', e
         if (files.length) uploadPhotos(files);
         hideUploadOptions();
       });
-	  document.getElementById('wa-input').addEventListener('keydown', e => {
-        if (e.key==='Enter') enterPortal();
-      });
-	  document.getElementById('pin-input').addEventListener('keydown', e => {
-        if (e.key==='Enter') enterPortal();
-      });
-      const wa  = localStorage.getItem('rkmvp_whatsapp') || '';
-      const pin = localStorage.getItem('rkmvp_pin') || '';
-      if (wa && pin && !isTokenExpired()) {
-        document.getElementById('wa-input').value  = wa;
-        document.getElementById('pin-input').value = pin;
-        enterPortal();
-      }
+
+      // Boot: validate credentials and show page
+      bootGuest();
     });
 
   </script>
