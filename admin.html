@@ -191,6 +191,8 @@ header h1{padding:0 74px 0 74px;}
     /* EXCEL BUTTON */
     .btn-excel{display:block;width:calc(100% - 28px);margin:10px 14px 0;padding:12px;background:var(--success);color:white;font-family:'Lato',serif;font-size:0.9rem;font-weight:700;letter-spacing:0.05em;border:none;border-radius:10px;cursor:pointer;text-align:center;}
     .btn-excel:active{opacity:0.85;}
+	.btn-report{display:block;width:100%;padding:36px 20px;background:var(--success);color:white;font-family:'Lato',serif;font-size:2.7rem;font-weight:700;letter-spacing:0.05em;border:none;border-radius:12px;cursor:pointer;text-align:center;margin-bottom:24px;}
+    .btn-report:active{opacity:0.85;}
     .section-title{font-family:'Lato',serif;font-size:1.4rem;color:var(--deep-blue);padding:18px 14px 8px;font-weight:700;letter-spacing:0.04em;text-align:center;}
 
 /* GIFT BUTTONS */
@@ -403,9 +405,8 @@ header h1{padding:0 74px 0 74px;}
 
   <!-- REPORT TAB -->
   <div id="tab-report" class="tab-content">
-    <div class="section-title">Report</div>
-    <div style="padding:0 14px;">
-      <button class="btn-excel" onclick="reportStats()" style="margin-bottom:14px;">Stats Report</button>
+    <div style="padding:14px;">
+      <button class="btn-report" onclick="reportStats()">Stats Report</button>
     </div>
   </div>
 
