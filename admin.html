@@ -619,7 +619,7 @@ function buildCard(docId, g) {
     if (g.registeredAt) {
       const d = new Date(g.registeredAt);
       const datePart = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-      const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true});
+      const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).toUpperCase();
       regTime = `${datePart}, ${timePart}`;
     }
 
@@ -1325,7 +1325,7 @@ async function loadStats() {
         if (!iso) return '';
         const d = new Date(iso);
         const datePart = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true});
+        const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).toUpperCase();
         return `${datePart}, ${timePart}`;
       };
 
