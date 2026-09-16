@@ -686,8 +686,11 @@ function buildCard(docId, g) {
   function attachSaveWatcher(docId) {
     const card = document.getElementById('gc-'+docId);
     if (!card) return;
-    card.addEventListener('input',  () => glowSave(docId));
-    card.addEventListener('change', () => glowSave(docId));
+    // Wait until the initial render settles (browsers fire 'change' on <select> at paint)
+    setTimeout(() => {
+      card.addEventListener('input',  () => glowSave(docId));
+      card.addEventListener('change', () => glowSave(docId));
+    }, 400);
   }
 
   function glowSave(docId) {
