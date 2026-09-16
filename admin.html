@@ -155,7 +155,7 @@ header h1{padding:0 74px 0 74px;}
     .action-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px;}
     .abtn{flex:1;padding:16px 10px;border:none;border-radius:10px;font-weight:700;font-size:1.4rem;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.15s,opacity 0.15s;}
     .abtn-approve{background:var(--success);color:white;}
-    .abtn-unapprove{background:#888;color:white;}
+    .abtn-unapprove{background:var(--success);color:white;}
     .abtn-save{background:var(--saffron);color:white;}
     .abtn-logout{background:#6A0DAD;color:white;}
     .abtn-delete{background:var(--red);color:white;}
@@ -192,16 +192,11 @@ header h1{padding:0 74px 0 74px;}
     .btn-excel:active{opacity:0.85;}
     .section-title{font-family:'Lato',serif;font-size:1.4rem;color:var(--deep-blue);padding:18px 14px 8px;font-weight:700;letter-spacing:0.04em;text-align:center;}
 
-/* GIFT ITEMS */
-    .gift-section{background:#F7FFF7;border:1.5px solid #C3E6CB;border-radius:10px;padding:12px 14px;margin-bottom:12px;}
-    .gift-section-title{font-family:'Lato',serif;font-size:0.95rem;font-weight:700;color:var(--success);margin-bottom:10px;letter-spacing:0.03em;}
-    .gift-action-row{display:flex;gap:8px;margin-bottom:10px;}
-    .gift-item-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--white);border-radius:8px;border:1px solid #E0E8F8;margin-bottom:6px;}
-    .gift-item-name{flex:1;font-size:0.95rem;font-weight:700;color:#333;}
-    .gift-btns{display:flex;gap:6px;flex-shrink:0;}
-    .gift-btn{padding:6px 12px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;background:var(--white);color:#888;transition:all 0.15s;}
+/* GIFT BUTTONS */
+    .gift-btn{flex:1;padding:12px 14px;border:1.5px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-weight:700;cursor:pointer;background:var(--white);color:#888;transition:all 0.15s;font-family:'Lato',sans-serif;}
     .gift-btn.gift-btn-active{background:var(--success);color:white;border-color:var(--success);}
     .gift-btn.gift-btn-due-active{background:#FFF3CD;color:#856404;border-color:#FFCA28;}
+
     /* PROGRAMS CONFIG */
     .program-config-day{background:#F7FAFF;border-radius:8px;padding:10px 12px;margin-bottom:10px;border:1px solid #C5D3E8;}
     .program-config-day-title{font-size:1.2rem;font-weight:700;color:var(--deep-blue);letter-spacing:0.03em;margin-bottom:10px;}
@@ -593,18 +588,13 @@ function buildCard(docId, g) {
         </div>`;
     });
 
-    // ── SINGLE GIFT ITEM SECTION ──
+    // ── GIFT SECTION ──
     const giftReceived = g.giftReceived === true;
     const giftSection = `
-      <div class="gift-section">
-        <div class="gift-section-title">Gift Item</div>
-        <div class="gift-item-row">
-          <span class="gift-item-name">Gift Item</span>
-          <div class="gift-btns">
-            <button class="gift-btn ${giftReceived?'gift-btn-active':''}" id="giftbtn-yes-${docId}" onclick="setGiftReceived('${docId}',true)">Received</button>
-            <button class="gift-btn ${!giftReceived?'gift-btn-due-active':''}" id="giftbtn-no-${docId}" onclick="setGiftReceived('${docId}',false)">Not Received</button>
-          </div>
-        </div>
+      <div class="field-row">
+        <label>Gift Item</label>
+        <button class="gift-btn ${giftReceived?'gift-btn-active':''}" id="giftbtn-yes-${docId}" onclick="setGiftReceived('${docId}',true)">Yes</button>
+        <button class="gift-btn ${!giftReceived?'gift-btn-due-active':''}" id="giftbtn-no-${docId}" onclick="setGiftReceived('${docId}',false)">No</button>
       </div>`;
 
     return `
@@ -670,21 +660,6 @@ function buildCard(docId, g) {
         <div class="amount-row">
           <label>Amount Paid</label>
           <span>Rs. ${g.amount||0}/-</span>
-        </div>
-
-        <div class="field-row">
-          <label>Payment Choice</label>
-          <select id="e-pay-choice-${docId}">
-            <option value="later" ${g.paymentChoice==='later'?'selected':''}>Later</option>
-            <option value="now"   ${g.paymentChoice==='now'?'selected':''}>Now</option>
-          </select>
-        </div>
-        <div class="field-row">
-          <label>Payment Status</label>
-          <select id="e-pay-status-${docId}">
-            <option value="pending" ${g.paymentStatus==='pending'?'selected':''}>Pending</option>
-            <option value="paid"    ${g.paymentStatus==='paid'?'selected':''}>Paid</option>
-          </select>
         </div>
 
         <div class="field-row">
@@ -858,9 +833,7 @@ function buildCard(docId, g) {
     const family      = parseInt(document.getElementById('e-family-'+docId).value)||0;
     const extraAlumni = parseInt(document.getElementById('e-extra-alumni-'+docId).value)||0;
     const extraFamily = parseInt(document.getElementById('e-extra-family-'+docId).value)||0;
-    const payChoice   = document.getElementById('e-pay-choice-'+docId).value;
-    const payStatus   = document.getElementById('e-pay-status-'+docId).value;
-
+    
     const totalAlumni = 1 + extraAlumni;
     const totalFamily = family + extraFamily;
     const amount      = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
@@ -884,9 +857,7 @@ function buildCard(docId, g) {
         totalAlumniCount: totalAlumni,
         totalFamilyCount: totalFamily,
         amount,
-        meals,
-        paymentChoice: payChoice,
-        paymentStatus: payStatus
+        meals
       });
       clearSearchCache();
       const saveBtn = document.getElementById('savebtn-'+docId);
