@@ -296,10 +296,10 @@ header h1{padding:0 74px 0 74px;}
         <tbody id="food-required-body"></tbody>
       </table>
     </div>
-    <div class="section-title">Actual Attendance (Scanned)</div>
+    <div class="section-title">Actual</div>
     <div style="padding:0 14px;">
       <table class="food-table" id="food-actual-table">
-        <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
+        <thead><tr><th>Date</th><th>Lunch</th><th>Dinner</th></tr></thead>
         <tbody id="food-actual-body"></tbody>
       </table>
     </div>
@@ -960,15 +960,17 @@ const totalGuests = snap.docs.length;
       let actHtml = ''; let aTotL=0,aTotD=0;
       let mTotL=0,mTotD=0;
       days.forEach(day => {
-        const a = actual[day.num];
+        const a  = actual[day.num];
         const mn = manualData[day.num];
         aTotL+=a.lunch; aTotD+=a.dinner;
         mTotL+=mn.lunch; mTotD+=mn.dinner;
-        actHtml += `<tr><td>${day.label}</td><td>${a.lunch}</td><td>${a.dinner}</td></tr>`;
-        actHtml += `<tr><td style="color:#856404;font-style:italic;padding-left:18px;">Manual Entry</td><td style="color:#856404;">${mn.lunch}</td><td style="color:#856404;">${mn.dinner}</td></tr>`;
+        const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        actHtml += `<tr><td>${dateLabel} - QR</td><td>${a.lunch}</td><td>${a.dinner}</td></tr>`;
+        actHtml += `<tr><td>${dateLabel} - Manual</td><td>${mn.lunch}</td><td>${mn.dinner}</td></tr>`;
       });
-      actHtml += `<tr class="total-row"><td>TOTAL (Scanned)</td><td>${aTotL}</td><td>${aTotD}</td></tr>`;
-      actHtml += `<tr class="total-row"><td>TOTAL (Manual)</td><td>${mTotL}</td><td>${mTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Total QR</td><td>${aTotL}</td><td>${aTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Total Manual</td><td>${mTotL}</td><td>${mTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Sum</td><td>${aTotL + mTotL}</td><td>${aTotD + mTotD}</td></tr>`;
       document.getElementById('food-actual-body').innerHTML = actHtml;
 
       // ── GIFT SUMMARY ──
