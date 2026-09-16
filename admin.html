@@ -1034,11 +1034,9 @@ async function loadStats() {
       }
     } catch(e) { console.error(e); }
 
-    const days = getEventDays();
     document.getElementById('event-config-display').innerHTML = `
-      <strong>Event Start:</strong> ${new Date(EVENT_START_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}<br>
-      <strong>Event End:</strong> ${new Date(EVENT_END_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}<br>
-      <strong>Total Days:</strong> ${days.length}<br>
+      <strong>Event Start:</strong> ${new Date(EVENT_START_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}<br>
+      <strong>Event End:</strong> ${new Date(EVENT_END_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}<br>
     `;
 
     try {
