@@ -650,15 +650,15 @@ function buildCard(docId, g) {
 
         <div class="field-row">
           <label>Family Count</label>
-          <input type="number" id="e-family-${docId}" value="${g.familyCount||0}" min="0"/>
+          <input type="number" id="e-family-${docId}" value="${g.familyCount>0?g.familyCount:''}" min="0" placeholder="0"/>
         </div>
         <div class="field-row">
           <label>Extra Alumni</label>
-          <input type="number" id="e-extra-alumni-${docId}" value="${g.extraAlumniCount||0}" min="0"/>
+          <input type="number" id="e-extra-alumni-${docId}" value="${g.extraAlumniCount>0?g.extraAlumniCount:''}" min="0" placeholder="0"/>
         </div>
         <div class="field-row">
           <label>Extra Family</label>
-          <input type="number" id="e-extra-family-${docId}" value="${g.extraFamilyCount||0}" min="0"/>
+          <input type="number" id="e-extra-family-${docId}" value="${g.extraFamilyCount>0?g.extraFamilyCount:''}" min="0" placeholder="0"/>
         </div>
 
         ${mealSections}
