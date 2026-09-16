@@ -141,7 +141,8 @@ header h1{padding:0 74px 0 74px;}
 .meal-inline-item{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:6px;padding:8px 10px;border:1px solid #C5D3E8;}
 .meal-inline-item label{font-size:0.92rem;font-weight:700;color:var(--deep-blue);min-width:90px;flex-shrink:0;}
 .meal-inline-item input{width:60px;padding:7px 8px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:0.95rem;text-align:center;font-weight:700;flex-shrink:0;}
-.meal-inline-item .req-badge{font-size:0.92rem;font-weight:700;min-width:60px;}
+.meal-inline-item .meal-count-preview{font-size:1rem;font-weight:700;color:#555;margin-left:auto;margin-right:10px;}
+.meal-inline-item input[type=checkbox]{width:24px;height:24px;cursor:pointer;accent-color:var(--deep-blue);flex-shrink:0;}
 
 .amount-row{display:flex;align-items:baseline;gap:10px;background:#FFF5F5;border-radius:8px;padding:9px 12px;border:1.5px solid #FFCCCC;margin-bottom:10px;}
 .amount-row label{font-size:1.2rem;font-weight:900;color:var(--red);letter-spacing:0.03em;min-width:110px;flex-shrink:0;font-family:'Lato',serif;}
@@ -565,23 +566,24 @@ function buildCard(docId, g) {
     const mr     = g.mealsRequired || {};
     const approved  = g.approved || false;
 
+    const totalPeople = 1 + (g.familyCount||0) + (g.extraAlumniCount||0) + (g.extraFamilyCount||0);
     let mealSections = '';
     days.forEach(day => {
-      const dm  = m[`day${day.num}`]  || {};
       const dmr = mr[`day${day.num}`] || {};
+      const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
       mealSections += `
         <div class="meal-section">
-          <div class="meal-section-day">${day.label}</div>
+          <div class="meal-section-day">${dateLabel}</div>
           <div class="meal-inline">
             <div class="meal-inline-item">
               <label>Lunch</label>
-              <input type="number" id="d${day.num}l-${docId}" value="${dm.lunch||0}" min="0" max="${total}"/>
-              <span class="req-badge ${dmr.lunch>0?'selected':''}">Req. ${dmr.lunch||0}</span>
+              <span class="meal-count-preview" id="prev-l-${docId}-d${day.num}">${dmr.lunch>0?totalPeople:0} person(s)</span>
+              <input type="checkbox" id="d${day.num}l-${docId}" ${dmr.lunch>0?'checked':''} onclick="toggleMealPreview('${docId}',${day.num},'l')"/>
             </div>
             <div class="meal-inline-item">
               <label>Dinner</label>
-              <input type="number" id="d${day.num}d-${docId}" value="${dm.dinner||0}" min="0" max="${total}"/>
-              <span class="req-badge ${dmr.dinner>0?'selected':''}">Req. ${dmr.dinner||0}</span>
+              <span class="meal-count-preview" id="prev-d-${docId}-d${day.num}">${dmr.dinner>0?totalPeople:0} person(s)</span>
+              <input type="checkbox" id="d${day.num}d-${docId}" ${dmr.dinner>0?'checked':''} onclick="toggleMealPreview('${docId}',${day.num},'d')"/>
             </div>
           </div>
         </div>`;
@@ -696,6 +698,16 @@ function buildCard(docId, g) {
   function glowSave(docId) {
     const saveBtn = document.getElementById('savebtn-'+docId);
     if (saveBtn) saveBtn.classList.remove('abtn-disabled');
+  }
+
+  function toggleMealPreview(docId, dayNum, meal) {
+    const cb = document.getElementById(`d${dayNum}${meal}-${docId}`);
+    const prev = document.getElementById(`prev-${meal}-${docId}-d${dayNum}`);
+    const totalPeople = 1 + (parseInt(document.getElementById('e-family-'+docId)?.value)||0)
+                          + (parseInt(document.getElementById('e-extra-alumni-'+docId)?.value)||0)
+                          + (parseInt(document.getElementById('e-extra-family-'+docId)?.value)||0);
+    if (prev) prev.textContent = cb.checked ? `${totalPeople} person(s)` : '0 person(s)';
+    glowSave(docId);
   }
 
   function showMsg(docId, text, type) {
@@ -844,11 +856,14 @@ function buildCard(docId, g) {
     const totalFamily = family + extraFamily;
     const amount      = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
 
-    const meals = {};
+    const totalPeople = 1 + extraAlumni + family + extraFamily;
+    const mealsRequired = {};
     days.forEach(day => {
-      meals[`day${day.num}`] = {
-        lunch:  parseInt(document.getElementById(`d${day.num}l-${docId}`).value)||0,
-        dinner: parseInt(document.getElementById(`d${day.num}d-${docId}`).value)||0
+      const lunchChecked  = document.getElementById(`d${day.num}l-${docId}`).checked;
+      const dinnerChecked = document.getElementById(`d${day.num}d-${docId}`).checked;
+      mealsRequired[`day${day.num}`] = {
+        lunch:  lunchChecked  ? totalPeople : 0,
+        dinner: dinnerChecked ? totalPeople : 0
       };
     });
 
@@ -863,7 +878,7 @@ function buildCard(docId, g) {
         totalAlumniCount: totalAlumni,
         totalFamilyCount: totalFamily,
         amount,
-        meals
+        mealsRequired
       });
       clearSearchCache();
       const saveBtn = document.getElementById('savebtn-'+docId);
