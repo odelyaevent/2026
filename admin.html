@@ -932,7 +932,7 @@ function buildCard(docId, g) {
       days.forEach(day => {
         const r = required[day.num];
         const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        reqHtml += `<tr><td style="color:var(--success);">${dateLabel}</td><td style="color:var(--success);">${r.lunch}</td><td style="color:var(--success);">${r.dinner}</td></tr>`;
+        reqHtml += `<tr><td style="color:var(--success);">${dateLabel}</td><td style="color:var(--success);text-align:center;">${r.lunch}</td><td style="color:var(--success);text-align:center;">${r.dinner}</td></tr>`;
       });
       document.getElementById('food-required-body').innerHTML = reqHtml;
 
@@ -959,12 +959,12 @@ function buildCard(docId, g) {
         aTotL+=a.lunch; aTotD+=a.dinner;
         mTotL+=mn.lunch; mTotD+=mn.dinner;
         const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        actHtml += `<tr><td>${dateLabel} - QR</td><td>${a.lunch}</td><td>${a.dinner}</td></tr>`;
-        actHtml += `<tr><td>${dateLabel} - Manual</td><td>${mn.lunch}</td><td>${mn.dinner}</td></tr>`;
+        actHtml += `<tr><td>${dateLabel} - QR</td><td style="text-align:center;">${a.lunch}</td><td style="text-align:center;">${a.dinner}</td></tr>`;
+        actHtml += `<tr><td>${dateLabel} - Manual</td><td style="text-align:center;">${mn.lunch}</td><td style="text-align:center;">${mn.dinner}</td></tr>`;
       });
-      actHtml += `<tr class="total-row"><td>Total QR</td><td>${aTotL}</td><td>${aTotD}</td></tr>`;
-      actHtml += `<tr class="total-row"><td>Total Manual</td><td>${mTotL}</td><td>${mTotD}</td></tr>`;
-      actHtml += `<tr class="total-row"><td>Sum</td><td>${aTotL + mTotL}</td><td>${aTotD + mTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Total QR</td><td style="text-align:center;">${aTotL}</td><td style="text-align:center;">${aTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Total Manual</td><td style="text-align:center;">${mTotL}</td><td style="text-align:center;">${mTotD}</td></tr>`;
+      actHtml += `<tr class="total-row"><td>Sum</td><td style="text-align:center;">${aTotL + mTotL}</td><td style="text-align:center;">${aTotD + mTotD}</td></tr>`;
       document.getElementById('food-actual-body').innerHTML = actHtml;
 
       // ── GIFT SUMMARY ──
