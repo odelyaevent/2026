@@ -323,7 +323,7 @@ header h1{padding:0 74px 0 74px;}
     </div>
 
     <!-- GIFT DUE GUEST LIST -->
-    <div class="section-title">Guests With Due Items</div>
+    <div class="section-title">Gift Due</div>
     <div style="padding:0 14px;">
       <div id="gift-due-section">
         <table class="food-table" id="gift-due-table">
@@ -331,8 +331,7 @@ header h1{padding:0 74px 0 74px;}
             <tr>
               <th>Name</th>
               <th style="text-align:center;">Batch</th>
-              <th style="text-align:center;">PIN</th>
-              <th>Due Items</th>
+              <th>Mobile</th>
             </tr>
           </thead>
           <tbody id="gift-due-body"></tbody>
@@ -985,7 +984,7 @@ const totalGuests = snap.docs.length;
             giftRecvCount++;
           } else {
             giftDueCount++;
-            dueguests.push({ name:g.name, batch:g.batch, pin:g.pin });
+            dueguests.push({ name:g.name, batch:g.batch, whatsapp:g.whatsapp });
           }
         });
 
@@ -999,14 +998,13 @@ const totalGuests = snap.docs.length;
 
         let dueguestHtml = '';
         if (!dueguests.length) {
-          dueguestHtml = '<tr><td colspan="4" style="text-align:center;color:var(--success);font-weight:700;padding:14px;">All guests have received the gift item.</td></tr>';
+          dueguestHtml = '<tr><td colspan="3" style="text-align:center;color:var(--success);font-weight:700;padding:14px;">All guests have received the gift item.</td></tr>';
         } else {
           dueguests.forEach(g => {
             dueguestHtml += `<tr>
               <td style="font-weight:700;">${g.name}</td>
               <td style="text-align:center;">${g.batch}</td>
-              <td style="text-align:center;">${g.pin}</td>
-              <td style="color:var(--red);font-weight:700;">Gift Item</td>
+              <td>${g.whatsapp||''}</td>
             </tr>`;
           });
         }
