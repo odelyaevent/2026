@@ -280,7 +280,6 @@ header h1{padding:0 74px 0 74px;}
         <option value="approved">Approved Only</option>
       </select>
     </div>
-    <div class="list-count" id="list-count"></div>
     <div id="all-guests-list"></div>
   </div>
 
@@ -955,7 +954,6 @@ function buildCard(docId, g) {
       let docs = snap.docs;
       if (filter === 'pending')  docs = docs.filter(d => !d.data().approved);
       if (filter === 'approved') docs = docs.filter(d =>  d.data().approved);
-      document.getElementById('list-count').textContent = `Showing ${docs.length} guest(s)`;
       if (!docs.length) { list.innerHTML = '<p class="no-results">No guests found.</p>'; return; }
       list.innerHTML = '';
       docs.forEach(d => list.innerHTML += buildCard(d.id, d.data()));
