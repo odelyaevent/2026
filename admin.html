@@ -99,7 +99,7 @@ header h1{padding:0 74px 0 74px;}
     #dashboard-section{display:none;}
     /* VERTICAL TAB MENU */
     #tab-menu{display:flex;flex-direction:column;gap:40px;padding:40px 14px 14px 14px;}
-    .tab-btn{width:100%;padding:22px 18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;}
+    .tab-btn{width:100%;padding:22px 18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.6rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;}
     .tab-btn:active{background:#DCE7FA;border-color:var(--light-blue);}
     #tab-menu.hidden{display:none;}
     /* TAB CONTENT */
@@ -108,10 +108,10 @@ header h1{padding:0 74px 0 74px;}
     .tab-content{display:none;}
     .tab-content.active{display:block;}
     /* BACK LINK */
-    #back-to-menu{display:block;width:calc(100% - 28px);margin:14px;padding:18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.4rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;}
+    #back-to-menu{display:block;width:calc(100% - 28px);margin:14px;padding:18px;background:#EEF4FF;color:var(--deep-blue);border:2px solid #C5D3E8;border-radius:12px;font-family:'Lato',serif;font-size:1.6rem;font-weight:700;letter-spacing:0.03em;text-align:center;cursor:pointer;}
     #back-to-menu:active{background:#DCE7FA;}
-    @media (min-width:768px){
-      .tab-btn, #back-to-menu{font-size:1.6rem;}
+       @media (min-width:768px){
+      .tab-btn, #back-to-menu{font-size:1.8rem;}
     }
     /* GLOBAL SEARCH */
     #global-search-wrap{padding:14px 14px 6px;background:var(--deep-blue);}
@@ -261,6 +261,8 @@ header h1{padding:0 74px 0 74px;}
 
   <!-- VERTICAL TAB MENU -->
   <div id="tab-menu">
+    <div class="tab-btn" onclick="window.location.href='https://odelyaevent.github.io/rkmvp/scanner.html'">QR Scanner</div>
+    <div class="tab-btn" onclick="openCreateScanner()">Create Scanner</div>
     <div class="tab-btn" onclick="switchTab('event')">Event</div>
     <div class="tab-btn" onclick="switchTab('all')">Guests</div>
     <div class="tab-btn" onclick="switchTab('food')">Estimate</div>
@@ -538,6 +540,11 @@ async function showDashboard(email) {
     if (name === 'food')  loadFoodSummary();
     if (name === 'event') loadEventConfig();
   }
+
+  function openCreateScanner() {
+    alert('Create Scanner — coming soon.');
+  }
+
 
   function addBackButton() {
     const wrap = document.getElementById('tab-content-wrap');
