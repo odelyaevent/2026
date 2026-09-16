@@ -1214,6 +1214,14 @@ async function loadStats() {
         }
       }
 
+      // Style the three header rows (rows 0, 1, 2) — bold, red
+      ['A1','A2','A3'].forEach(addr => {
+        if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: 'CC0000' } } };
+      });
+
+      // Style the "Stats Report" sub-heading (row 5) — bold, green
+      if (ws['A5']) ws['A5'].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+
       // Row heights — normal rows 24px, blank rows smaller
       ws['!rows'] = rows.map((_, i) => ({ hpt: rows[i][0] === '' ? 14 : 24 }));
 
