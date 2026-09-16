@@ -617,11 +617,19 @@ function buildCard(docId, g) {
 
         <div class="field-row">
           <label>Batch Year</label>
-          <input type="number" id="e-batch-${docId}" value="${g.batch||''}"/>
+          <select id="e-batch-${docId}">
+            ${Array.from({length: 66}, (_, i) => 2025 - i).map(y =>
+              `<option value="${y}" ${(g.batch||0)===y?'selected':''}>${y}</option>`
+            ).join('')}
+          </select>
         </div>
         <div class="field-row">
           <label>Division</label>
-          <input type="text" id="e-division-${docId}" value="${g.division||''}"/>
+          <select id="e-division-${docId}">
+            <option value="Class X"  ${g.division==='Class X'?'selected':''}>Class X</option>
+            <option value="HS (XI)"  ${g.division==='HS (XI)'?'selected':''}>HS (XI)</option>
+            <option value="HS (XII)" ${g.division==='HS (XII)'?'selected':''}>HS (XII)</option>
+          </select>
         </div>
         <div class="field-row">
           <label>Full Name</label>
@@ -632,12 +640,12 @@ function buildCard(docId, g) {
           <input type="text" id="e-whatsapp-${docId}" value="${g.whatsapp||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
         </div>
         <div class="field-row">
-          <label>Address</label>
-          <input type="text" id="e-address-${docId}" value="${g.address||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
-        </div>
-        <div class="field-row">
           <label>Login PIN</label>
           <input type="text" id="e-pin-${docId}" value="${g.pin||''}" maxlength="6"/>
+        </div>
+        <div class="field-row">
+          <label>Address</label>
+          <input type="text" id="e-address-${docId}" value="${g.address||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
         </div>
 
         <div class="field-row">
