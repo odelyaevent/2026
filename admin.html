@@ -1335,6 +1335,40 @@ async function loadEventConfig() {
       document.getElementById('ev-family-fee').value = d.familyFee   ?? 5;
       renderProgramsConfig(d.programs || {}, getEventDaysFrom(d.startDate || EVENT_START_DATE, d.endDate || EVENT_END_DATE));
     } catch(e) { console.error(e); }
+    attachDateListeners();
+  }
+
+  // ── AUTO-REBUILD PROGRAMS LIST WHEN DATES CHANGE ──
+  let _dateListenersAttached = false;
+  function attachDateListeners() {
+    if (_dateListenersAttached) return;
+    _dateListenersAttached = true;
+
+    const startEl = document.getElementById('ev-start');
+    const endEl   = document.getElementById('ev-end');
+
+    function rebuild() {
+      const s = startEl.value;
+      const e = endEl.value;
+      if (!s || !e) return;
+      const days = getEventDaysFrom(s, e);
+
+      // preserve already-typed program names, keyed by day number
+      const existing = {};
+      days.forEach(day => {
+        const vals = [];
+        document.querySelectorAll(`.program-input-day${day.num}`).forEach(inp => {
+          const v = inp.value.trim();
+          if (v) vals.push(v);
+        });
+        existing[day.num] = vals;
+      });
+
+      renderProgramsConfig(existing, days);
+    }
+
+    startEl.addEventListener('change', rebuild);
+    endEl.addEventListener('change', rebuild);
   }
 
 async function saveEventConfig() {
