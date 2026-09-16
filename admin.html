@@ -267,6 +267,7 @@ header h1{padding:0 74px 0 74px;}
     <div class="tab-btn" onclick="switchTab('all')">Guests</div>
     <div class="tab-btn" onclick="switchTab('food')">Estimate</div>
     <div class="tab-btn" onclick="switchTab('stats')">Stats</div>
+    <div class="tab-btn" onclick="switchTab('report')">Report</div>
   </div>
 
   <!-- TAB CONTENT -->
@@ -399,7 +400,16 @@ header h1{padding:0 74px 0 74px;}
       <div class="stat-card"><div class="stat-num" id="st-amount">—</div><div class="stat-label">Amount (Approved)</div></div>
     </div>
   </div>
-</div>
+
+  <!-- REPORT TAB -->
+  <div id="tab-report" class="tab-content">
+    <div class="section-title">Report</div>
+    <div style="padding:0 14px;">
+      <p style="text-align:center;color:#888;padding:30px 14px;font-size:1.2rem;">
+        Report content coming soon.
+      </p>
+    </div>
+  </div>
 
 <script>
   // ============================================================
@@ -525,10 +535,11 @@ async function showDashboard(email) {
     }
 
     // load data for the tab
-    if (name === 'all')   loadAllGuests();
-    if (name === 'stats') loadStats();
-    if (name === 'food')  loadFoodSummary();
-    if (name === 'event') loadEventConfig();
+    if (name === 'all')    loadAllGuests();
+    if (name === 'stats')  loadStats();
+    if (name === 'food')   loadFoodSummary();
+    if (name === 'event')  loadEventConfig();
+    if (name === 'report') { /* Report tab — no load function yet */ }
   }
 
   function openCreateScanner() {
