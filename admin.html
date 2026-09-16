@@ -614,6 +614,15 @@ function buildCard(docId, g) {
         <button class="gift-btn ${!giftReceived?'gift-btn-due-active':''}" id="giftbtn-no-${docId}" onclick="setGiftReceived('${docId}',false)">No</button>
       </div>`;
 
+    // ── FORMAT REGISTERED TIME ──
+    let regTime = '';
+    if (g.registeredAt) {
+      const d = new Date(g.registeredAt);
+      const datePart = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true});
+      regTime = `${datePart}, ${timePart}`;
+    }
+
     return `
     <div class="guest-card" id="gc-${docId}">
       <div class="gc-header">
@@ -683,7 +692,7 @@ function buildCard(docId, g) {
 
         <div class="field-row">
           <label>Reg. Time</label>
-          <input type="text" value="${(g.registeredAt||'').replace('T',' ').split('.')[0]||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" value="${regTime}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
         </div>
 
           <div class="action-grid">
