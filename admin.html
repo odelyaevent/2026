@@ -1318,13 +1318,14 @@ async function loadStats() {
           }
         }
 
-        // Divider rows — fill light blue
+        // Divider rows — fill light blue, no text
         if (firstCell === '__COLORED__') {
           for (let c = 0; c < 3; c++) {
             const a = XLSX.utils.encode_cell({ r: i, c: c });
-            if (!ws[a]) ws[a] = { t: 's', v: '' };
-            ws[a].s = { fill: { fgColor: { rgb: 'D6E4F7' } } };
+            ws[a] = { t: 's', v: '', s: { fill: { fgColor: { rgb: 'D6E4F7' } } } };
           }
+          // Also blank out column A's value so '__COLORED__' isn't written
+          ws[`A${rowNum}`] = { t: 's', v: '', s: { fill: { fgColor: { rgb: 'D6E4F7' } } } };
         }
       });
 
