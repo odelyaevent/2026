@@ -669,11 +669,13 @@ function buildCard(docId, g) {
 
         ${giftSection}
 
-          <button class="abtn abtn-save abtn-disabled" id="savebtn-${docId}" onclick="saveGuest('${docId}')">Save</button>
-          <button class="abtn abtn-approve ${approved?'abtn-disabled':''}" id="approvebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Approve</button>
-          <button class="abtn abtn-unapprove ${approved?'':'abtn-disabled'}" id="disapprovebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Disapprove</button>
-          <button class="abtn abtn-logout" onclick="logoutGuest('${docId}')">Logout</button>
-          <button class="abtn abtn-delete" onclick="deleteGuest('${docId}')">Delete</button>
+          <div class="action-grid">
+            <button class="abtn abtn-save abtn-disabled" id="savebtn-${docId}" onclick="saveGuest('${docId}')">Save</button>
+            <button class="abtn abtn-approve ${approved?'abtn-disabled':''}" id="approvebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Approve</button>
+            <button class="abtn abtn-unapprove ${approved?'':'abtn-disabled'}" id="disapprovebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Disapprove</button>
+            <button class="abtn abtn-logout" onclick="logoutGuest('${docId}')">Logout</button>
+            <button class="abtn abtn-delete" onclick="deleteGuest('${docId}')">Delete</button>
+          </div>
         </div>
         <div class="action-msg" id="msg-${docId}"></div>
 
