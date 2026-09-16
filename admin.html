@@ -405,9 +405,7 @@ header h1{padding:0 74px 0 74px;}
   <div id="tab-report" class="tab-content">
     <div class="section-title">Report</div>
     <div style="padding:0 14px;">
-      <p style="text-align:center;color:#888;padding:30px 14px;font-size:1.2rem;">
-        Report content coming soon.
-      </p>
+      <button class="btn-excel" onclick="reportStats()" style="margin-bottom:14px;">Stats Report</button>
     </div>
   </div>
 
@@ -1141,6 +1139,75 @@ async function loadStats() {
       document.getElementById('st-family').textContent   = familyMembers;
            document.getElementById('st-amount').textContent   = approvedAmount;
     } catch(e) { console.error(e); }
+  }
+
+  // ── STATS REPORT ──
+  async function reportStats() {
+    if (!window._firebaseReady) return;
+    try {
+      // Read config for the header dates
+      let eventStart = EVENT_START_DATE;
+      let eventEnd   = EVENT_END_DATE;
+      try {
+        const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
+        if (configSnap.exists()) {
+          const cd = configSnap.data();
+          if (cd.startDate) eventStart = cd.startDate;
+          if (cd.endDate)   eventEnd   = cd.endDate;
+        }
+      } catch(e) {}
+
+      // Compute the four numbers
+      const snap = await window._getDocs(window._collection(window._db,'guests'));
+      let approved = 0, pending = 0, familyMembers = 0, approvedAmount = 0;
+      snap.docs.forEach(d => {
+        const g = d.data();
+        const gFamily = g.totalFamilyCount || ((g.familyCount||0) + (g.extraFamilyCount||0));
+        if (g.approved) {
+          approved++;
+          approvedAmount += g.amount || 0;
+        } else {
+          pending++;
+        }
+        familyMembers += gFamily;
+      });
+
+      // Format dates as "21 Nov 2026"
+      const fmt = (str) => new Date(str).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const headerLine3 = `${fmt(eventStart)} - ${fmt(eventEnd)}, Purulia RKM`;
+
+      // Build the worksheet data
+      const rows = [
+        ['RKMVP Alumni Association'],
+        ['22nd Reunion 2026'],
+        [headerLine3],
+        [''],
+        ['Approved Alumni',        approved],
+        ['Pending Alumni',         pending],
+        ['Total Family Members',   familyMembers],
+        ['Amount Received (Rs.)',  approvedAmount]
+      ];
+
+      // Create the workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // Column widths
+      ws['!cols'] = [{ wch: 32 }, { wch: 14 }];
+
+      // Portrait A4, fit to page
+      ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Stats');
+
+      // Today's date for the filename
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `RKMVP_Report_Stats_${today}.xlsx`);
+
+    } catch(e) {
+      console.error(e);
+      alert('Error generating report. Try again.');
+    }
   }
 
   // ── TIME DROPDOWN BUILDER ──
