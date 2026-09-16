@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#0D2B5E"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, doc, updateDoc, getDoc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1184,8 +1184,11 @@ async function loadStats() {
         [headerLine3],
         [''],
         ['Approved Alumni',        approved],
+        [''],
         ['Pending Alumni',         pending],
+        [''],
         ['Total Family Members',   familyMembers],
+        [''],
         ['Amount Received (Rs.)',  approvedAmount]
       ];
 
@@ -1198,6 +1201,19 @@ async function loadStats() {
 
       // Portrait A4, fit to page
       ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      // Set font size 16 for every cell
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) continue;
+          ws[addr].s = { font: { sz: 16 } };
+        }
+      }
+
+      // Row heights — normal rows 24px, blank rows smaller
+      ws['!rows'] = rows.map((_, i) => ({ hpt: rows[i][0] === '' ? 14 : 24 }));
 
       XLSX.utils.book_append_sheet(wb, ws, 'Stats');
 
