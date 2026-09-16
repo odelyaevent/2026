@@ -305,13 +305,12 @@ header h1{padding:0 74px 0 74px;}
     </div>
 
 <!-- GIFT SUMMARY -->
-    <div class="section-title">Gift Items Summary</div>
+    <div class="section-title">Gift Summary</div>
     <div style="padding:0 14px;">
       <div id="gift-summary-section">
         <table class="food-table" id="gift-summary-table">
           <thead>
             <tr>
-              <th>Gift Item</th>
               <th style="text-align:center;">Total</th>
               <th style="text-align:center;">Received</th>
               <th style="text-align:center;">Due</th>
@@ -988,9 +987,9 @@ const totalGuests = snap.docs.length;
           }
         });
 
+        const giftTotal = snap.docs.length;
         let giftSummaryHtml = `<tr>
-            <td>Gift Item</td>
-            <td style="text-align:center;">${snap.docs.length}</td>
+            <td style="text-align:center;font-weight:700;">${giftTotal}</td>
             <td style="text-align:center;color:var(--success);font-weight:700;">${giftRecvCount}</td>
             <td style="text-align:center;color:var(--red);font-weight:700;">${giftDueCount}</td>
           </tr>`;
