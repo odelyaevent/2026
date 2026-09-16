@@ -400,12 +400,10 @@ header h1{padding:0 74px 0 74px;}
     <div class="config-box" id="event-config-display"></div>
 <button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;">Master Clear</button>    
 	  <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total Registered</div></div>
       <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved</div></div>
       <div class="stat-card"><div class="stat-num" id="st-pending">—</div><div class="stat-label">Pending</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-people">—</div><div class="stat-label">Total People</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-amount">—</div><div class="stat-label">Total Amount (Rs.)</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-family">—</div><div class="stat-label">With Family</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-family">—</div><div class="stat-label">Family Members</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-amount">—</div><div class="stat-label">Amount (Approved)</div></div>
     </div>
   </div>
   </div>
@@ -1047,24 +1045,23 @@ async function loadStats() {
 
     try {
       const snap = await window._getDocs(window._collection(window._db,'guests'));
-      let total=0,approved=0,pending=0,people=0,amount=0,withFamily=0;
+      let approved=0, pending=0, familyMembers=0, approvedAmount=0;
       snap.docs.forEach(d => {
-        const g = d.data(); total++;
-        if (g.approved) approved++; else pending++;
-        people += (g.familyCount||0)+1;
-        const gAlumni = g.totalAlumniCount || (1 + (g.extraAlumniCount||0));
+        const g = d.data();
         const gFamily = g.totalFamilyCount || ((g.familyCount||0) + (g.extraFamilyCount||0));
-        amount += g.amount || ((gAlumni * ALUMNI_FEE) + (gFamily * FAMILY_FEE));
-        if ((g.familyCount||0)>0) withFamily++;
+        if (g.approved) {
+          approved++;
+          approvedAmount += g.amount || 0;
+        } else {
+          pending++;
+        }
+        familyMembers += gFamily;
       });
-      document.getElementById('st-total').textContent    = total;
       document.getElementById('st-approved').textContent = approved;
       document.getElementById('st-pending').textContent  = pending;
-      document.getElementById('st-people').textContent   = people;
-      document.getElementById('st-amount').textContent   = amount;
-      document.getElementById('st-family').textContent   = withFamily;
+      document.getElementById('st-family').textContent   = familyMembers;
+      document.getElementById('st-amount').textContent   = approvedAmount;
     } catch(e) { console.error(e); }
-  }
 
   // ── EXCEL EXPORT ──
   async function exportExcel() {
