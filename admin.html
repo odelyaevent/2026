@@ -282,7 +282,6 @@ header h1{padding:0 74px 0 74px;}
       </select>
     </div>
     <div class="list-count" id="list-count"></div>
-    <button class="btn-excel" onclick="exportExcel()">Download Excel Report</button>
     <div id="all-guests-list"></div>
   </div>
 
@@ -1049,108 +1048,6 @@ async function loadStats() {
       document.getElementById('st-family').textContent   = familyMembers;
            document.getElementById('st-amount').textContent   = approvedAmount;
     } catch(e) { console.error(e); }
-  }
-
-  // ── EXCEL EXPORT ──
-  async function exportExcel() {
-    if (!window._firebaseReady) return;
-    try {
-      const snap = await window._getDocs(window._collection(window._db,'guests'));
-      const days = getEventDays();
-      const rows = [];
-
-            // Header row
-      const header = ['Name','Batch','Division','WhatsApp','Address','PIN','Family','Extra Alumni','Extra Family','Total Alumni','Total Family','Amount (Rs.)','Payment Choice','Payment Status','Status','Registered At'];
-      days.forEach(day => {
-        header.push(`${day.label} - Lunch Req`);
-        header.push(`${day.label} - Dinner Req`);
-        header.push(`${day.label} - Lunch Actual`);
-        header.push(`${day.label} - Dinner Actual`);
-      });
-      rows.push(header);
-
-      // Data rows
-      snap.docs.forEach(d => {
-        const g   = d.data();
-        const mr  = g.mealsRequired || {};
-        const ma  = g.meals || {};
-        const total = (g.familyCount||0)+1;
-        const row = [
-          g.name,
-          g.batch,
-          g.division || '',
-          g.whatsapp || '',
-          g.address  || '',
-          g.pin,
-          g.familyCount||0,
-          g.extraAlumniCount||0,
-          g.extraFamilyCount||0,
-          g.totalAlumniCount||(1+(g.extraAlumniCount||0)),
-          g.totalFamilyCount||((g.familyCount||0)+(g.extraFamilyCount||0)),
-          g.amount||0,
-          g.paymentChoice || '',
-          g.paymentStatus || '',
-          g.approved ? 'Approved' : 'Pending',
-          (g.registeredAt||'').split('T')[0]||''
-        ];
-        days.forEach(day => {
-          const dmr = mr[`day${day.num}`] || {};
-          const dma = ma[`day${day.num}`] || {};
-          row.push(dmr.lunch||0);
-          row.push(dmr.dinner||0);
-          row.push(dma.lunch||0);
-          row.push(dma.dinner||0);
-        });
-        rows.push(row);
-      });
-
-      // Create workbook
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(rows);
-
-      // Column widths
-      ws['!cols'] = rows[0].map(() => ({ wch: 18 }));
-
-      // Page setup — A4 landscape
-      ws['!pageSetup'] = { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
-
-      XLSX.utils.book_append_sheet(wb, ws, 'Guests');
-
-      // Food summary sheet
-      const foodRows = [['Food Requirements Summary'],[''],['Day','Lunch Required','Dinner Required','Lunch Actual','Dinner Actual']];
-      const fsnap = await window._getDocs(window._collection(window._db,'guests'));
-      const required = {}; const actual = {}; const guestSelected = {};
-      days.forEach(day => {
-        required[day.num]      = { lunch:0, dinner:0 };
-        actual[day.num]        = { lunch:0, dinner:0 };
-        guestSelected[day.num] = { lunch:0, dinner:0 };
-      });
-
-      snap.docs.forEach(d => {
-        const g  = d.data();
-        const mr = g.mealsRequired || {};
-        const ma = g.meals || {};
-        days.forEach(day => {
-          const dmr = mr[`day${day.num}`] || {};
-          const dma = ma[`day${day.num}`] || {};
-          required[day.num].lunch  += dmr.lunch||0;
-          required[day.num].dinner += dmr.dinner||0;
-          actual[day.num].lunch    += dma.lunch||0;
-          actual[day.num].dinner   += dma.dinner||0;
-        });
-      });
-      days.forEach(day => {
-        const r=required[day.num]; const a=actual[day.num];
-        foodRows.push([day.label,r.lunch,r.dinner,a.lunch,a.dinner]);
-      });
-
-      const ws2 = XLSX.utils.aoa_to_sheet(foodRows);
-      ws2['!cols'] = foodRows[2].map(() => ({wch:22}));
-      XLSX.utils.book_append_sheet(wb, ws2, 'Food Summary');
-
-      XLSX.writeFile(wb, `RKMVP_Reunion_2026_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-    } catch(e) { console.error(e); alert('Error generating Excel. Try again.'); }
   }
 
   // ── TIME DROPDOWN BUILDER ──
