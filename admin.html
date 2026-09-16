@@ -288,10 +288,10 @@ header h1{padding:0 74px 0 74px;}
 
   <!-- FOOD SUMMARY TAB -->
   <div id="tab-food" class="tab-content">
-	  <div class="section-title">Food Requirements (Pre-registered)</div>
+	  <div class="section-title">Tentative</div>
     <div style="padding:0 14px;">
       <table class="food-table" id="food-required-table">
-        <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
+        <thead><tr><th>Date</th><th>Lunch</th><th>Dinner</th></tr></thead>
         <tbody id="food-required-body"></tbody>
       </table>
     </div>
@@ -928,17 +928,12 @@ function buildCard(docId, g) {
       });
 
       // Build required table
-const totalGuests = snap.docs.length;
-      let reqHtml = ''; let rTotL=0,rTotD=0;
+      let reqHtml = '';
       days.forEach(day => {
         const r = required[day.num];
-        rTotL+=r.lunch; rTotD+=r.dinner;
-        const nsL = totalGuests - guestSelected[day.num].lunch;
-        const nsD = totalGuests - guestSelected[day.num].dinner;
-        reqHtml += `<tr><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${day.label}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.lunch}</td><td style="color:var(--success);font-weight:700;font-size:0.95rem;">${r.dinner}</td></tr>`;
-        reqHtml += `<tr><td style="color:#555;font-style:italic;padding-left:18px;font-size:0.92rem;">Not Specified</td><td style="color:#555;font-size:0.92rem;">${nsL}</td><td style="color:#555;font-size:0.92rem;">${nsD}</td></tr>`;
+        const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        reqHtml += `<tr><td style="color:var(--success);">${dateLabel}</td><td style="color:var(--success);">${r.lunch}</td><td style="color:var(--success);">${r.dinner}</td></tr>`;
       });
-      reqHtml += `<tr class="total-row"><td>TOTAL</td><td>${rTotL}</td><td>${rTotD}</td></tr>`;
       document.getElementById('food-required-body').innerHTML = reqHtml;
 
 // Fetch manual entries
