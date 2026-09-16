@@ -327,13 +327,11 @@ header h1{padding:0 74px 0 74px;}
         <table class="food-table" id="gift-due-table" style="table-layout:fixed;width:100%;">
           <thead>
             <tr>
-              <th style="width:55%;">Name</th>
-              <th style="text-align:center;width:15%;">Batch</th>
-              <th style="width:30%;">Mobile</th>
+              <th style="width:50%;">Name</th>
+              <th style="text-align:center;width:18%;">Batch</th>
+              <th style="text-align:right;padding-right:16px;width:32%;">Mobile</th>
             </tr>
           </thead>
-          <tbody id="gift-due-body"></tbody>
-        </table>
       </div>
     </div>
   </div>
@@ -1000,7 +998,7 @@ function buildCard(docId, g) {
             dueguestHtml += `<tr>
               <td style="${clr}">${g.name}</td>
               <td style="text-align:center;${clr}">${g.batch}</td>
-              <td style="${clr}">${g.whatsapp||''}</td>
+              <td style="text-align:right;padding-right:16px;${clr}">${g.whatsapp||''}</td>
             </tr>`;
           });
         }
