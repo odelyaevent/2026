@@ -153,10 +153,14 @@ header h1{padding:0 74px 0 74px;}
     .meal-row input{width:52px;padding:5px 8px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:0.88rem;text-align:center;margin:0;}
     .meal-row .of{font-size:0.72rem;color:#999;}
     .action-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px;}
-    .abtn{flex:1;padding:9px 6px;border:none;border-radius:8px;font-weight:700;font-size:0.78rem;cursor:pointer;min-width:90px;font-family:'Lato',sans-serif;}
+    .abtn{flex:1;padding:16px 10px;border:none;border-radius:10px;font-weight:700;font-size:1.4rem;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.15s,opacity 0.15s;}
     .abtn-approve{background:var(--success);color:white;}
     .abtn-unapprove{background:#888;color:white;}
     .abtn-save{background:var(--saffron);color:white;}
+    .abtn-logout{background:#6A0DAD;color:white;}
+    .abtn-delete{background:var(--red);color:white;}
+    .abtn.abtn-disabled{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;margin-bottom:6px;}
     .action-msg{font-size:0.78rem;font-weight:700;margin-top:6px;display:none;padding:6px 10px;border-radius:6px;}
     .action-msg.ok{background:#D4EDDA;color:#155724;}
     .action-msg.err{background:#F8D7DA;color:#721C24;}
@@ -690,16 +694,30 @@ function buildCard(docId, g) {
 
         ${giftSection}
 
-        <div class="action-row">
-          <button class="abtn ${approved?'abtn-unapprove':'abtn-approve'}" id="appbtn-${docId}" onclick="toggleApprove('${docId}',${approved})">
-            ${approved?'Unapprove':'Approve'}
-          </button>
-          <button class="abtn abtn-save" onclick="saveGuest('${docId}')">Save Changes</button>
+        <div class="action-grid">
+          <button class="abtn abtn-save ${''}" id="savebtn-${docId}" onclick="saveGuest('${docId}')">Save</button>
+          <button class="abtn abtn-approve ${approved?'abtn-disabled':''}" id="approvebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Approve</button>
+          <button class="abtn abtn-unapprove ${approved?'':'abtn-disabled'}" id="disapprovebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Disapprove</button>
+          <button class="abtn abtn-logout" onclick="logoutGuest('${docId}')">Logout</button>
+          <button class="abtn abtn-delete" onclick="deleteGuest('${docId}')">Delete</button>
         </div>
         <div class="action-msg" id="msg-${docId}"></div>
 
       </div>
     </div>`;
+  }
+
+  // ── SAVE BUTTON GLOW ON FIELD CHANGE ──
+  function attachSaveWatcher(docId) {
+    const card = document.getElementById('gc-'+docId);
+    if (!card) return;
+    card.addEventListener('input',  () => glowSave(docId));
+    card.addEventListener('change', () => glowSave(docId));
+  }
+
+  function glowSave(docId) {
+    const saveBtn = document.getElementById('savebtn-'+docId);
+    if (saveBtn) saveBtn.classList.remove('abtn-disabled');
   }
 
   function showMsg(docId, text, type) {
@@ -759,20 +777,73 @@ function buildCard(docId, g) {
     } catch(e) { showMsg(docId,'Error. Try again.','err'); }
   }
 
-  // ── TOGGLE APPROVE ──
+  // ── TOGGLE APPROVE / DISAPPROVE ──
   async function toggleApprove(docId, current) {
     const newVal = !current;
     try {
       await window._updateDoc(window._doc(window._db,'guests',docId), { approved: newVal });
       clearSearchCache();
+
       document.getElementById('badge-'+docId).className   = `badge ${newVal?'badge-approved':'badge-pending'}`;
       document.getElementById('badge-'+docId).textContent = newVal?'Approved':'Pending';
-      const btn = document.getElementById('appbtn-'+docId);
-      btn.textContent = newVal?'Unapprove':'Approve';
-      btn.className   = `abtn ${newVal?'abtn-unapprove':'abtn-approve'}`;
-      btn.onclick     = () => toggleApprove(docId, newVal);
+
+      const apBtn = document.getElementById('approvebtn-'+docId);
+      const dsBtn = document.getElementById('disapprovebtn-'+docId);
+
+      if (newVal) {
+        apBtn.classList.add('abtn-disabled');
+        dsBtn.classList.remove('abtn-disabled');
+      } else {
+        apBtn.classList.remove('abtn-disabled');
+        dsBtn.classList.add('abtn-disabled');
+      }
+
+      apBtn.onclick = () => toggleApprove(docId, newVal);
+      dsBtn.onclick = () => toggleApprove(docId, newVal);
+
       showMsg(docId, newVal?'Guest approved.':'Approval removed.', 'ok');
     } catch(e) { showMsg(docId, 'Error. Try again.', 'err'); }
+  }
+
+  // ── LOGOUT GUEST FROM ALL DEVICES ──
+  async function logoutGuest(docId) {
+    if (!confirm('Logout this guest from all devices?\n\nThey will be forced to log in again with their WhatsApp and PIN.')) return;
+    try {
+      await window._updateDoc(window._doc(window._db,'guests',docId), {
+        devices: [],
+        forceLogoutAt: new Date().toISOString()
+      });
+      clearSearchCache();
+      showMsg(docId, 'Guest logged out from all devices.', 'ok');
+    } catch(e) { showMsg(docId, 'Error. Try again.', 'err'); }
+  }
+
+  // ── DELETE GUEST ──
+  async function deleteGuest(docId) {
+    if (!confirm('WARNING!\n\nThis will permanently delete this guest and all their data.\n\nAre you sure?')) return;
+
+    const pass = prompt('Enter your admin password to confirm deletion:');
+    if (!pass) return;
+
+    try {
+      const user = window._auth.currentUser;
+      if (!user) { alert('Not logged in.'); return; }
+
+      const { EmailAuthProvider, reauthenticateWithCredential } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const credential = EmailAuthProvider.credential(user.email, pass);
+      await reauthenticateWithCredential(user, credential);
+    } catch(e) {
+      alert('Wrong password. Deletion cancelled.');
+      return;
+    }
+
+    try {
+      await window._deleteDoc(window._doc(window._db,'guests',docId));
+      clearSearchCache();
+      const card = document.getElementById('gc-'+docId);
+      if (card) card.remove();
+      alert('Guest deleted.');
+    } catch(e) { alert('Error deleting. Try again.'); }
   }
 
   // ── SAVE GUEST ──
@@ -818,6 +889,8 @@ function buildCard(docId, g) {
         paymentStatus: payStatus
       });
       clearSearchCache();
+      const saveBtn = document.getElementById('savebtn-'+docId);
+      if (saveBtn) saveBtn.classList.add('abtn-disabled');
       showMsg(docId, 'Changes saved successfully!', 'ok');
     } catch(e) { showMsg(docId, 'Error saving. Try again.', 'err'); }
   }
@@ -873,6 +946,7 @@ function buildCard(docId, g) {
 
       res.innerHTML = `<div class="list-count">${matches.length} match(es)</div>`;
       matches.forEach(d => res.innerHTML += buildCard(d.id, d.data()));
+      matches.forEach(d => attachSaveWatcher(d.id));
       document.getElementById('all-guests-list').style.display = 'none';
 
     } catch(e) {
@@ -905,6 +979,7 @@ function buildCard(docId, g) {
       if (!docs.length) { list.innerHTML = '<p class="no-results">No guests found.</p>'; return; }
       list.innerHTML = '';
       docs.forEach(d => list.innerHTML += buildCard(d.id, d.data()));
+      docs.forEach(d => attachSaveWatcher(d.id));
     } catch(e) { list.innerHTML = '<p class="no-results">Error loading.</p>'; }
   }
 
@@ -1261,7 +1336,18 @@ async function saveEventConfig() {
       alert('Error during Master Clear. Please try again.');
     }
   }	
-	
+
+  // ── UNSAVED CHANGES WARNING ──
+  let _saveWatcherBound = false;
+  window.addEventListener('beforeunload', (e) => {
+    const anyGlowing = Array.from(document.querySelectorAll('.abtn-save')).some(b => !b.classList.contains('abtn-disabled'));
+    if (anyGlowing) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  });
+
   // Enter key support
   window.addEventListener('load', () => {
     // Auto-login: fire when both email and password have a value
