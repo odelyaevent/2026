@@ -501,7 +501,8 @@ function startRealtimeListener(docId) {
         const data = snap.data();
         if (data.approved) {
           const pin = localStorage.getItem('rkmvp_pin') || '';
-          window.location.href = `guest.html?pin=${encodeURIComponent(pin)}`;
+          const wa  = localStorage.getItem('rkmvp_whatsapp') || data.whatsapp || '';
+          window.location.href = `guest.html?wa=${encodeURIComponent(wa)}&pin=${encodeURIComponent(pin)}`;
         }
       });
     }
@@ -679,7 +680,7 @@ async function attemptAutoLogin() {
 
         if (g.approved) {
           hideAll();
-          window.location.href = `guest.html?pin=${encodeURIComponent(pin)}`;
+          window.location.href = `guest.html?wa=${encodeURIComponent(whatsapp)}&pin=${encodeURIComponent(pin)}`;
           return;
         } else {
           showPendingScreen(docId, whatsapp, pin, g.name, g.amount);
@@ -728,7 +729,7 @@ async function attemptAutoLogin() {
           const docId = snap.docs[0].id;
           const g = snap.docs[0].data();
           if (g.approved) {
-            window.location.href = `guest.html?pin=${encodeURIComponent(g.pin)}`;
+            window.location.href = `guest.html?wa=${encodeURIComponent(g.whatsapp)}&pin=${encodeURIComponent(g.pin)}`;
             return true;
           } else {
             showPendingScreen(docId, g.whatsapp, g.pin, g.name, g.amount);
