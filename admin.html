@@ -200,12 +200,12 @@ header h1{padding:0 74px 0 74px;}
     .gift-btn.gift-btn-due-active{background:#FFF3CD;color:#856404;border-color:#FFCA28;}
     /* PROGRAMS CONFIG */
     .program-config-day{background:#F7FAFF;border-radius:8px;padding:10px 12px;margin-bottom:10px;border:1px solid #C5D3E8;}
-    .program-config-day-title{font-size:0.82rem;font-weight:700;color:var(--deep-blue);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:8px;}
+    .program-config-day-title{font-size:1.2rem;font-weight:700;color:var(--deep-blue);letter-spacing:0.03em;margin-bottom:10px;}
     .program-item-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
-    .program-item-row input{flex:1;padding:8px 10px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:0.88rem;font-family:'Lato',sans-serif;background:var(--white);margin:0;}
-    .program-item-row button{padding:7px 12px;border:none;border-radius:6px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;}
+    .program-item-row input{flex:1;padding:12px 14px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:1.2rem;font-family:'Lato',sans-serif;background:var(--white);margin:0;}
+    .program-item-row button{padding:11px 16px;border:none;border-radius:6px;font-weight:700;font-size:1.2rem;cursor:pointer;white-space:nowrap;}
     .btn-remove-item{background:#F8D7DA;color:#721C24;}
-    .btn-add-item{background:var(--light-blue);color:white;width:100%;padding:9px;margin-top:4px;}
+    .btn-add-item{background:var(--light-blue);color:white;width:100%;padding:14px;margin-top:8px;font-size:1.2rem;font-weight:700;border:none;border-radius:8px;cursor:pointer;}
     /* GIFT CONFIG */
     .gift-config-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
     .gift-config-row input{flex:1;padding:8px 10px;border:1.5px solid #C5D3E8;border-radius:6px;font-size:0.88rem;font-family:'Lato',sans-serif;background:var(--white);margin:0;}
@@ -385,7 +385,7 @@ header h1{padding:0 74px 0 74px;}
         <select id="ev-de"></select>
       </div>
 
-      <div class="section-title" style="padding:14px 0 4px;">Programs</div>
+      <div class="section-title" style="padding:14px 0 4px;">Programs List</div>
       <div id="programs-config-container"></div>
 
       <button class="btn-excel" onclick="saveEventConfig()" style="margin-top:28px;font-size:1.8rem;padding:22px;">Save</button>
@@ -716,18 +716,18 @@ function buildCard(docId, g) {
       let itemsHtml = items.length
         ? items.map(item => `
             <div class="program-item-row">
-              <input type="text" class="program-input-day${day.num}" value="${item}" placeholder="Program item"/>
+              <input type="text" class="program-input-day${day.num}" value="${item}" placeholder="Program Name"/>
               <button class="btn-remove-item" onclick="this.parentElement.remove()">✕</button>
             </div>`).join('')
-        : `<div class="program-item-row">
-             <input type="text" class="program-input-day${day.num}" placeholder="Program item"/>
+           : `<div class="program-item-row">
+             <input type="text" class="program-input-day${day.num}" placeholder="Program Name"/>
              <button class="btn-remove-item" onclick="this.parentElement.remove()">✕</button>
            </div>`;
       container.innerHTML += `
         <div class="program-config-day">
-          <div class="program-config-day-title">${day.label}</div>
+          <div class="program-config-day-title">${new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
           <div id="prog-items-day${day.num}">${itemsHtml}</div>
-          <button class="btn-add-item" onclick="addProgramItem(${day.num})">+ Add Item</button>
+          <button class="btn-add-item" onclick="addProgramItem(${day.num})">+ Add</button>
         </div>`;
     });
   }
@@ -737,7 +737,7 @@ function buildCard(docId, g) {
     const row = document.createElement('div');
     row.className = 'program-item-row';
     row.innerHTML = `
-      <input type="text" class="program-input-day${dayNum}" placeholder="Program item"/>
+      <input type="text" class="program-input-day${dayNum}" placeholder="Program Name"/>
       <button class="btn-remove-item" onclick="this.parentElement.remove()">✕</button>`;
     container.appendChild(row);
     row.querySelector('input').focus();
