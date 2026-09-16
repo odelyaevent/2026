@@ -1276,15 +1276,139 @@ async function loadStats() {
     }
   }
 
-  // ── PAID GUEST REPORT (placeholder) ──
-  async function reportPaidGuests() {
-    alert('Paid Guest Report — format coming soon.');
+  // ── SHARED GUEST REPORT BUILDER ──
+  async function buildGuestReport(whichFilter) {
+    if (!window._firebaseReady) return;
+    try {
+      const isPaid = whichFilter === 'paid';
+      const reportTitle = isPaid ? 'Paid Guest Report' : 'Pending Guest Report';
+      const amountLabel = isPaid ? 'Amount Paid' : 'Amount Due';
+      const fileSuffix  = isPaid ? 'Paid' : 'Pending';
+
+      // Read config for header dates
+      let eventStart = EVENT_START_DATE;
+      let eventEnd   = EVENT_END_DATE;
+      try {
+        const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
+        if (configSnap.exists()) {
+          const cd = configSnap.data();
+          if (cd.startDate) eventStart = cd.startDate;
+          if (cd.endDate)   eventEnd   = cd.endDate;
+        }
+      } catch(e) {}
+
+      const fmtDate = (str) => new Date(str).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const headerLine3 = `${fmtDate(eventStart)} - ${fmtDate(eventEnd)}, Purulia RKM`;
+
+      // Fetch guests and filter
+      const snap = await window._getDocs(window._collection(window._db,'guests'));
+      let docs = snap.docs.filter(d => (d.data().approved === true) === isPaid);
+
+      // Sort by name
+      docs.sort((a, b) => {
+        const na = (a.data().name || '').toLowerCase();
+        const nb = (b.data().name || '').toLowerCase();
+        return na.localeCompare(nb);
+      });
+
+      // Format registered time as "16 Sep 2026, 10:08 AM"
+      const fmtTime = (iso) => {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const datePart = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const timePart = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true});
+        return `${datePart}, ${timePart}`;
+      };
+
+      // Build rows
+      const rows = [];
+      rows.push(['RKMVP Alumni Association']);
+      rows.push(['22nd Reunion 2026']);
+      rows.push([headerLine3]);
+      rows.push(['']);
+      rows.push([reportTitle]);
+      rows.push(['']);
+      rows.push(['Name','Batch Year','Division','WhatsApp','Address','Own Family','Extra Alumni','Extra Family','Gift Item', amountLabel,'Registered Time']);
+
+      docs.forEach(d => {
+        const g = d.data();
+        rows.push([
+          g.name || '',
+          g.batch || '',
+          g.division || '',
+          g.whatsapp || '',
+          g.address || '',
+          g.familyCount || 0,
+          g.extraAlumniCount || 0,
+          g.extraFamilyCount || 0,
+          g.giftReceived === true ? 'Yes' : 'No',
+          g.amount || 0,
+          fmtTime(g.registeredAt)
+        ]);
+      });
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // Column widths
+      ws['!cols'] = [
+        { wch: 26 }, // Name
+        { wch: 11 }, // Batch
+        { wch: 12 }, // Division
+        { wch: 14 }, // WhatsApp
+        { wch: 30 }, // Address
+        { wch: 12 }, // Own Family
+        { wch: 13 }, // Extra Alumni
+        { wch: 13 }, // Extra Family
+        { wch: 10 }, // Gift
+        { wch: 13 }, // Amount
+        { wch: 24 }  // Registered Time
+      ];
+
+      // Landscape A4 (11 columns won't fit portrait)
+      ws['!pageSetup'] = { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      // Font 16 for every cell
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) continue;
+          ws[addr].s = { font: { sz: 16 } };
+        }
+      }
+
+      // Header rows — bold red
+      ['A1','A2','A3'].forEach(addr => {
+        if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: 'CC0000' } } };
+      });
+
+      // Report title row — bold green
+      if (ws['A5']) ws['A5'].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+
+      // Column header row — bold
+      const headerRowIdx = 7;
+      for (let c = 0; c <= 10; c++) {
+        const a = XLSX.utils.encode_cell({ r: headerRowIdx - 1, c: c });
+        if (ws[a]) ws[a].s = { font: { sz: 16, bold: true } };
+      }
+
+      ws['!rows'] = rows.map(r => ({ hpt: r[0] === '' ? 14 : 24 }));
+
+      XLSX.utils.book_append_sheet(wb, ws, reportTitle);
+
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `RKMVP_Report_${fileSuffix}_${today}.xlsx`);
+
+    } catch(e) {
+      console.error(e);
+      alert('Error generating report. Try again.');
+    }
   }
 
-  // ── PENDING GUEST REPORT (placeholder) ──
-  async function reportPendingGuests() {
-    alert('Pending Guest Report — format coming soon.');
-  }
+  async function reportPaidGuests()    { return buildGuestReport('paid');    }
+  async function reportPendingGuests() { return buildGuestReport('pending'); }
 
   // ── ESTIMATE REPORT ──
   async function reportEstimate() {
