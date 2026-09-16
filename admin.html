@@ -984,7 +984,7 @@ const totalGuests = snap.docs.length;
             giftRecvCount++;
           } else {
             giftDueCount++;
-            dueguests.push({ name:g.name, batch:g.batch, whatsapp:g.whatsapp });
+            dueguests.push({ name:g.name, batch:g.batch, whatsapp:g.whatsapp, approved: g.approved === true });
           }
         });
 
@@ -1001,10 +1001,11 @@ const totalGuests = snap.docs.length;
           dueguestHtml = '<tr><td colspan="3" style="text-align:center;color:var(--success);font-weight:700;padding:14px;">All guests have received the gift item.</td></tr>';
         } else {
           dueguests.forEach(g => {
+            const clr = g.approved ? '' : 'color:var(--red);font-weight:700;';
             dueguestHtml += `<tr>
-              <td style="font-weight:700;">${g.name}</td>
-              <td style="text-align:center;">${g.batch}</td>
-              <td>${g.whatsapp||''}</td>
+              <td style="${clr}">${g.name}</td>
+              <td style="text-align:center;${clr}">${g.batch}</td>
+              <td style="${clr}">${g.whatsapp||''}</td>
             </tr>`;
           });
         }
