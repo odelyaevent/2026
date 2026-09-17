@@ -169,10 +169,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   </div>
 
   <!-- NOT EVENT DAY -->
-  <div class="info-box" id="not-event-day-box" style="display:none;">
-    <div class="icon">📅</div>
-    <h3 id="not-event-day-msg">Event Not Started Yet</h3>
-    <p id="not-event-day-sub">Please come back on the event day.</p>
+  <div class="info-box" id="not-event-day-box" style="display:none;text-align:center;">
+    <h3 id="not-event-day-msg" style="font-size:1.8rem;font-weight:900;color:var(--deep-blue);margin-bottom:24px;">Event Has Not Started Yet</h3>
+    <p id="not-event-day-sub" style="font-size:1.4rem;font-weight:700;color:#333;margin-bottom:24px;">Event begins on 21 Nov 2026.</p>
+    <p style="font-size:1.4rem;font-weight:700;color:#333;">Please come back then!</p>
   </div>
 
 <!-- MAIN MENU -->
@@ -420,7 +420,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
           const subEl = document.getElementById('not-event-day-sub');
           if (now < start) {
             msgEl.textContent = 'Event Has Not Started Yet';
-            subEl.textContent = `Event begins on ${new Date(EVENT_START_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}. Please come back then!`;
+            subEl.textContent = `Event begins on ${new Date(EVENT_START_DATE).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}.`;
           } else {
             msgEl.textContent = 'Event Has Ended';
             subEl.textContent = 'Thank you for attending RKMVP Reunion 2026!';
