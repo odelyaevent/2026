@@ -623,6 +623,7 @@ function showSection(section) {
       document.getElementById('programs-screen').style.display = 'none';
       document.getElementById('photos-screen').style.display = 'none';
       pushGuestState(section);
+
       // Stop shuffle when leaving photos
       if (section !== 'photos' && shuffleTimer) {
         clearInterval(shuffleTimer);
@@ -893,6 +894,20 @@ function closeLightbox() {
       localStorage.removeItem('rkmvp_last_force');
       window.location.replace('index.html');
     }
+
+    // ── BROWSER BACK NAVIGATION ──
+    function pushGuestState(section) {
+      history.pushState({ section: section }, '', '');
+    }
+
+    window.addEventListener('popstate', (e) => {
+      const s = e.state && e.state.section;
+      if (s === 'menu' || !s) {
+        showSection('menu');
+      } else if (s === 'food' || s === 'gifts' || s === 'programs' || s === 'photos') {
+        showSection(s);
+      }
+    });
 
     // ── BROWSER BACK NAVIGATION ──
     function pushGuestState(section) {
