@@ -129,6 +129,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     /* PROGRAMS SCREEN */
     #programs-screen{display:none;}
     .program-day{margin:14px 14px 0;background:var(--white);border-radius:12px;border:1.5px solid var(--border);overflow:hidden;}
+    .program-day-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:16px 18px;font-family:'Lato',serif;color:var(--gold);font-size:1.5rem;font-weight:700;letter-spacing:0.04em;}
+    .program-item{padding:16px 18px;border-bottom:1px solid #eee;font-size:1.4rem;color:#333;line-height:1.7;font-weight:700;}
     .program-day-header{background:linear-gradient(90deg,var(--deep-blue),var(--light-blue));padding:10px 16px;font-family:'Lato',serif;color:var(--gold);font-size:1.1rem;font-weight:700;letter-spacing:0.04em;}
     .program-item{padding:10px 16px;border-bottom:1px solid #eee;font-size:1.05rem;color:#333;line-height:1.6;}
     .program-item:last-child{border-bottom:none;}
@@ -673,14 +675,18 @@ function showSection(section) {
       try {
         const snap = await window._getDoc(window._doc(window._db,'config','event'));
         if (!snap.exists()) { document.getElementById('programs-list').innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No programs configured yet.</p>'; return; }
-        const programs = snap.data().programs || {};
-        const days     = getEventDays();
+        const d        = snap.data();
+        const programs = d.programs || {};
+        const start    = d.startDate || EVENT_START_DATE;
+        const end      = d.endDate   || EVENT_END_DATE;
+        const days     = getEventDaysFrom(start, end);
         let html = '';
         days.forEach(day => {
           const items = programs[`day${day.num}`] || [];
+          const dateLabel = new Date(day.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
           html += `
             <div class="program-day">
-              <div class="program-day-header">${day.label}</div>
+              <div class="program-day-header">${dateLabel}</div>
               ${items.length
                 ? items.map(item => `<div class="program-item">${item}</div>`).join('')
                 : '<div class="program-item" style="color:#888;">No programs listed yet.</div>'
@@ -689,6 +695,22 @@ function showSection(section) {
         });
         document.getElementById('programs-list').innerHTML = html;
       } catch(e) { console.error(e); }
+    }
+
+    function getEventDaysFrom(startStr, endStr) {
+      const days = [];
+      let current = new Date(startStr);
+      const end   = new Date(endStr);
+      let dayNum  = 1;
+      while (current <= end) {
+        days.push({
+          num:   dayNum,
+          date:  current.toISOString().split('T')[0]
+        });
+        current.setDate(current.getDate()+1);
+        dayNum++;
+      }
+      return days;
     }
 
 // ── PHOTOS ──
