@@ -243,10 +243,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <div class="card-body" style="padding:22px 18px;">
 
         <div id="meal-timings" style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);line-height:2.2;margin-bottom:22px;">
-          <div>Lunch Timing:</div>
-          <div id="lunch-timing-line"></div>
-          <div>Dinner Timing:</div>
-          <div id="dinner-timing-line"></div>
+          <div><span style="display:inline-block;min-width:150px;">Lunch:</span><span id="lunch-timing-line"></span></div>
+          <div><span style="display:inline-block;min-width:150px;">Dinner:</span><span id="dinner-timing-line"></span></div>
         </div>
 
         <div style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);line-height:2.2;margin-bottom:22px;">
@@ -453,6 +451,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         renderMealScreen(g, eventDay);
 
         // Realtime meal updates
+        const total = 1 + (g.familyCount||0) + (g.extraAlumniCount||0) + (g.extraFamilyCount||0);
         setTimeout(() => { listenMealUpdates(docId, total, eventDay); }, 800);
 
         // Watch for force logout from admin
@@ -518,13 +517,28 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const pleaseEl    = document.getElementById('meal-please');
       const qrSection   = document.getElementById('qr-section');
 
-      // Determine "next meal" for the please line
-      const hour = new Date().getHours();
-      const lunchEndHour  = parseInt(MEAL_TIMES.lunch.end);
-      const dinnerEndHour = parseInt(MEAL_TIMES.dinner.end);
-      let nextMealName = 'Dinner';
-      if (hour < lunchEndHour) nextMealName = 'Lunch';
-      pleaseEl.textContent = `Please come at ${nextMealName} Time.`;
+      // Determine the please-line message
+      function toMin(t) {
+        const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+        if (!m) return null;
+        let h = parseInt(m[1]) % 12;
+        if (m[3].toUpperCase() === 'PM') h += 12;
+        return h*60 + parseInt(m[2]);
+      }
+      const nowMin      = new Date().getHours()*60 + new Date().getMinutes();
+      const lunchStart  = toMin(MEAL_TIMES.lunch.start);
+      const lunchEnd    = toMin(MEAL_TIMES.lunch.end);
+      const dinnerStart = toMin(MEAL_TIMES.dinner.start);
+
+      if (lunchStart !== null && nowMin < lunchStart) {
+        pleaseEl.textContent = 'Please come at Lunch Time.';
+      } else if (lunchEnd !== null && nowMin < lunchEnd) {
+        pleaseEl.textContent = 'Have Your Lunch Please.';
+      } else if (dinnerStart !== null && nowMin < dinnerStart) {
+        pleaseEl.textContent = 'Please come at Dinner Time.';
+      } else {
+        pleaseEl.textContent = 'Good Night. Thanks!';
+      }
 
       // QR only during meal window
       if (!currentMeal) {
