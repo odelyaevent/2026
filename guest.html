@@ -240,22 +240,29 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   <div id="meal-screen">
     <div class="card">
       <div class="card-header"><h2>Your Meal Pass</h2></div>
-      <div class="card-body" style="padding:0 0 10px;">
-        <div class="meal-hero">
-          <div class="meal-label" id="meal-label-display"></div>
-          <div><span class="meal-day-tag" id="meal-day-tag"></span></div>
+      <div class="card-body" style="padding:22px 18px;">
+
+        <div id="meal-timings" style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);line-height:2.2;margin-bottom:22px;">
+          <div>Lunch Timing:</div>
+          <div id="lunch-timing-line"></div>
+          <div>Dinner Timing:</div>
+          <div id="dinner-timing-line"></div>
         </div>
-        <div class="outside-hours" id="outside-hours" style="display:none;">
-          <span>🕐</span>
-          Meal service is not active right now.<br>Please come back during meal hours.
+
+        <div style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);line-height:2.2;margin-bottom:22px;">
+          <div><span style="display:inline-block;min-width:150px;">Name:</span><span id="meal-name"></span></div>
+          <div><span style="display:inline-block;min-width:150px;">Coupons:</span><span id="meal-coupons"></span></div>
         </div>
-        <div class="qr-section" id="qr-section">
-          <p class="qr-note">Show this QR to the gate attendant</p>
+
+        <div class="qr-section" id="qr-section" style="display:none;">
           <div id="qr-canvas"></div>
         </div>
+
+        <p id="meal-please" style="text-align:center;font-size:1.4rem;font-weight:700;color:#333;margin-top:22px;"></p>
+
       </div>
     </div>
-<button class="back-btn" onclick="showSection('menu')">Back to Menu</button>
+    <button class="back-btn" onclick="showSection('menu')">Back to Menu</button>
   </div>
 
   <script>
@@ -266,9 +273,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     let EVENT_START_DATE = '2026-05-21'; // fallback
     let EVENT_END_DATE   = '2026-05-22'; // fallback
     let MEAL_TIMES = {
-      breakfast: { start: 7,  end: 11, label: 'BREAKFAST', cls: 'breakfast' },
-      lunch:     { start: 12, end: 17, label: 'LUNCH',     cls: 'lunch'     },
-      dinner:    { start: 18, end: 23, label: 'DINNER',    cls: 'dinner'    }
+      lunch:  { start: '', end: '', label: 'LUNCH'  },
+      dinner: { start: '', end: '', label: 'DINNER' }
     };
     // ============================================================
 
@@ -281,9 +287,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         if (d.startDate) EVENT_START_DATE = d.startDate;
         if (d.endDate)   EVENT_END_DATE   = d.endDate;
         MEAL_TIMES = {
-          breakfast: { start: d.breakfastStart??7,  end: d.breakfastEnd??11, label: 'BREAKFAST', cls: 'breakfast' },
-          lunch:     { start: d.lunchStart??12,     end: d.lunchEnd??16,     label: 'LUNCH',     cls: 'lunch'     },
-          dinner:    { start: d.dinnerStart??18,    end: d.dinnerEnd??23,    label: 'DINNER',    cls: 'dinner'    }
+          lunch:  { start: d.lunchStart  || '', end: d.lunchEnd  || '', label: 'LUNCH'  },
+          dinner: { start: d.dinnerStart || '', end: d.dinnerEnd || '', label: 'DINNER' }
         };
       } catch(e) { console.error(e); }
     }
@@ -311,9 +316,20 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     }
 
     function getCurrentMeal() {
-      const hour = new Date().getHours();
+      const now   = new Date();
+      const hhmm  = now.getHours()*60 + now.getMinutes();
+      function toMin(t) {
+        const m = t.match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+        if (!m) return null;
+        let h = parseInt(m[1]) % 12;
+        if (m[3].toUpperCase() === 'PM') h += 12;
+        return h*60 + parseInt(m[2]);
+      }
       for (const [key, m] of Object.entries(MEAL_TIMES)) {
-        if (hour >= m.start && hour < m.end) return { key, ...m };
+        const s = toMin(m.start);
+        const e = toMin(m.end);
+        if (s === null || e === null) continue;
+        if (hhmm >= s && hhmm < e) return { key, ...m };
       }
       return null;
     }
@@ -433,47 +449,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         currentDocId     = docId;
         document.getElementById('main-menu').style.display = 'block';
 
-        // Prepare meal screen in background (for later steps)
-        const total       = (g.familyCount||0)+1;
-        const currentMeal = getCurrentMeal();
-        const dayKey      = `day${eventDay.num}`;
-        const meals       = g.meals || {};
-
-        if (!currentMeal) {
-          document.getElementById('outside-hours').style.display = 'block';
-          document.getElementById('qr-section').style.display    = 'none';
-          document.getElementById('meal-label-display').textContent = '';
-          document.getElementById('meal-day-tag').textContent = eventDay.label;
-        } else {
-          const used      = (meals[dayKey] && meals[dayKey][currentMeal.key]) || 0;
-          const remaining = total - used;
-
-          if (remaining <= 0) {
-            showCompletion(currentMeal.label, eventDay.label, total);
-          } else {
-            const labelEl = document.getElementById('meal-label-display');
-            labelEl.textContent = currentMeal.label;
-            labelEl.className   = `meal-label ${currentMeal.cls}`;
-            document.getElementById('meal-day-tag').textContent = eventDay.label;
-
-            const qrData = JSON.stringify({
-              guestId: docId,
-              pin:     pin,
-              meal:    currentMeal.key,
-              day:     String(eventDay.num),
-              total:   total,
-              name:    g.name
-            });
-
-            document.getElementById('qr-canvas').innerHTML = '';
-            const canvas = document.createElement('canvas');
-            document.getElementById('qr-canvas').appendChild(canvas);
-            QRCode.toCanvas(canvas, qrData, {
-              width: 250, margin: 2,
-              color: { dark:'#000000', light:'#ffffff' }
-            });
-          }
-        }
+        // Prepare meal screen
+        renderMealScreen(g, eventDay);
 
         // Realtime meal updates
         setTimeout(() => { listenMealUpdates(docId, total, eventDay); }, 800);
@@ -529,6 +506,52 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       });
     }
 
+    function renderMealScreen(g, eventDay) {
+      const total = 1 + (g.familyCount||0) + (g.extraAlumniCount||0) + (g.extraFamilyCount||0);
+
+      document.getElementById('lunch-timing-line').textContent  = `${MEAL_TIMES.lunch.start} - ${MEAL_TIMES.lunch.end}`;
+      document.getElementById('dinner-timing-line').textContent = `${MEAL_TIMES.dinner.start} - ${MEAL_TIMES.dinner.end}`;
+      document.getElementById('meal-name').textContent    = g.name;
+      document.getElementById('meal-coupons').textContent = total;
+
+      const currentMeal = getCurrentMeal();
+      const pleaseEl    = document.getElementById('meal-please');
+      const qrSection   = document.getElementById('qr-section');
+
+      // Determine "next meal" for the please line
+      const hour = new Date().getHours();
+      const lunchEndHour  = parseInt(MEAL_TIMES.lunch.end);
+      const dinnerEndHour = parseInt(MEAL_TIMES.dinner.end);
+      let nextMealName = 'Dinner';
+      if (hour < lunchEndHour) nextMealName = 'Lunch';
+      pleaseEl.textContent = `Please come at ${nextMealName} Time.`;
+
+      // QR only during meal window
+      if (!currentMeal) {
+        qrSection.style.display = 'none';
+        return;
+      }
+
+      qrSection.style.display = 'block';
+      document.getElementById('qr-canvas').innerHTML = '';
+      const canvas = document.createElement('canvas');
+      document.getElementById('qr-canvas').appendChild(canvas);
+
+      const qrData = JSON.stringify({
+        guestId: currentDocId,
+        pin:     localStorage.getItem('rkmvp_pin') || '',
+        meal:    currentMeal.key,
+        day:     String(eventDay.num),
+        total:   total,
+        name:    g.name
+      });
+
+      QRCode.toCanvas(canvas, qrData, {
+        width: 250, margin: 2,
+        color: { dark:'#000000', light:'#ffffff' }
+      });
+    }
+
     function showCompletion(mealLabel, dayLabel, total) {
       document.getElementById('qr-section').style.display    = 'none';
       document.getElementById('outside-hours').style.display = 'none';
@@ -561,11 +584,13 @@ compBox.innerHTML = `
         if (!snap.exists()) return;
         const g     = snap.data();
         const meals = g.meals || {};
-        const d     = getEventDays();
         const currentMeal = getCurrentMeal();
         const dayKey = `day${eventDay.num}`;
 
-        // Check completion
+        // Refresh meal screen with latest data
+        renderMealScreen(g, eventDay);
+
+        // Check completion during meal window
         if (currentMeal) {
           const used = (meals[dayKey] && meals[dayKey][currentMeal.key]) || 0;
           if (used >= total) showCompletion(currentMeal.label, eventDay.label, total);
