@@ -454,6 +454,9 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         const total = 1 + (g.familyCount||0) + (g.extraAlumniCount||0) + (g.extraFamilyCount||0);
         setTimeout(() => { listenMealUpdates(docId, total, eventDay); }, 800);
 
+        // Refresh meal screen every minute (for live QR show/hide)
+        setInterval(() => { renderMealScreen(currentGuestData, eventDay); }, 60000);
+
         // Watch for force logout from admin
         watchForceLogout(docId);
 
