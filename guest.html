@@ -963,11 +963,22 @@ function closeLightbox() {
       document.getElementById('confirm-pin').value = '';
       document.getElementById('changepin-error').style.display = 'none';
       document.getElementById('changepin-overlay').style.display = 'flex';
+      history.pushState({ changepin: true }, '', '');
     }
 
-    function closeChangePin() {
+    function closeChangePin(fromHistory) {
       document.getElementById('changepin-overlay').style.display = 'none';
+      if (!fromHistory && history.state && history.state.changepin) {
+        history.back();
+      }
     }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const ov = document.getElementById('changepin-overlay');
+        if (ov && ov.style.display === 'flex') closeChangePin();
+      }
+    });
 
     async function confirmChangePin() {
       const newPin = document.getElementById('new-pin').value.trim();
@@ -1011,6 +1022,13 @@ function closeLightbox() {
     }
 
     window.addEventListener('popstate', (e) => {
+      // Close Change PIN popup first if it's open
+      const ov = document.getElementById('changepin-overlay');
+      if (ov && ov.style.display === 'flex') {
+        closeChangePin(true);
+        return;
+      }
+
       const s = e.state && e.state.section;
       if (s === 'menu' || !s) {
         showSection('menu');
