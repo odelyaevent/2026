@@ -633,6 +633,9 @@ function showSection(section) {
         const received = guest.giftReceived === true;
         const color    = received ? 'var(--success)' : 'var(--red)';
         const text     = received ? 'Received' : 'Not Received';
+        const approved = guest.approved === true;
+        const statusTxt   = approved ? 'Approved' : 'Pending';
+        const statusColor = approved ? 'var(--success)' : 'var(--red)';
 
         document.getElementById('gift-details').innerHTML = `
           <div style="text-align:left;padding-left:3px;">
