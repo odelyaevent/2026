@@ -645,13 +645,11 @@ function openRazorpayCheckout(docId, name, amount) {
           }
         }
       };
-const waVal    = document.getElementById('whatsapp')?.value.trim() || currentGuest.whatsapp || '';
-const batchVal = document.getElementById('batch')?.value.trim()    || currentGuest.batch    || '';
+const waVal = document.getElementById('whatsapp')?.value.trim() || currentGuest.whatsapp || '';
 window.location.href = 'https://pages.razorpay.com/pl_TcodATbXWASk9v/view'
   + '?amount=' + amount
   + '&phone='  + waVal
-  + '&name='   + encodeURIComponent(name)
-  + '&batch='  + encodeURIComponent(batchVal);
+  + '&name='   + encodeURIComponent(name);
     }
 
 async function attemptAutoLogin() {
