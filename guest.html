@@ -255,7 +255,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         </div>
       </div>
     </div>
-    <div class="group-info" id="group-info"></div>
 <button class="back-btn" onclick="showSection('menu')">Back to Menu</button>
   </div>
 
@@ -571,24 +570,6 @@ compBox.innerHTML = `
           const used = (meals[dayKey] && meals[dayKey][currentMeal.key]) || 0;
           if (used >= total) showCompletion(currentMeal.label, eventDay.label, total);
         }
-
-        // Build group info
-        let infoHtml = `
-          <strong>Name:</strong> ${g.name}<br>
-          <strong>Batch:</strong> ${g.batch}<br>
-          <strong>Family Members:</strong> ${g.familyCount||0}<br>
-          <strong>Total in Group:</strong> ${total}
-          <hr style="margin:10px 0;border:none;border-top:1px solid #eee;"/>`;
-
-        d.forEach(day => {
-          const dm = meals[`day${day.num}`] || {};
-          infoHtml += `<strong>${day.label}</strong><br>
-            <strong>B</strong> <span class="meal-count-badge">${dm.breakfast||0}/${total}</span> &nbsp;
-            <strong>L</strong> <span class="meal-count-badge">${dm.lunch||0}/${total}</span> &nbsp;
-            <strong>D</strong> <span class="meal-count-badge">${dm.dinner||0}/${total}</span><br>`;
-        });
-
-        document.getElementById('group-info').innerHTML = infoHtml;
       });
     }
 
