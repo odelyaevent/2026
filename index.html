@@ -513,7 +513,7 @@ function startRealtimeListener(docId) {
     }
 
     function showPendingScreen(docId, whatsapp, pin, name, amount) {
-      currentGuest = { docId, whatsapp, pin, name, amount };
+      currentGuest = { docId, whatsapp, pin, name, amount, batch: document.getElementById('batch').value.trim() };
       document.getElementById('pf-userid').textContent = whatsapp;
       document.getElementById('pf-pin').textContent    = pin;
       document.getElementById('pf-name').textContent   = name;
@@ -645,8 +645,8 @@ function openRazorpayCheckout(docId, name, amount) {
           }
         }
       };
-      const waVal    = document.getElementById('whatsapp').value.trim();
-const batchVal = document.getElementById('batch').value.trim();
+const waVal    = document.getElementById('whatsapp')?.value.trim() || currentGuest.whatsapp || '';
+const batchVal = document.getElementById('batch')?.value.trim()    || currentGuest.batch    || '';
 window.location.href = 'https://pages.razorpay.com/pl_TcodATbXWASk9v/view'
   + '?amount=' + amount
   + '&phone='  + waVal
