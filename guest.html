@@ -150,6 +150,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     <div class="header-person-wrap">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
+        <button onclick="openChangePin()">Change PIN</button>
         <button onclick="guestLogout()">Logout</button>
       </div>
     </div>
@@ -234,6 +235,20 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <img id="lightbox-img" src="" alt="Full Photo"/>
+</div>
+
+<!-- CHANGE PIN POPUP -->
+<div id="changepin-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
+  <div style="background:var(--white);border-radius:14px;max-width:420px;width:100%;padding:22px 18px;box-sizing:border-box;">
+    <h2 style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.5rem;text-align:center;margin-bottom:22px;">Change PIN</h2>
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:8px;">New PIN</label>
+    <input type="password" id="new-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="6-Digits" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.4rem;font-family:'Lato',sans-serif;color:#1a1a1a;background:#F7FAFF;text-align:center;letter-spacing:0.3em;margin-bottom:16px;box-sizing:border-box;"/>
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:8px;">Confirm PIN</label>
+    <input type="password" id="confirm-pin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="Re-enter" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.4rem;font-family:'Lato',sans-serif;color:#1a1a1a;background:#F7FAFF;text-align:center;letter-spacing:0.3em;margin-bottom:16px;box-sizing:border-box;"/>
+    <div id="changepin-error" style="display:none;color:var(--red);font-weight:700;text-align:center;font-size:1rem;margin-bottom:14px;"></div>
+    <button onclick="confirmChangePin()" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',serif;font-size:1.3rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.06em;margin-bottom:10px;">Change</button>
+    <button onclick="closeChangePin()" style="width:100%;padding:14px;background:transparent;border:2px solid var(--deep-blue);color:var(--deep-blue);font-family:'Lato',serif;font-size:1.2rem;font-weight:700;border-radius:10px;cursor:pointer;">Cancel</button>
+  </div>
 </div>
 
   <!-- MEAL SCREEN -->
@@ -931,6 +946,63 @@ function closeLightbox() {
       localStorage.removeItem('rkmvp_whatsapp');
       localStorage.removeItem('rkmvp_last_force');
       window.location.replace('index.html');
+    }
+
+    // ── DIGIT-ONLY INPUT FILTER ──
+    document.addEventListener('input', function(e) {
+      const id = e.target && e.target.id;
+      if (id === 'new-pin' || id === 'confirm-pin') {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+      }
+    });
+
+    // ── CHANGE PIN ──
+    function openChangePin() {
+      document.getElementById('header-person-menu').classList.remove('open');
+      document.getElementById('new-pin').value = '';
+      document.getElementById('confirm-pin').value = '';
+      document.getElementById('changepin-error').style.display = 'none';
+      document.getElementById('changepin-overlay').style.display = 'flex';
+    }
+
+    function closeChangePin() {
+      document.getElementById('changepin-overlay').style.display = 'none';
+    }
+
+    async function confirmChangePin() {
+      const newPin = document.getElementById('new-pin').value.trim();
+      const confPin = document.getElementById('confirm-pin').value.trim();
+      const errEl = document.getElementById('changepin-error');
+      errEl.style.display = 'none';
+
+      if (!/^\d{6}$/.test(newPin)) {
+        errEl.textContent = 'Enter a 6-digit PIN.';
+        errEl.style.display = 'block'; return;
+      }
+      if (newPin !== confPin) {
+        errEl.textContent = 'PINs do not match.';
+        errEl.style.display = 'block'; return;
+      }
+
+      try {
+        await window._updateDoc(window._doc(window._db,'guests',currentDocId), {
+          pin: newPin,
+          devices: [],
+          forceLogoutAt: new Date().toISOString()
+        });
+
+        localStorage.removeItem('rkmvp_device_token');
+        localStorage.removeItem('rkmvp_pin');
+        localStorage.removeItem('rkmvp_whatsapp');
+        localStorage.removeItem('rkmvp_last_force');
+
+        alert('PIN changed. Please log in again with your new PIN.');
+        window.location.replace('index.html');
+      } catch(e) {
+        console.error(e);
+        errEl.textContent = 'Error. Try again.';
+        errEl.style.display = 'block';
+      }
     }
 
     // ── BROWSER BACK NAVIGATION ──
