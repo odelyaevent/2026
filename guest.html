@@ -460,10 +460,41 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         // Watch for force logout from admin
         watchForceLogout(docId);
 
+        // Watch for config changes (meal times, dates)
+        watchConfigChanges(eventDay);
+
       } catch(e) {
         console.error(e);
         window.location.replace('index.html');
       }
+    }
+
+    // ── LIVE CONFIG LISTENER ──
+    let _configListenerAttached = false;
+    let _currentEventDay = null;
+    function watchConfigChanges(eventDay) {
+      if (_configListenerAttached || !window._firebaseReady) return;
+      _configListenerAttached = true;
+      _currentEventDay = eventDay;
+
+      const ref = window._doc(window._db,'config','event');
+      window._onSnapshot(ref, snap => {
+        if (!snap.exists()) return;
+        const d = snap.data();
+
+        if (d.startDate) EVENT_START_DATE = d.startDate;
+        if (d.endDate)   EVENT_END_DATE   = d.endDate;
+
+        MEAL_TIMES = {
+          lunch:  { start: d.lunchStart  || '', end: d.lunchEnd  || '', label: 'LUNCH'  },
+          dinner: { start: d.dinnerStart || '', end: d.dinnerEnd || '', label: 'DINNER' }
+        };
+
+        // Refresh the meal screen with the new config
+        if (currentGuestData && _currentEventDay) {
+          renderMealScreen(currentGuestData, _currentEventDay);
+        }
+      });
     }
 
     // ── FORCE LOGOUT LISTENER ──
@@ -533,12 +564,16 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const lunchEnd    = toMin(MEAL_TIMES.lunch.end);
       const dinnerStart = toMin(MEAL_TIMES.dinner.start);
 
+      const dinnerEnd = toMin(MEAL_TIMES.dinner.end);
+
       if (lunchStart !== null && nowMin < lunchStart) {
         pleaseEl.textContent = 'Please come at Lunch Time.';
       } else if (lunchEnd !== null && nowMin < lunchEnd) {
         pleaseEl.textContent = 'Have Your Lunch Please.';
       } else if (dinnerStart !== null && nowMin < dinnerStart) {
         pleaseEl.textContent = 'Please come at Dinner Time.';
+      } else if (dinnerEnd !== null && nowMin < dinnerEnd) {
+        pleaseEl.textContent = 'Have Your Dinner Please.';
       } else {
         pleaseEl.textContent = 'Good Night. Thanks!';
       }

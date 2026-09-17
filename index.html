@@ -205,10 +205,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <div class="divider"></div>
 
       <div class="inline-field">
-        <label for="pin">Login PIN<span class="req">*</span></label>
+        <label for="pin">Login PIN (6 Digits)<span class="req">*</span></label>
         <input type="password" id="pin" placeholder="6-digit" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password"/>
       </div>
-      <div class="field-error" id="err-pin">Avoid serial or repeated digits.</div>
+      <div class="field-error" id="err-pin">Enter 6-Digit PIN.</div>
 
       <div class="inline-field" style="margin-top:14px;">
         <label for="pin2">Confirm PIN<span class="req">*</span></label>
@@ -559,7 +559,7 @@ async function submitReg(paymentChoice) {
       } else markErr('name','err-name',false);
 
       if (!/^\d{10}$/.test(whatsapp)) { markErr('whatsapp','err-whatsapp',true); valid=false; } else markErr('whatsapp','err-whatsapp',false);
-      if (!isValidPin(pin)) { markErr('pin','err-pin',true,'Avoid serial or repeated digits.'); valid=false; } else markErr('pin','err-pin',false);
+      if (!isValidPin(pin)) { markErr('pin','err-pin',true); valid=false; } else markErr('pin','err-pin',false);
       if (!division) { markErr('division','err-division',true); valid=false; } else markErr('division','err-division',false);
       if (pin !== pin2) { markErr('pin2','err-pin2',true); valid=false; } else markErr('pin2','err-pin2',false);
       if (!valid) return;
