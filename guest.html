@@ -281,7 +281,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     <button class="back-btn" onclick="showSection('menu')">Back to Menu</button>
   </div>
 
-  <script>
+<script>
 
 // ============================================================
     // ⚙️ EVENT CONFIGURATION — loaded from Firebase
@@ -558,6 +558,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     }
 
     function renderMealScreen(g, eventDay) {
+      if (!g || !eventDay) return;
+      if (!document.getElementById('lunch-timing-line')) return;
       const total = 1 + (g.familyCount||0) + (g.extraAlumniCount||0) + (g.extraFamilyCount||0);
 
       document.getElementById('lunch-timing-line').textContent  = `${MEAL_TIMES.lunch.start} - ${MEAL_TIMES.lunch.end}`;
@@ -630,7 +632,11 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       }
 
       // If all served for the meal in play, hide QR and show message
-      if (mealInPlay && leftCount <= 0) {
+      const lunchDone  = lunchUsed  >= total;
+      const dinnerDone = dinnerUsed >= total;
+      const anyMealDone = lunchDone || dinnerDone;
+
+      if (anyMealDone || (mealInPlay && leftCount <= 0)) {
         qrSection.style.display    = 'none';
         allServedEl.style.display  = 'block';
         return;
@@ -1054,20 +1060,6 @@ function closeLightbox() {
       }
     });
 
-    // ── BROWSER BACK NAVIGATION ──
-    function pushGuestState(section) {
-      history.pushState({ section: section }, '', '');
-    }
-
-    window.addEventListener('popstate', (e) => {
-      const s = e.state && e.state.section;
-      if (s === 'menu' || !s) {
-        showSection('menu');
-      } else if (s === 'food' || s === 'gifts' || s === 'programs' || s === 'photos') {
-        showSection(s);
-      }
-    });
-
     function notYou() {
       localStorage.removeItem('rkmvp_device_token');
       localStorage.removeItem('rkmvp_pin');
@@ -1094,6 +1086,6 @@ function closeLightbox() {
       bootGuest();
     });
 
-  </script>
+</script>
 </body>
 </html>
