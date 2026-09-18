@@ -302,9 +302,15 @@ async function showScanner(email) {
       return;
     }
 
-    const { guestId, meal, day, total, name } = data;
+    const { guestId, meal, day, total, name, expiry } = data;
     if (!guestId || !meal || !day) {
       showResult('red','❌','Invalid QR','Unrecognized QR format.','');
+      return;
+    }
+
+    // Expiry check — QR dies when the meal window ends
+    if (expiry && Date.now() > expiry) {
+      showResult('red','❌','Invalid QR','Show your screen again.','');
       return;
     }
 

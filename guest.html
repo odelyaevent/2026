@@ -703,13 +703,26 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const canvas = document.createElement('canvas');
       document.getElementById('qr-canvas').appendChild(canvas);
 
+      // Compute meal-end timestamp for expiry
+      function toMin(t) {
+        const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+        if (!m) return null;
+        let h = parseInt(m[1]) % 12;
+        if (m[3].toUpperCase() === 'PM') h += 12;
+        return h*60 + parseInt(m[2]);
+      }
+      const endMin = toMin(MEAL_TIMES[currentMeal.key].end);
+      const endOfMeal = new Date();
+      endOfMeal.setHours(Math.floor(endMin/60), endMin%60, 0, 0);
+
       const qrData = JSON.stringify({
         guestId: currentDocId,
         pin:     localStorage.getItem('rkmvp_pin') || '',
         meal:    currentMeal.key,
         day:     String(eventDay.num),
         total:   total,
-        name:    g.name
+        name:    g.name,
+        expiry:  endOfMeal.getTime()
       });
 
       QRCode.toCanvas(canvas, qrData, {
