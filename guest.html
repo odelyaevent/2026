@@ -272,6 +272,9 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
         <div class="qr-section" id="qr-section" style="display:none;padding:10px 0;">
           <div id="qr-canvas" style="display:block;text-align:center;"></div>
+          <div id="qr-share-wrap" style="text-align:center;margin-top:12px;">
+            <button id="qr-share-btn" onclick="shareQrCode()" style="padding:12px 24px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',serif;font-size:1.2rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.05em;">Share</button>
+          </div>
         </div>
 
         <p id="meal-all-served" style="display:none;text-align:center;font-size:1.8rem;font-weight:900;color:var(--success);padding:22px 0;">All Members Served!</p>
@@ -557,6 +560,38 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
           document.getElementById('not-approved-box').style.display = 'block';
         }
       });
+    }
+
+    // ── SHARE QR CODE ──
+    async function shareQrCode() {
+      const canvas = document.querySelector('#qr-canvas canvas');
+      if (!canvas) return;
+
+      try {
+        // Convert canvas to blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) { alert('Could not generate QR image.'); return; }
+
+        const file = new File([blob], 'rkmvp-meal-qr.png', { type: 'image/png' });
+
+        // Try native share with file
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+          return;
+        }
+
+        // Fallback: download the image
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'rkmvp-meal-qr.png';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      } catch(e) {
+        // User cancelled or share failed — silently ignore
+        console.log('Share cancelled or failed:', e);
+      }
     }
 
     function renderMealScreen(g, eventDay) {
