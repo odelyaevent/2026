@@ -173,9 +173,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   let EVENT_START_DATE = '2026-05-21'; // fallback
   let EVENT_END_DATE   = '2026-05-22'; // fallback
   let MEAL_TIMES = {
-    breakfast: { start: 7,  end: 11 },
-    lunch:     { start: 12, end: 16 },
-    dinner:    { start: 18, end: 23 }
+    lunch:  { start: '', end: '' },
+    dinner: { start: '', end: '' }
   };
   // ============================================================
 
@@ -188,9 +187,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       if (d.startDate) EVENT_START_DATE = d.startDate;
       if (d.endDate)   EVENT_END_DATE   = d.endDate;
       MEAL_TIMES = {
-        breakfast: { start: d.breakfastStart??7,  end: d.breakfastEnd??11 },
-        lunch:     { start: d.lunchStart??12,     end: d.lunchEnd??16     },
-        dinner:    { start: d.dinnerStart??18,    end: d.dinnerEnd??23    }
+        lunch:  { start: d.lunchStart  || '', end: d.lunchEnd  || '' },
+        dinner: { start: d.dinnerStart || '', end: d.dinnerEnd || '' }
       };
     } catch(e) { console.error(e); }
   }
@@ -201,10 +199,12 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     const end   = new Date(EVENT_END_DATE);
     let dayNum  = 1;
     while (current <= end) {
+      const dateStr = current.toISOString().split('T')[0];
+      const label   = new Date(dateStr).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
       days.push({
         num:   dayNum,
-        date:  current.toISOString().split('T')[0],
-        label: `Day ${dayNum} — ${current.toLocaleDateString('en-IN',{day:'numeric',month:'long'})}`
+        date:  dateStr,
+        label: label
       });
       current.setDate(current.getDate()+1);
       dayNum++;
@@ -378,11 +378,24 @@ if (remaining <= 0) {
     }
   }
 
-function getCurrentMeal() {
-    const h = new Date().getHours();
-    if (h >= MEAL_TIMES.breakfast.start && h < MEAL_TIMES.breakfast.end) return 'breakfast';
-    if (h >= MEAL_TIMES.lunch.start     && h < MEAL_TIMES.lunch.end)     return 'lunch';
-    if (h >= MEAL_TIMES.dinner.start    && h < MEAL_TIMES.dinner.end)    return 'dinner';
+  function getCurrentMeal() {
+    const now  = new Date();
+    const hhmm = now.getHours()*60 + now.getMinutes();
+    function toMin(t) {
+      const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+      if (!m) return null;
+      let h = parseInt(m[1]) % 12;
+      if (m[3].toUpperCase() === 'PM') h += 12;
+      return h*60 + parseInt(m[2]);
+    }
+    for (const key of ['lunch','dinner']) {
+      const m = MEAL_TIMES[key];
+      if (!m) continue;
+      const s = toMin(m.start);
+      const e = toMin(m.end);
+      if (s === null || e === null) continue;
+      if (hhmm >= s && hhmm < e) return key;
+    }
     return null;
   }
 
