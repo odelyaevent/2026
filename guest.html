@@ -608,7 +608,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       // Line 2 — amount (bold)
       doc.setFont('helvetica', 'bold');
-      doc.text(`Rs. ${g.amount || 0}/-`, bodyX, bodyY);
+      doc.text(`Rs. ${currentGuestData.amount || 0}/-`, bodyX, bodyY);
       doc.setFont('helvetica', 'normal');
       bodyY += 10;
 
