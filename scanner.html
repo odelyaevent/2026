@@ -71,7 +71,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 .manual-num{font-family:'Lato',serif;font-size:2.8rem;font-weight:900;color:white;min-width:50px;text-align:center;}
 .manual-allow{padding:14px 40px;background:var(--success);color:white;font-family:'Lato',serif;font-size:1.8rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.05em;}
 .manual-allow:active{opacity:0.85;}
-.manual-meal{font-size:1.4rem;color:#B8CFFF;font-weight:700;}
+
     .scan-stats{display:flex;gap:10px;padding:10px 14px 0;}
     .scan-stat{flex:1;background:var(--white);border-radius:8px;border:1.5px solid #FFD70044;padding:14px;text-align:center;}
     .scan-stat-num{font-family:'Lato',serif;font-size:2.5rem;font-weight:900;color:var(--deep-blue);}
@@ -145,7 +145,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
   </div>
   <div class="manual-wrap">
     <div class="manual-title">Manual Entry</div>
-    <div class="manual-meal" id="manual-meal-label">Detecting meal time...</div>
     <div class="manual-counter-row">
       <button class="manual-btn" onclick="manualChange(-1)">−</button>
       <div class="manual-num" id="manual-num">0</div>
@@ -279,11 +278,8 @@ async function showScanner(email) {
       dayInfoEl.style.color = 'var(--red)';
     }
 
-updateScanStats();
-    updateManualMealLabel();
-    setInterval(updateManualMealLabel, 60000);
+    updateScanStats();
     startScanner();
-  }
 
   function startScanner() {
     if (scanner) return;
@@ -388,18 +384,6 @@ function getCurrentMeal() {
     if (h >= MEAL_TIMES.lunch.start     && h < MEAL_TIMES.lunch.end)     return 'lunch';
     if (h >= MEAL_TIMES.dinner.start    && h < MEAL_TIMES.dinner.end)    return 'dinner';
     return null;
-  }
-
-  function updateManualMealLabel() {
-    const meal = getCurrentMeal();
-    const el   = document.getElementById('manual-meal-label');
-    if (meal) {
-      el.textContent = `Current meal: ${meal.charAt(0).toUpperCase()+meal.slice(1)}`;
-      el.style.color = '#B8CFFF';
-    } else {
-      el.textContent = 'No active meal time';
-      el.style.color = '#FF8888';
-    }
   }
 
   let manualCount = 0;
