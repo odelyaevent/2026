@@ -664,31 +664,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       });
     }
 
-    function showCompletion(mealLabel, dayLabel, total) {
-      document.getElementById('qr-section').style.display    = 'none';
-      document.getElementById('outside-hours').style.display = 'none';
-      const labelEl = document.getElementById('meal-label-display');
-      labelEl.textContent = '✅';
-      labelEl.className   = 'meal-label';
-      document.getElementById('meal-day-tag').textContent = `${mealLabel} Complete!`;
-
-      let compBox = document.getElementById('completion-box');
-      if (!compBox) {
-        compBox = document.createElement('div');
-        compBox.id = 'completion-box';
-        compBox.style.cssText = 'text-align:center;padding:20px 18px;';
-        document.querySelector('#meal-screen .card .card-body').appendChild(compBox);
-      }
-compBox.innerHTML = `
-        <div style="font-size:3rem;margin-bottom:10px;">🎉</div>
-        <div style="font-family:Lato,serif;font-size:2rem;font-weight:900;color:var(--success);margin-bottom:12px;">All Members Served!</div>
-        <div style="font-size:1.4rem;font-weight:700;color:#333;line-height:1.9;">
-          All ${total} member(s) have enjoyed<br>
-          <strong style="color:var(--deep-blue);">${mealLabel}</strong> — ${dayLabel}.<br><br>
-          See you at the next meal! 🙏😊
-        </div>`;
-    }
-
     function listenMealUpdates(docId, total, eventDay) {
       if (!window._firebaseReady) return;
       const ref = window._doc(window._db,'guests',docId);
@@ -702,11 +677,6 @@ compBox.innerHTML = `
         // Refresh meal screen with latest data
         renderMealScreen(g, eventDay);
 
-        // Check completion during meal window
-        if (currentMeal) {
-          const used = (meals[dayKey] && meals[dayKey][currentMeal.key]) || 0;
-          if (used >= total) showCompletion(currentMeal.label, eventDay.label, total);
-        }
       });
     }
 
