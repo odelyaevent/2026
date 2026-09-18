@@ -265,11 +265,14 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         <div style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);line-height:2.2;margin-bottom:22px;">
           <div><span style="display:inline-block;min-width:120px;">Name:</span><span id="meal-name"></span></div>
           <div><span style="display:inline-block;min-width:120px;">Coupons:</span><span id="meal-coupons"></span></div>
+          <div><span style="display:inline-block;min-width:120px;">Left:</span><span id="meal-left"></span></div>
         </div>
 
         <div class="qr-section" id="qr-section" style="display:none;padding:10px 0;">
           <div id="qr-canvas" style="display:block;text-align:center;"></div>
         </div>
+
+        <p id="meal-all-served" style="display:none;text-align:center;font-size:1.8rem;font-weight:900;color:var(--success);padding:22px 0;">All Members Served!</p>
 
         <p id="meal-please" style="text-align:center;font-size:1.4rem;font-weight:700;color:#333;margin-top:22px;"></p>
 
@@ -565,6 +568,31 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const currentMeal = getCurrentMeal();
       const pleaseEl    = document.getElementById('meal-please');
       const qrSection   = document.getElementById('qr-section');
+      const allServedEl = document.getElementById('meal-all-served');
+      const leftEl      = document.getElementById('meal-left');
+
+      // Left count — based on current meal window
+      const dayKey = `day${eventDay.num}`;
+      let usedNow = 0;
+      if (currentMeal && g.meals && g.meals[dayKey]) {
+        usedNow = g.meals[dayKey][currentMeal.key] || 0;
+      }
+      const leftCount = total - usedNow;
+
+      if (currentMeal) {
+        leftEl.textContent = leftCount;
+        if (leftCount > 0) {
+          leftEl.style.color = 'var(--success)';
+          leftEl.previousElementSibling.style.color = 'var(--success)';
+        } else {
+          leftEl.style.color = 'var(--red)';
+          leftEl.previousElementSibling.style.color = 'var(--red)';
+        }
+      } else {
+        leftEl.textContent = total;
+        leftEl.style.color = 'var(--deep-blue)';
+        leftEl.previousElementSibling.style.color = 'var(--deep-blue)';
+      }
 
       // Determine the please-line message
       function toMin(t) {
@@ -578,8 +606,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const lunchStart  = toMin(MEAL_TIMES.lunch.start);
       const lunchEnd    = toMin(MEAL_TIMES.lunch.end);
       const dinnerStart = toMin(MEAL_TIMES.dinner.start);
-
-      const dinnerEnd = toMin(MEAL_TIMES.dinner.end);
+      const dinnerEnd   = toMin(MEAL_TIMES.dinner.end);
 
       if (lunchStart !== null && nowMin < lunchStart) {
         pleaseEl.textContent = 'Please come at Lunch Time.';
@@ -592,6 +619,15 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       } else {
         pleaseEl.textContent = 'Good Night. Thanks!';
       }
+
+      // If all served during current meal, hide QR and show message
+      if (currentMeal && leftCount <= 0) {
+        qrSection.style.display    = 'none';
+        allServedEl.style.display  = 'block';
+        return;
+      }
+
+      allServedEl.style.display = 'none';
 
       // QR only during meal window
       if (!currentMeal) {
