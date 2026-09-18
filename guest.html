@@ -151,6 +151,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     <div class="header-person-wrap">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
+        <button onclick="openMyDetails()">My Details</button>
         <button onclick="openInvoice()">Invoice</button>
         <button onclick="openChangePin()">Change PIN</button>
         <button onclick="guestLogout()">Logout</button>
@@ -240,6 +241,15 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <img id="lightbox-img" src="" alt="Full Photo"/>
 </div>
+
+<!-- MY DETAILS POPUP -->
+<div id="mydetails-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
+  <div style="background:var(--white);border-radius:14px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;padding:22px 18px;box-sizing:border-box;">
+    <h2 style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.5rem;text-align:center;margin-bottom:22px;">My Details</h2>
+    <div id="mydetails-content"></div>
+  </div>
+</div>
+
 
 <!-- CHANGE PIN POPUP -->
 <div id="changepin-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
@@ -1159,6 +1169,75 @@ function closeLightbox() {
       }
     });
 
+    // ── MY DETAILS ──
+    function openMyDetails() {
+      document.getElementById('header-person-menu').classList.remove('open');
+      if (!currentGuestData) return;
+
+      const g = currentGuestData;
+      const totalAlumni = g.totalAlumniCount || (1 + (g.extraAlumniCount||0));
+      const totalFamily = g.totalFamilyCount || ((g.familyCount||0) + (g.extraFamilyCount||0));
+      const approved    = g.approved === true;
+      const giftRecv    = g.giftReceived === true;
+
+      const statusColor = approved ? 'var(--success)' : 'var(--red)';
+      const giftColor   = giftRecv ? 'var(--success)' : 'var(--red)';
+      const statusTxt   = approved ? 'Approved' : 'Pending';
+      const giftTxt     = giftRecv ? 'Received' : 'Not Received';
+
+      // Format Reg. Time
+      let regTime = '';
+      if (g.registeredAt) {
+        const d = new Date(g.registeredAt);
+        const dp = d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const tp = d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).toUpperCase();
+        regTime = `${dp}, ${tp}`;
+      }
+
+      const row = (label, value, color) => `
+        <div style="font-size:1.4rem;font-weight:700;color:var(--deep-blue);margin-bottom:18px;display:flex;">
+          <span style="display:inline-block;min-width:120px;">${label}</span>
+          <span style="color:${color || 'var(--deep-blue)'};">${value}</span>
+        </div>`;
+
+      document.getElementById('mydetails-content').innerHTML =
+        row('Name:',          g.name || '') +
+        row('Batch Year:',    g.batch || '') +
+        row('Division:',      g.division || '') +
+        row('Whatsapp:',      g.whatsapp || '') +
+        row('Address:',       g.address || '') +
+        row('Family:',        g.familyCount || 0) +
+        row('Extra Alumni:',  g.extraAlumniCount || 0) +
+        row('Extra Family:',  g.extraFamilyCount || 0) +
+        row('Total Alumni:',  totalAlumni) +
+        row('Total Family:',  totalFamily) +
+        row('Amount Paid:',   `Rs. ${g.amount || 0}/-`) +
+        row('Status:',        statusTxt, statusColor) +
+        row('Gift Item:',     giftTxt,   giftColor) +
+        row('Reg. Time:',     regTime);
+
+      document.getElementById('mydetails-overlay').style.display = 'flex';
+      history.pushState({ mydetails: true }, '', '');
+    }
+
+    function closeMyDetails(fromHistory) {
+      document.getElementById('mydetails-overlay').style.display = 'none';
+      if (!fromHistory && history.state && history.state.mydetails) {
+        history.back();
+      }
+    }
+
+    document.getElementById('mydetails-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeMyDetails();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const ov = document.getElementById('mydetails-overlay');
+        if (ov && ov.style.display === 'flex') closeMyDetails();
+      }
+    });
+
     // ── CHANGE PIN ──
     function openChangePin() {
       document.getElementById('header-person-menu').classList.remove('open');
@@ -1225,7 +1304,14 @@ function closeLightbox() {
     }
 
     window.addEventListener('popstate', (e) => {
-      // Close logo overlay first if it's open
+      // Close My Details popup first if it's open
+      const md = document.getElementById('mydetails-overlay');
+      if (md && md.style.display === 'flex') {
+        closeMyDetails(true);
+        return;
+      }
+
+      // Close logo overlay if it's open
       const lo = document.getElementById('logo-overlay');
       if (lo && lo.style.display === 'flex') {
         closeLogoFull(true);
