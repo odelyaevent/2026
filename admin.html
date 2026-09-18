@@ -227,7 +227,7 @@ header h1{padding:0 74px 0 74px;}
       <span style="display:none">RKMVP<br>LOGO</span>
     </div>
     <h1>RKMVP Alumni</h1>
-    <div class="reunion-title">Admin Panel</div>
+    <div class="reunion-title">Super Admin</div>
     <div class="header-person-wrap">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
@@ -240,7 +240,7 @@ header h1{padding:0 74px 0 74px;}
 <!-- LOGIN -->
 <div id="login-section">
   <div class="login-card">
-    <div class="card-header"><h2>Admin Login</h2></div>
+    <div class="card-header"><h2>Login</h2></div>
     <div class="card-body">
       <div class="err-msg" id="login-err">Wrong Credentials</div>
       <label>Email</label>
@@ -1992,7 +1992,7 @@ document.getElementById('header-person-menu').addEventListener('click', function
   });
   async function shareLink() {
     document.getElementById('header-person-menu').classList.remove('open');
-    const url = 'https://odelyaevent.github.io/rkmvp/';
+    const url = 'https://odelyaevent.github.io/2026/';
     if (navigator.share) {
       try { await navigator.share({ url }); } catch(e) {}
     } else {
