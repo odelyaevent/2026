@@ -619,19 +619,18 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       doc.text(` ${currentGuestData.batch || ''}`, bodyX + preWidth + nameWidth, bodyY);
       bodyY += 12;
 
-      // Line 2 — "DIVISION batch a sum of Rs. XX/-"
+      // Line 2 — "DIVISION batch a sum of Rs. XX/- towards Reunion fees."
       const line2Pre = `${currentGuestData.division || ''} batch a sum of `;
       doc.text(line2Pre, bodyX, bodyY);
       const line2Width = doc.getTextWidth(line2Pre);
 
       doc.setFont('helvetica', 'bold');
       doc.text(`Rs. ${currentGuestData.amount || 0} /-`, bodyX + line2Width, bodyY);
-      doc.setFont('helvetica', 'normal');
-      bodyY += 12;
+      const amtWidth = doc.getTextWidth(`Rs. ${currentGuestData.amount || 0} /-`);
 
-      // Line 3
-      doc.text('towards Reunion fees.', bodyX, bodyY);
-      bodyY += 22;
+      doc.setFont('helvetica', 'normal');
+      doc.text(' towards Reunion fees.', bodyX + line2Width + amtWidth, bodyY);
+      bodyY += 34;
 
       // ── SIGN-OFF ──
       doc.text('Thanks,', bodyX, bodyY);
@@ -653,7 +652,9 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       doc.text(stamp, bodyX, bodyY);
 
-      doc.save('RKMVP_Invoice.pdf');
+      const safeName = (currentGuestData.name || 'GUEST').replace(/\s+/g, '_').toUpperCase();
+      const safeYear = currentGuestData.batch || '';
+      doc.save(`${safeName}_${safeYear}_INVOICE.pdf`);
     }
 
     // ── IMAGE LOADER ──
