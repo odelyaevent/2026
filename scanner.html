@@ -290,7 +290,7 @@ async function showScanner(email) {
       onScanSuccess,
       () => {}
     ).catch(() => {
-      document.querySelector('.scan-note').textContent = '⚠️ Camera access denied. Please allow camera and reload.';
+      alert('Camera access denied. Please allow camera and reload.');
     });
   }
 
