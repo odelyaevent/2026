@@ -602,45 +602,44 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
 
-      // Line 1
-      doc.text('RKMVP Alumni Association has received', bodyX, bodyY);
-      bodyY += 10;
+      // Line 1 — amount inline after "has received"
+      const line1Text = 'RKMVP Alumni Association has received  ';
+      doc.text(line1Text, bodyX, bodyY);
+      const line1Width = doc.getTextWidth(line1Text);
 
-      // Line 2 — amount (bold)
       doc.setFont('helvetica', 'bold');
-      doc.text(`Rs. ${currentGuestData.amount || 0}/-`, bodyX, bodyY);
+      doc.text(`Rs. ${currentGuestData.amount || 0}/-`, bodyX + line1Width, bodyY);
       doc.setFont('helvetica', 'normal');
-      bodyY += 10;
+      bodyY += 12;
 
-      // Line 3 — "from NAME on behave of"
+      // Line 2 — "from our member Mr. GUEST NAME on behave of"
       const guestNameUpper = (currentGuestData.name || '').toUpperCase();
 
-      doc.text('from ', bodyX, bodyY);
-      const fromWidth = doc.getTextWidth('from ');
+      const preText = 'from our member Mr. ';
+      doc.text(preText, bodyX, bodyY);
+      const preWidth = doc.getTextWidth(preText);
 
-      // Guest name — bold italic red
       doc.setFont('helvetica', 'bolditalic');
       doc.setTextColor(204, 0, 0);
-      doc.text(guestNameUpper, bodyX + fromWidth, bodyY);
+      doc.text(guestNameUpper, bodyX + preWidth, bodyY);
       const nameWidth = doc.getTextWidth(guestNameUpper);
 
-      // "on behave of" — back to normal black
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(0, 0, 0);
-      doc.text(' on behave of', bodyX + fromWidth + nameWidth, bodyY);
-      bodyY += 10;
+      doc.text(' on behave of', bodyX + preWidth + nameWidth, bodyY);
+      bodyY += 12;
+
+      // Line 3
+      doc.text('RKMVP Alumni Association, Reunion 2026 commenced on', bodyX, bodyY);
+      bodyY += 12;
 
       // Line 4
-      doc.text('RKMVP Alumni Association, Reunion 2026', bodyX, bodyY);
-      bodyY += 10;
-
-      // Line 5
-      doc.text('commenced on 21 Nov - 22 Nov 2026.', bodyX, bodyY);
-      bodyY += 20;
+      doc.text('21 Nov - 22 Nov 2026 in Purulia Ramakrishna Mission Vidyapith campus.', bodyX, bodyY);
+      bodyY += 22;
 
       // ── SIGN-OFF ──
       doc.text('Thanks,', bodyX, bodyY);
-      bodyY += 10;
+      bodyY += 12;
       doc.text('S.D/-', bodyX, bodyY);
 
       doc.save('RKMVP_Invoice.pdf');
