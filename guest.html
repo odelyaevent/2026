@@ -571,12 +571,21 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       const allServedEl = document.getElementById('meal-all-served');
       const leftEl      = document.getElementById('meal-left');
 
-      // Left count — based on current meal window
+      // Left count — use the current meal, or the latest meal already scanned today
       const dayKey = `day${eventDay.num}`;
-      let usedNow = 0;
-      if (currentMeal && g.meals && g.meals[dayKey]) {
-        usedNow = g.meals[dayKey][currentMeal.key] || 0;
+      const todayMeals = (g.meals && g.meals[dayKey]) || {};
+      const lunchUsed  = todayMeals.lunch  || 0;
+      const dinnerUsed = todayMeals.dinner || 0;
+
+      let mealInPlay = currentMeal ? currentMeal.key : null;
+      if (!mealInPlay) {
+        if (lunchUsed  > 0 && lunchUsed  < total) mealInPlay = 'lunch';
+        else if (dinnerUsed > 0 && dinnerUsed < total) mealInPlay = 'dinner';
+        else if (lunchUsed  === total && dinnerUsed === 0) mealInPlay = 'lunch';
+        else if (dinnerUsed === total) mealInPlay = 'dinner';
       }
+
+      const usedNow   = mealInPlay ? (todayMeals[mealInPlay] || 0) : 0;
       const leftCount = total - usedNow;
 
       if (currentMeal) {
@@ -620,8 +629,8 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         pleaseEl.textContent = 'Good Night. Thanks!';
       }
 
-      // If all served during current meal, hide QR and show message
-      if (currentMeal && leftCount <= 0) {
+      // If all served for the meal in play, hide QR and show message
+      if (mealInPlay && leftCount <= 0) {
         qrSection.style.display    = 'none';
         allServedEl.style.display  = 'block';
         return;
