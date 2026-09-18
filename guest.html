@@ -576,8 +576,17 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       // Left count — use the current meal, or the latest meal already scanned today
       const dayKey = `day${eventDay.num}`;
       const todayMeals = (g.meals && g.meals[dayKey]) || {};
-      const lunchUsed  = todayMeals.lunch  || 0;
-      const dinnerUsed = todayMeals.dinner || 0;
+      const lunchNow   = todayMeals.lunch  || 0;
+      const dinnerNow  = todayMeals.dinner || 0;
+
+      // Remember the highest value we've ever seen (Firestore may serve stale snapshots)
+      const peakKey   = `${dayKey}`;
+      _peakMealsUsed[peakKey] = _peakMealsUsed[peakKey] || { lunch: 0, dinner: 0 };
+      if (lunchNow  > _peakMealsUsed[peakKey].lunch)  _peakMealsUsed[peakKey].lunch  = lunchNow;
+      if (dinnerNow > _peakMealsUsed[peakKey].dinner) _peakMealsUsed[peakKey].dinner = dinnerNow;
+
+      const lunchUsed  = _peakMealsUsed[peakKey].lunch;
+      const dinnerUsed = _peakMealsUsed[peakKey].dinner;
 
       let mealInPlay = currentMeal ? currentMeal.key : null;
       if (!mealInPlay) {
@@ -689,6 +698,7 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 // ── SECTION NAVIGATION ──
     let currentGuestData = null;
     let currentDocId     = null;
+    let _peakMealsUsed   = {};
 
 function showSection(section) {
       document.getElementById('main-menu').style.display    = 'none';
