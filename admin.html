@@ -411,6 +411,7 @@ header h1{padding:0 74px 0 74px;}
       <button class="btn-report" onclick="reportPendingGuests()">Pending Guest Report</button>
       <button class="btn-report" onclick="reportEstimate()">Estimate Report</button>
       <button class="btn-report" onclick="reportStats()">Stats Report</button>
+      <button class="btn-report" onclick="reportScanner()">Scanner Report</button>
     </div>
   </div>
 
@@ -1612,6 +1613,120 @@ async function loadStats() {
 
       const today = new Date().toISOString().split('T')[0];
       XLSX.writeFile(wb, `RKMVP_Report_Estimate_${today}.xlsx`);
+
+    } catch(e) {
+      console.error(e);
+      alert('Error generating report. Try again.');
+    }
+  }
+
+  // ── SCANNER REPORT ──
+  async function reportScanner() {
+    if (!window._firebaseReady) return;
+    try {
+      let eventStart = EVENT_START_DATE;
+      let eventEnd   = EVENT_END_DATE;
+      try {
+        const configSnap = await window._getDoc(window._doc(window._db,'config','event'));
+        if (configSnap.exists()) {
+          const cd = configSnap.data();
+          if (cd.startDate) eventStart = cd.startDate;
+          if (cd.endDate)   eventEnd   = cd.endDate;
+        }
+      } catch(e) {}
+
+      const fmt = (str) => new Date(str).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const headerLine3 = `${fmt(eventStart)} - ${fmt(eventEnd)}, Purulia RKM`;
+
+      const snap = await window._getDocs(window._collection(window._db,'guests'));
+      const days = getEventDaysFrom(eventStart, eventEnd);
+
+      const rows = [];
+      rows.push(['RKMVP Alumni Association']);
+      rows.push(['22nd Reunion 2026']);
+      rows.push([headerLine3]);
+      rows.push(['']);
+      rows.push(['Scanner Report']);
+      rows.push(['']);
+
+      for (let idx = 0; idx < days.length; idx++) {
+        const day = days[idx];
+        const dateLabel = fmt(day.date);
+
+        // QR counts — sum from all guests
+        let qrLunch = 0, qrDinner = 0;
+        snap.docs.forEach(d => {
+          const g   = d.data();
+          const dm  = (g.meals && g.meals[`day${day.num}`]) || {};
+          qrLunch  += dm.lunch  || 0;
+          qrDinner += dm.dinner || 0;
+        });
+
+        // Manual counts — read manualEntries doc
+        let manLunch = 0, manDinner = 0;
+        try {
+          const mSnap = await window._getDoc(window._doc(window._db,'manualEntries',`day${day.num}`));
+          if (mSnap.exists()) {
+            const md = mSnap.data();
+            manLunch  = md.lunch  || 0;
+            manDinner = md.dinner || 0;
+          }
+        } catch(e) {}
+
+        rows.push([dateLabel]);
+        rows.push(['No. of QR Entry',     qrLunch + qrDinner]);
+        rows.push(['No. of Manual Entry', manLunch + manDinner]);
+        rows.push(['Total Entry',         qrLunch + qrDinner + manLunch + manDinner]);
+        rows.push(['']);
+        rows.push(['Lunch',  qrLunch  + manLunch]);
+        rows.push(['Dinner', qrDinner + manDinner]);
+        rows.push(['__COLORED__']);
+      }
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
+      ws['!pageSetup'] = { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) continue;
+          ws[addr].s = { font: { sz: 16 } };
+        }
+      }
+
+      ['A1','A2','A3'].forEach(addr => {
+        if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: 'CC0000' } } };
+      });
+      if (ws['A5']) ws['A5'].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+
+      rows.forEach((r, i) => {
+        const rowNum = i + 1;
+        const firstCell = r[0];
+        const addr = `A${rowNum}`;
+
+        // Date headings — bold green
+        if (i > 5 && r.length === 1 && /^\d{1,2}\s\w{3}\s\d{4}$/.test(firstCell)) {
+          if (ws[addr]) ws[addr].s = { font: { sz: 16, bold: true, color: { rgb: '1A7A3C' } } };
+        }
+
+        if (firstCell === '__COLORED__') {
+          for (let c = 0; c < 2; c++) {
+            const a = XLSX.utils.encode_cell({ r: i, c: c });
+            ws[a] = { t: 's', v: '', s: { fill: { fgColor: { rgb: 'D6E4F7' } } } };
+          }
+          ws[`A${rowNum}`] = { t: 's', v: '', s: { fill: { fgColor: { rgb: 'D6E4F7' } } } };
+        }
+      });
+
+      ws['!rows'] = rows.map(r => ({ hpt: r[0] === '' || r[0] === '__COLORED__' ? 14 : 24 }));
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Scanner');
+
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `RKMVP_Report_Scanner_${today}.xlsx`);
 
     } catch(e) {
       console.error(e);
