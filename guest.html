@@ -602,20 +602,10 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
 
-      // Line 1 — amount inline after "has received"
-      const line1Text = 'RKMVP Alumni Association has received  ';
-      doc.text(line1Text, bodyX, bodyY);
-      const line1Width = doc.getTextWidth(line1Text);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Rs. ${currentGuestData.amount || 0}/-`, bodyX + line1Width, bodyY);
-      doc.setFont('helvetica', 'normal');
-      bodyY += 12;
-
-      // Line 2 — "from our member Mr. GUEST NAME on behave of"
+      // Line 1 — "Received with thanks from GUEST NAME YEAR"
       const guestNameUpper = (currentGuestData.name || '').toUpperCase();
 
-      const preText = 'from our member Mr. ';
+      const preText = 'Received with thanks from ';
       doc.text(preText, bodyX, bodyY);
       const preWidth = doc.getTextWidth(preText);
 
@@ -626,19 +616,21 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(0, 0, 0);
-      doc.text(' on behave of', bodyX + preWidth + nameWidth, bodyY);
+      doc.text(` ${currentGuestData.batch || ''}`, bodyX + preWidth + nameWidth, bodyY);
+      bodyY += 12;
+
+      // Line 2 — "DIVISION batch a sum of Rs. XX/-"
+      const line2Pre = `${currentGuestData.division || ''} batch a sum of `;
+      doc.text(line2Pre, bodyX, bodyY);
+      const line2Width = doc.getTextWidth(line2Pre);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Rs. ${currentGuestData.amount || 0} /-`, bodyX + line2Width, bodyY);
+      doc.setFont('helvetica', 'normal');
       bodyY += 12;
 
       // Line 3
-      doc.text('RKMVP Alumni Association, 22nd Reunion 2026 commenced on', bodyX, bodyY);
-      bodyY += 12;
-
-      // Line 4
-      doc.text('21 Nov - 22 Nov 2026 in Ramakrishna Mission Vidyapith,', bodyX, bodyY);
-      bodyY += 12;
-
-      // Line 5
-      doc.text('Purulia campus.', bodyX, bodyY);
+      doc.text('towards Reunion fees.', bodyX, bodyY);
       bodyY += 22;
 
       // ── SIGN-OFF ──
