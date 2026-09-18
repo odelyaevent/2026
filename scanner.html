@@ -72,10 +72,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 .manual-allow{padding:14px 40px;background:var(--success);color:white;font-family:'Lato',serif;font-size:1.8rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.05em;}
 .manual-allow:active{opacity:0.85;}
 
-    .scan-stats{display:flex;gap:10px;padding:10px 14px 0;}
-    .scan-stat{flex:1;background:var(--white);border-radius:8px;border:1.5px solid #FFD70044;padding:14px;text-align:center;}
-    .scan-stat-num{font-family:'Lato',serif;font-size:2.5rem;font-weight:900;color:var(--deep-blue);}
-    .scan-stat-label{font-size:1.2rem;color:#777;margin-top:4px;font-weight:700;}
     .scan-card{background:var(--white);margin:14px 14px 0;border-radius:14px;border:1.5px solid #FFD70044;box-shadow:0 4px 24px #0D2B5E18;overflow:hidden;}
 	#reader{width:100%;}
     .scan-note{text-align:center;padding:12px;font-size:0.88rem;color:#555;background:#F7FAFF;border-top:1px solid #eee;}
@@ -136,10 +132,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 <!-- SCANNER -->
 <div id="scanner-section">
   <div class="day-info" id="day-info">Loading event day info...</div>
-  <div class="scan-stats">
-    <div class="scan-stat"><div class="scan-stat-num" id="scan-count-ok">0</div><div class="scan-stat-label">Allowed</div></div>
-    <div class="scan-stat"><div class="scan-stat-num" id="scan-count-total">0</div><div class="scan-stat-label">Total</div></div>
-  </div>
 <div class="scanner-wrap">
     <div id="reader" style="width:100%;"></div>
   </div>
@@ -219,17 +211,6 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
 
   let scanner      = null;
   let pendingEntry = null;
-  let entryCount   = 1;
-  let maxCount     = 1;
-  let scanOk       = parseInt(localStorage.getItem('scanOk'))   || 0;
-  let scanFail     = parseInt(localStorage.getItem('scanFail')) || 0;
-
-  function updateScanStats() {
-    localStorage.setItem('scanOk',   scanOk);
-    localStorage.setItem('scanFail', scanFail);
-    document.getElementById('scan-count-ok').textContent    = scanOk;
-    document.getElementById('scan-count-total').textContent = scanOk + scanFail;
-  }
 
   function attLogin() {
     const email = document.getElementById('att-email').value.trim();
@@ -317,14 +298,12 @@ async function showScanner(email) {
     let data;
     try { data = JSON.parse(rawText); }
     catch {
-      scanFail++; updateScanStats();
       showResult('red','❌','Invalid QR','This QR code is not recognized.','');
       return;
     }
 
     const { guestId, meal, day, total, name } = data;
     if (!guestId || !meal || !day) {
-      scanFail++; updateScanStats();
       showResult('red','❌','Invalid QR','Unrecognized QR format.','');
       return;
     }
@@ -332,7 +311,6 @@ async function showScanner(email) {
     // Check event day
     const eventDay = getEventDay();
     if (!eventDay) {
-      scanFail++; updateScanStats();
       showResult('warning','⚠️','Invalid QR',
         `Today is not an event day.`,
         name||'');
@@ -340,7 +318,6 @@ async function showScanner(email) {
     }
 
     if (parseInt(day) !== eventDay.num) {
-      scanFail++; updateScanStats();
       showResult('warning','⚠️','Invalid QR',
         `This QR is for Day ${day}.\nToday is ${eventDay.label}.`,
         name||'');
@@ -352,14 +329,12 @@ async function showScanner(email) {
       const snap = await window._getDoc(ref);
 
       if (!snap.exists()) {
-        scanFail++; updateScanStats();
         showResult('red','❌','Invalid QR','Guest not found in database.',name||'');
         return;
       }
 
       const g       = snap.data();
       if (!g.approved) {
-        scanFail++; updateScanStats();
         showResult('warning','⚠️','Invalid QR','This guest has not been approved yet.',g.name);
         return;
       }
@@ -370,7 +345,6 @@ async function showScanner(email) {
       const remaining = allowed - used;
 
 if (remaining <= 0) {
-        scanFail++; updateScanStats();
         showResult('red','✅','Thank You!',
           `${meal.charAt(0).toUpperCase()+meal.slice(1)} — ${eventDay.label}\nAll ${allowed} entries used.`,
           g.name);
@@ -380,7 +354,6 @@ if (remaining <= 0) {
 // AUTO CONFIRM instantly
       const newUsed = used + 1;
       await window._updateDoc(ref, { [`meals.${dayKey}.${meal}`]: newUsed });
-      scanOk++; updateScanStats();
       showResult('green','✅','ALLOWED',
         `${meal.charAt(0).toUpperCase()+meal.slice(1)} — ${eventDay.label}\nEntry ${newUsed} of ${allowed}`,
         g.name);
@@ -389,7 +362,6 @@ if (remaining <= 0) {
 
     } catch(e) {
       console.error(e);
-      scanFail++; updateScanStats();
       showResult('red','❌','Invalid QR','Database error. Please try again.','');
     }
   }
@@ -436,7 +408,6 @@ if (remaining <= 0) {
           const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
           await setDoc(metaRef, { [meal]: existing + manualCount }, { merge: true });
         });
-      scanOk += manualCount; updateScanStats();
       manualCount = 0;
       document.getElementById('manual-num').textContent = 0;
     } catch(e) { console.error(e); alert('Error saving. Try again.'); }
@@ -457,7 +428,6 @@ function showResult(color, icon, status, detail, name) {
     const newUsed = Math.min(used + 1, allowed);
     try {
       await window._updateDoc(ref, { [`meals.${dayKey}.${meal}`]: newUsed });
-      scanOk++; updateScanStats();
     } catch(e) { console.error(e); }
     pendingEntry = null;
     dismissResult();
