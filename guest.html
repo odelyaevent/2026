@@ -596,7 +596,9 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
         else if (dinnerUsed === total) mealInPlay = 'dinner';
       }
 
-      const usedNow   = mealInPlay ? (todayMeals[mealInPlay] || 0) : 0;
+      const usedNow   = mealInPlay
+        ? (_peakMealsUsed[peakKey][mealInPlay] || 0)
+        : 0;
       const leftCount = total - usedNow;
 
       if (currentMeal) {
