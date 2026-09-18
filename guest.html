@@ -595,7 +595,53 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       doc.setDrawColor(0, 0, 0);
       doc.line(margin, lineY, pageWidth - margin, lineY);
 
-      // Content continues below
+      // ── BODY CONTENT ──
+      const bodyX   = 38;           // 1.5 inch ≈ 38 mm
+      let   bodyY   = lineY + 20;   // 20mm below the line
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+
+      // Line 1
+      doc.text('RKMVP Alumni Association has received', bodyX, bodyY);
+      bodyY += 10;
+
+      // Line 2 — amount (bold)
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Rs. ${g.amount || 0}/-`, bodyX, bodyY);
+      doc.setFont('helvetica', 'normal');
+      bodyY += 10;
+
+      // Line 3 — "from NAME on behave of"
+      const guestNameUpper = (currentGuestData.name || '').toUpperCase();
+
+      doc.text('from ', bodyX, bodyY);
+      const fromWidth = doc.getTextWidth('from ');
+
+      // Guest name — bold italic red
+      doc.setFont('helvetica', 'bolditalic');
+      doc.setTextColor(204, 0, 0);
+      doc.text(guestNameUpper, bodyX + fromWidth, bodyY);
+      const nameWidth = doc.getTextWidth(guestNameUpper);
+
+      // "on behave of" — back to normal black
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text(' on behave of', bodyX + fromWidth + nameWidth, bodyY);
+      bodyY += 10;
+
+      // Line 4
+      doc.text('RKMVP Alumni Association, Reunion 2026', bodyX, bodyY);
+      bodyY += 10;
+
+      // Line 5
+      doc.text('commenced on 21 Nov - 22 Nov 2026.', bodyX, bodyY);
+      bodyY += 20;
+
+      // ── SIGN-OFF ──
+      doc.text('Thanks,', bodyX, bodyY);
+      bodyY += 10;
+      doc.text('S.D/-', bodyX, bodyY);
 
       doc.save('RKMVP_Invoice.pdf');
     }
