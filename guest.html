@@ -645,6 +645,21 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       doc.text('Thanks,', bodyX, bodyY);
       bodyY += 12;
       doc.text('S.D/-', bodyX, bodyY);
+      bodyY += 20;
+
+      // ── DATE STAMP ──
+      const now = new Date();
+      const day = now.getDate();
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const month = months[now.getMonth()];
+      const year  = now.getFullYear();
+      const hour24 = now.getHours();
+      const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+      const ampm   = hour24 < 12 ? 'AM' : 'PM';
+      const mm     = now.getMinutes().toString().padStart(2,'0');
+      const stamp  = `Date: ${day}-${month}-${year}  ${hour12}:${mm} ${ampm}`;
+
+      doc.text(stamp, bodyX, bodyY);
 
       doc.save('RKMVP_Invoice.pdf');
     }
