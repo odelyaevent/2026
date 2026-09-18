@@ -259,9 +259,9 @@ async function showScanner(email) {
       dayInfoEl.style.color = 'var(--red)';
     }
 
-    updateScanStats();
     startScanner();
 }
+
   function startScanner() {
     if (scanner) return;
     scanner = new Html5Qrcode('reader');
