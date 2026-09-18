@@ -77,21 +77,19 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     .scan-note{text-align:center;padding:12px;font-size:0.88rem;color:#555;background:#F7FAFF;border-top:1px solid #eee;}
     /* Event day info */
     .day-info{margin:10px 14px 0;background:var(--white);border-radius:8px;border:1.5px solid #FFD70044;padding:14px;font-size:1.4rem;color:var(--deep-blue);font-weight:700;text-align:center;}
+
     /* RESULT OVERLAY */
-    #result-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+    #result-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;background:var(--cream);}
     #result-overlay.active{display:flex;}
-    #result-overlay.green{background:var(--success);}
-    #result-overlay.red{background:var(--red);}
-    #result-overlay.warning{background:#856404;}
-    .result-icon{font-size:5rem;margin-bottom:12px;animation:pop 0.3s ease;}
+    .result-icon{font-size:8rem;margin-bottom:12px;animation:pop 0.3s ease;}
     @keyframes pop{from{transform:scale(0.4);}to{transform:scale(1);}}
-    .result-status{font-family:'Lato',serif;font-size:clamp(2.2rem,11vw,3.5rem);font-weight:900;color:white;letter-spacing:0.06em;margin-bottom:8px;}
-    
-.result-name{font-size:1.6rem;color:rgba(255,255,255,0.95);font-weight:900;margin-bottom:8px;font-family:'Lato',serif;}
-.result-detail{font-size:1.2rem;color:rgba(255,255,255,0.95);line-height:1.8;margin-bottom:18px;white-space:pre-line;font-weight:700;text-align:center;}
-.result-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;}
-.btn-cancel{padding:14px;background:transparent;border:3px solid white;border-radius:10px;font-family:'Lato',serif;font-size:1.1rem;font-weight:700;cursor:pointer;color:white;letter-spacing:0.06em;}
-.btn-cancel:active{background:rgba(255,255,255,0.2);}
+    .result-status{font-family:'Lato',serif;font-size:clamp(2.2rem,11vw,3.5rem);font-weight:900;color:#000;letter-spacing:0.06em;margin-bottom:8px;}
+
+    .result-name{font-size:1.8rem;color:#000;font-weight:900;margin-bottom:8px;font-family:'Lato',serif;}
+    .result-detail{font-size:1.5rem;color:#000;line-height:1.8;margin-bottom:18px;white-space:pre-line;font-weight:700;text-align:center;}
+    .result-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:400px;}
+    .btn-cancel{padding:20px;background:var(--red);border:none;border-radius:12px;font-family:'Lato',serif;font-size:1.8rem;font-weight:700;cursor:pointer;color:white;letter-spacing:0.06em;}
+    .btn-cancel:active{opacity:0.85;}
 
 @media (min-width:768px){
   .site-header{padding:24px 20px 26px;}
@@ -310,7 +308,7 @@ async function showScanner(email) {
 
     // Expiry check — QR dies when the meal window ends
     if (expiry && Date.now() > expiry) {
-      showResult('red','❌','Invalid QR','Show your screen again.','');
+      showResult('red','❌','Invalid QR','','');
       return;
     }
 
