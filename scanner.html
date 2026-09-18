@@ -290,7 +290,16 @@ async function showScanner(email) {
       onScanSuccess,
       () => {}
     ).catch(() => {
-      alert('Camera access denied. Please allow camera and reload.');
+      // Retry with any camera (works on laptops with only a front cam)
+      scanner.start(
+        { facingMode: 'user' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        () => {}
+      ).catch((err) => {
+        console.error('Camera error:', err);
+        alert('Camera access denied. Please allow camera and reload.');
+      });
     });
   }
 
