@@ -2046,6 +2046,8 @@ async function saveEventConfig() {
     const emailEl = document.getElementById('admin-email');
     const passEl  = document.getElementById('admin-pass');
     function tryAutoLogin() {
+      const loginVisible = document.getElementById('login-section').style.display !== 'none';
+      if (!loginVisible) return;
       const email = emailEl.value.trim();
       const pass  = passEl.value.trim();
       if (email && pass) adminLogin();
