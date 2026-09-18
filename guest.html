@@ -562,18 +562,60 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     }
 
     // ── INVOICE ──
-    function openInvoice() {
+    async function openInvoice() {
       document.getElementById('header-person-menu').classList.remove('open');
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-      // Placeholder — content will be added next
-      doc.setFontSize(20);
-      doc.text('Invoice', 105, 30, { align: 'center' });
-      doc.setFontSize(12);
-      doc.text('Content coming soon.', 105, 50, { align: 'center' });
+      const pageWidth = 210;
+      const margin    = 15;
+
+      // ── LOGO ──
+      const logoImg = await loadImageAsDataUrl('logo.png');
+      if (logoImg) {
+        // A4 width = 210mm. Logo width 40mm, centered.
+        const logoW = 40;
+        const logoH = 40;
+        const logoX = (pageWidth - logoW) / 2;
+        doc.addImage(logoImg, 'PNG', logoX, 10, logoW, logoH);
+      }
+
+      // ── HEADER TEXT ──
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('RKMVP Alumni Association', pageWidth / 2, 62, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text('Umakanta Sen Lane, Kolkata 700000, West Bengal', pageWidth / 2, 70, { align: 'center' });
+
+      // ── HORIZONTAL LINE ──
+      const lineY = 78;
+      doc.setLineWidth(0.8);
+      doc.setDrawColor(0, 0, 0);
+      doc.line(margin, lineY, pageWidth - margin, lineY);
+
+      // Content continues below
 
       doc.save('RKMVP_Invoice.pdf');
+    }
+
+    // ── IMAGE LOADER ──
+    function loadImageAsDataUrl(url) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width  = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = function() { resolve(null); };
+        img.src = url;
+      });
     }
 
     // ── SHARE QR CODE ──
