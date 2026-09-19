@@ -3,7 +3,7 @@
   "name": "RKMV Admin",
   "short_name": "RKMV Admin",
   "start_url": "/2026/admin-normal.html",
-  "scope": "/2026/",
+  "scope": "/2026/admin-normal.html",
   "display": "standalone",
   "background_color": "#FDF6E3",
   "theme_color": "#0D2B5E",
