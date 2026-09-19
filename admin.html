@@ -226,7 +226,7 @@ header h1{padding:0 74px 0 74px;}
       <img src="logo.png" alt="Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
       <span style="display:none">RKMVP<br>LOGO</span>
     </div>
-    <h1>Purulia RKMV Alumni Assn.</h1>
+    <h1>RKMV</h1>
     <div class="reunion-title">Super Admin</div>
     <div class="header-person-wrap">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
@@ -812,6 +812,20 @@ function buildCard(docId, g) {
       } else {
         apBtn.classList.remove('abtn-disabled');
         dsBtn.classList.add('abtn-disabled');
+      }
+
+      // If the filter is pending or approved only, remove the card after a short delay
+      const filter = document.getElementById('filter-status').value;
+      if (filter === 'pending' && newVal === true) {
+        setTimeout(() => {
+          const card = document.getElementById('gc-'+docId);
+          if (card) card.remove();
+        }, 1200);
+      } else if (filter === 'approved' && newVal === false) {
+        setTimeout(() => {
+          const card = document.getElementById('gc-'+docId);
+          if (card) card.remove();
+        }, 1200);
       }
 
       const amtLabel = document.getElementById('amountlabel-'+docId);
