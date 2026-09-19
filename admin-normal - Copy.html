@@ -240,8 +240,7 @@ header h1{padding:0 74px 0 74px;}
     <div class="header-person-wrap">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
-        <button onclick="shareAdminLink()">Admin Share Link</button>
-        <button onclick="shareUserLink()">User Share Link</button>
+        <button onclick="shareLink()">Share Link</button>
         <button onclick="adminLogout()">Logout</button>
       </div>
     </div>
@@ -450,6 +449,7 @@ header h1{padding:0 74px 0 74px;}
   <!-- STATS TAB -->
   <div id="tab-stats" class="tab-content">
     <div class="config-box" id="event-config-display"></div>
+<button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;font-size:1.8rem;padding:20px;">Master Clear</button>
 	  <div class="stats-grid">
       <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved Guests</div></div>
       <div class="stat-card"><div class="stat-num" id="st-pending">—</div><div class="stat-label">Pending Guests</div></div>
@@ -925,19 +925,27 @@ function buildCard(docId, g) {
 
         <div class="field-row">
           <label>Batch Year</label>
-          <input type="text" value="${g.batch||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <select id="e-batch-${docId}">
+            ${Array.from({length: 66}, (_, i) => 2025 - i).map(y =>
+              `<option value="${y}" ${(g.batch||0)===y?'selected':''}>${y}</option>`
+            ).join('')}
+          </select>
         </div>
         <div class="field-row">
           <label>Division</label>
-          <input type="text" value="${g.division||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <select id="e-division-${docId}">
+            <option value="Madhyamik (X)"        ${g.division==='Madhyamik (X)'?'selected':''}>Madhyamik (X)</option>
+            <option value="Higher Secondary (XI)" ${g.division==='Higher Secondary (XI)'?'selected':''}>Higher Secondary (XI)</option>
+            <option value="HS (XII)"              ${g.division==='HS (XII)'?'selected':''}>HS (XII)</option>
+          </select>
         </div>
         <div class="field-row">
           <label>Full Name</label>
-          <input type="text" value="${g.name||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" id="e-name-${docId}" value="${g.name||''}"/>
         </div>
         <div class="field-row">
           <label>WhatsApp</label>
-          <input type="text" value="${g.whatsapp||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" id="e-whatsapp-${docId}" value="${g.whatsapp||''}" maxlength="10"/>
         </div>
         <div class="field-row">
           <label>Login PIN</label>
@@ -945,20 +953,20 @@ function buildCard(docId, g) {
         </div>
         <div class="field-row">
           <label>Address</label>
-          <input type="text" value="${g.address||''}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="text" id="e-address-${docId}" value="${g.address||''}"/>
         </div>
 
         <div class="field-row">
           <label>Family Count</label>
-          <input type="text" value="${g.familyCount||0}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="number" id="e-family-${docId}" value="${g.familyCount>0?g.familyCount:''}" min="0" placeholder="0"/>
         </div>
         <div class="field-row">
           <label>Extra Alumni</label>
-          <input type="text" value="${g.extraAlumniCount||0}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="number" id="e-extra-alumni-${docId}" value="${g.extraAlumniCount>0?g.extraAlumniCount:''}" min="0" placeholder="0"/>
         </div>
         <div class="field-row">
           <label>Extra Family</label>
-          <input type="text" value="${g.extraFamilyCount||0}" readonly style="background:#EEF0F3;color:#555;cursor:not-allowed;"/>
+          <input type="number" id="e-extra-family-${docId}" value="${g.extraFamilyCount>0?g.extraFamilyCount:''}" min="0" placeholder="0"/>
         </div>
 
         ${mealSections}
@@ -978,6 +986,9 @@ function buildCard(docId, g) {
           <div class="action-grid">
             <button class="abtn abtn-save abtn-disabled" id="savebtn-${docId}" onclick="saveGuest('${docId}')">Save</button>
             <button class="abtn abtn-approve ${approved?'abtn-disabled':''}" id="approvebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Approve</button>
+            <button class="abtn abtn-unapprove ${approved?'':'abtn-disabled'}" id="disapprovebtn-${docId}" onclick="toggleApprove('${docId}',${approved})">Disapprove</button>
+            <button class="abtn abtn-logout" onclick="logoutGuest('${docId}')">Logout</button>
+            <button class="abtn abtn-delete" onclick="deleteGuest('${docId}')">Delete</button>
           </div>
         </div>
         <div class="action-msg" id="msg-${docId}"></div>
@@ -1082,14 +1093,24 @@ function buildCard(docId, g) {
       document.getElementById('badge-'+docId).textContent = newVal?'Approved':'Pending';
 
       const apBtn = document.getElementById('approvebtn-'+docId);
+      const dsBtn = document.getElementById('disapprovebtn-'+docId);
 
       if (newVal) {
         apBtn.classList.add('abtn-disabled');
+        dsBtn.classList.remove('abtn-disabled');
+      } else {
+        apBtn.classList.remove('abtn-disabled');
+        dsBtn.classList.add('abtn-disabled');
       }
 
-      // If the filter is pending only, remove the card after a short delay
+      // If the filter is pending or approved only, remove the card after a short delay
       const filter = document.getElementById('filter-status').value;
       if (filter === 'pending' && newVal === true) {
+        setTimeout(() => {
+          const card = document.getElementById('gc-'+docId);
+          if (card) card.remove();
+        }, 1200);
+      } else if (filter === 'approved' && newVal === false) {
         setTimeout(() => {
           const card = document.getElementById('gc-'+docId);
           if (card) card.remove();
@@ -1100,9 +1121,51 @@ function buildCard(docId, g) {
       if (amtLabel) amtLabel.textContent = newVal ? 'Amount Paid' : 'Amount Due';
 
       apBtn.onclick = () => toggleApprove(docId, newVal);
+      dsBtn.onclick = () => toggleApprove(docId, newVal);
 
       showMsg(docId, newVal?'Guest approved.':'Approval removed.', 'ok');
     } catch(e) { showMsg(docId, 'Error. Try again.', 'err'); }
+  }
+
+  // ── LOGOUT GUEST FROM ALL DEVICES ──
+  async function logoutGuest(docId) {
+    if (!confirm('Logout this guest from all devices?\n\nThey will be forced to log in again with their WhatsApp and PIN.')) return;
+    try {
+      await window._updateDoc(window._doc(window._db,'guests',docId), {
+        devices: [],
+        forceLogoutAt: new Date().toISOString()
+      });
+      clearSearchCache();
+      showMsg(docId, 'Guest logged out from all devices.', 'ok');
+    } catch(e) { showMsg(docId, 'Error. Try again.', 'err'); }
+  }
+
+  // ── DELETE GUEST ──
+  async function deleteGuest(docId) {
+    if (!confirm('WARNING!\n\nThis will permanently delete this guest and all their data.\n\nAre you sure?')) return;
+
+    const pass = prompt('Enter your admin password to confirm deletion:');
+    if (!pass) return;
+
+    try {
+      const user = window._auth.currentUser;
+      if (!user) { alert('Not logged in.'); return; }
+
+      const { EmailAuthProvider, reauthenticateWithCredential } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const credential = EmailAuthProvider.credential(user.email, pass);
+      await reauthenticateWithCredential(user, credential);
+    } catch(e) {
+      alert('Wrong password. Deletion cancelled.');
+      return;
+    }
+
+    try {
+      await window._deleteDoc(window._doc(window._db,'guests',docId));
+      clearSearchCache();
+      const card = document.getElementById('gc-'+docId);
+      if (card) card.remove();
+      alert('Guest deleted.');
+    } catch(e) { alert('Error deleting. Try again.'); }
   }
 
   // ── SAVE GUEST ──
@@ -2231,6 +2294,60 @@ async function saveEventConfig() {
     }
   }
 
+// ── MASTER CLEAR ──
+  async function masterClear() {
+    if (!window._firebaseReady) return;
+
+    // Step 1 — first confirmation
+    const confirm1 = confirm('WARNING!\n\nThis will permanently delete ALL guest registrations and manual entries.\n\nAre you sure you want to continue?');
+    if (!confirm1) return;
+
+    // Step 2 — password confirmation
+    const pass = prompt('Enter your admin password to confirm Master Clear:');
+    if (!pass) return;
+
+    // Verify password via re-auth
+    try {
+      const user  = window._auth.currentUser;
+      if (!user) { alert('Not logged in.'); return; }
+
+      const { EmailAuthProvider, reauthenticateWithCredential } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const credential = EmailAuthProvider.credential(user.email, pass);
+      await reauthenticateWithCredential(user, credential);
+
+    } catch(e) {
+      alert('Wrong password. Master Clear cancelled.');
+      return;
+    }
+
+    // Step 3 — final confirmation
+    const confirm2 = confirm('FINAL WARNING!\n\nAll guest data will be deleted permanently.\n\nPress OK to proceed.');
+    if (!confirm2) return;
+
+    try {
+      // Delete all guests
+      const guestSnap = await window._getDocs(window._collection(window._db,'guests'));
+      const batch1    = window._writeBatch(window._db);
+      guestSnap.docs.forEach(d => batch1.delete(window._doc(window._db,'guests',d.id)));
+      await batch1.commit();
+
+      // Delete all manual entries
+      const manualSnap = await window._getDocs(window._collection(window._db,'manualEntries'));
+      const batch2     = window._writeBatch(window._db);
+      manualSnap.docs.forEach(d => batch2.delete(window._doc(window._db,'manualEntries',d.id)));
+      await batch2.commit();
+
+      alert('Master Clear complete!\n\nAll guest registrations and manual entries have been deleted.\n\nDatabase is ready for the event!');
+
+      // Refresh stats
+      loadStats();
+
+    } catch(e) {
+      console.error(e);
+      alert('Error during Master Clear. Please try again.');
+    }
+  }	
+
   // ── UNSAVED CHANGES WARNING ──
   let _saveWatcherBound = false;
   window.addEventListener('beforeunload', (e) => {
@@ -2262,7 +2379,7 @@ async function saveEventConfig() {
 
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('admin-normal-sw.js', { scope: '/2026/' });
+    navigator.serviceWorker.register('admin-sw.js', { scope: '/2026/' });
   }
 </script>
 <script>
@@ -2309,18 +2426,7 @@ document.getElementById('header-person-menu').addEventListener('click', function
     if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
   });
 
-  async function shareAdminLink() {
-    document.getElementById('header-person-menu').classList.remove('open');
-    const url = 'https://odelyaevent.github.io/2026/admin-normal.html';
-    if (navigator.share) {
-      try { await navigator.share({ url }); } catch(e) {}
-    } else {
-      try { await navigator.clipboard.writeText(url); alert('Link copied to clipboard!'); }
-      catch(e) { prompt('Copy this link:', url); }
-    }
-  }
-
-  async function shareUserLink() {
+  async function shareLink() {
     document.getElementById('header-person-menu').classList.remove('open');
     const url = 'https://odelyaevent.github.io/2026/';
     if (navigator.share) {
