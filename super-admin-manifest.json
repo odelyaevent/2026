@@ -1,8 +1,9 @@
 {
   "name": "Super Admin",
   "short_name": "Super Admin",
-  "start_url": "/2026/admin.html",
-  "scope": "/2026/admin.html",
+  "id": "./admin.html",
+  "start_url": "./admin.html",
+  "scope": "./admin.html",
   "display": "standalone",
   "background_color": "#FDF6E3",
   "theme_color": "#0D2B5E",

@@ -1,9 +1,9 @@
 {
-  "id": "/2026/admin-normal.html",
   "name": "RKMV Admin",
   "short_name": "RKMV Admin",
-  "start_url": "/2026/admin-normal.html",
-  "scope": "/2026/admin-normal.html",
+  "id": "./admin-normal.html",
+  "start_url": "./admin-normal.html",
+  "scope": "./admin-normal.html",
   "display": "standalone",
   "background_color": "#FDF6E3",
   "theme_color": "#0D2B5E",
