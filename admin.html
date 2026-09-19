@@ -634,7 +634,7 @@ async function showDashboard(email) {
     window.location.href = url;
   }
 
-  // Digit-only filter on Amount and Phone
+  // Digit-only filter on Amount and Phone + Title Case on Name
   document.addEventListener('input', function(e) {
     const id = e.target && e.target.id;
     if (id === 'mp-amount' || id === 'mp-phone') {
@@ -642,7 +642,9 @@ async function showDashboard(email) {
     }
     if (id === 'mp-name') {
       const pos = e.target.selectionStart;
-      e.target.value = e.target.value.replace(/[^A-Za-z ]/g, '');
+      let val = e.target.value.replace(/[^A-Za-z ]/g, '');
+      val = val.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+      e.target.value = val;
       e.target.setSelectionRange(pos, pos);
     }
   });
