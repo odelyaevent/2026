@@ -40,8 +40,16 @@
     window._firebaseReady=true;
         let _firstNullSeen = false;
     let _loginTimer = null;
+    const SUPER_ADMIN_EMAIL = 'odelyaevent@gmail.com';
     onAuthStateChanged(auth, user => {
       if (user) {
+        if (user.email !== SUPER_ADMIN_EMAIL) {
+          // Not the super admin — sign out and show access denied
+          signOut(auth).then(() => {
+            document.body.innerHTML = '<div style="font-family:Lato,sans-serif;text-align:center;padding:80px 20px;font-size:1.6rem;font-weight:900;color:#CC0000;">Access Denied</div>';
+          });
+          return;
+        }
         if (_loginTimer) { clearTimeout(_loginTimer); _loginTimer = null; }
         _firstNullSeen = false;
         showDashboard(user.email);
