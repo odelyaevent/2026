@@ -688,7 +688,10 @@ async function showDashboard(email) {
     const currentMeal = mealWindow.key;
 
     // Get current event day
-    const eventDay = getEventDay();
+    const eventDay = getEventDays().find(d => {
+      const today = new Date().toISOString().split('T')[0];
+      return d.date === today;
+    });
     if (!eventDay) {
       alert('Today is not an event day.');
       return;
