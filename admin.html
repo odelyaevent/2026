@@ -237,7 +237,7 @@ header h1{padding:0 74px 0 74px;}
     </div>
     <h1>RKMV</h1>
     <div class="reunion-title">Super Admin</div>
-    <div class="header-person-wrap">
+    <div class="header-person-wrap" id="person-wrap" style="display:none;">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
         <button onclick="shareLink()">Share Link</button>
@@ -559,6 +559,7 @@ header h1{padding:0 74px 0 74px;}
   function showLogin() {
     document.getElementById('login-section').style.display    = 'block';
     document.getElementById('dashboard-section').style.display = 'none';
+    document.getElementById('person-wrap').style.display = 'none';
     document.getElementById('admin-email').value = '';
     document.getElementById('admin-pass').value  = '';
     document.getElementById('login-err').style.display = 'none';
@@ -569,6 +570,7 @@ header h1{padding:0 74px 0 74px;}
 async function showDashboard(email) {
     document.getElementById('login-section').style.display    = 'none';
     document.getElementById('dashboard-section').style.display = 'block';
+    document.getElementById('person-wrap').style.display = 'flex';
     loadAllGuests();
     closeTab();
     try {
