@@ -1119,22 +1119,16 @@ function buildCard(docId, g) {
 
   // ── SAVE GUEST ──
   async function saveGuest(docId) {
-    const days        = getEventDays();
-    const name        = document.getElementById('e-name-'+docId).value.trim();
-    const batch       = parseInt(document.getElementById('e-batch-'+docId).value);
-    const division    = document.getElementById('e-division-'+docId).value.trim();
-    const whatsapp    = document.getElementById('e-whatsapp-'+docId).value.trim();
-    const address     = document.getElementById('e-address-'+docId).value.trim();
-    const pin         = document.getElementById('e-pin-'+docId).value.trim();
-    const family      = parseInt(document.getElementById('e-family-'+docId).value)||0;
-    const extraAlumni = parseInt(document.getElementById('e-extra-alumni-'+docId).value)||0;
-    const extraFamily = parseInt(document.getElementById('e-extra-family-'+docId).value)||0;
-    
-    const totalAlumni = 1 + extraAlumni;
-    const totalFamily = family + extraFamily;
-    const amount      = (totalAlumni * ALUMNI_FEE) + (totalFamily * FAMILY_FEE);
+    const days = getEventDays();
+    const pin  = document.getElementById('e-pin-'+docId).value.trim();
 
-    const totalPeople = 1 + extraAlumni + family + extraFamily;
+    // Fetch the current guest data to preserve all read-only fields
+    const snap = await window._getDoc(window._doc(window._db,'guests',docId));
+    if (!snap.exists()) { showMsg(docId, 'Guest not found.', 'err'); return; }
+    const g = snap.data();
+
+    // Compute mealsRequired from the checkboxes
+    const totalPeople = 1 + (g.extraAlumniCount||0) + (g.familyCount||0) + (g.extraFamilyCount||0);
     const mealsRequired = {};
     days.forEach(day => {
       const lunchChecked  = document.getElementById(`d${day.num}l-${docId}`).checked;
@@ -1147,22 +1141,12 @@ function buildCard(docId, g) {
 
     try {
       await window._updateDoc(window._doc(window._db,'guests',docId), {
-        name, batch, division, pin,
-        whatsapp,
-        address,
-        familyCount:      family,
-        extraAlumniCount: extraAlumni,
-        extraFamilyCount: extraFamily,
-        totalAlumniCount: totalAlumni,
-        totalFamilyCount: totalFamily,
-        amount,
+        pin,
         mealsRequired
       });
       clearSearchCache();
       const saveBtn = document.getElementById('savebtn-'+docId);
       if (saveBtn) saveBtn.classList.add('abtn-disabled');
-      const amtVal = document.getElementById('amountval-'+docId);
-      if (amtVal) amtVal.textContent = `Rs. ${amount}/-`;
       showMsg(docId, 'Changes saved successfully!', 'ok');
     } catch(e) { showMsg(docId, 'Error saving. Try again.', 'err'); }
   }
