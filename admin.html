@@ -680,11 +680,12 @@ async function showDashboard(email) {
     if (!window._firebaseReady) return;
 
     // Determine current meal window
-    const currentMeal = getCurrentMealWindow();
-    if (!currentMeal) {
+    const mealWindow = await getCurrentMealWindow();
+    if (!mealWindow) {
       alert('No active meal window right now. Share Scanner can only be used during lunch or dinner hours.');
       return;
     }
+    const currentMeal = mealWindow.key;
 
     // Get current event day
     const eventDay = getEventDay();
@@ -699,7 +700,7 @@ async function showDashboard(email) {
     const password = Math.random().toString(36).substr(2,10);
 
     const now      = new Date();
-    const endMin   = mealEndMinutes(currentMeal);
+    const endMin   = mealWindow.end;
     const expiresAt = new Date();
     expiresAt.setHours(Math.floor(endMin/60), endMin%60, 0, 0);
 
@@ -770,9 +771,23 @@ async function showDashboard(email) {
     }
   }
 
-  function getCurrentMealWindow() {
+  async function fetchMealTimes() {
+    const snap = await window._getDoc(window._doc(window._db,'config','event'));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    return {
+      lunch:  { start: d.lunchStart  || '', end: d.lunchEnd  || '' },
+      dinner: { start: d.dinnerStart || '', end: d.dinnerEnd || '' }
+    };
+  }
+
+  async function getCurrentMealWindow() {
+    const times = await fetchMealTimes();
+    if (!times) return null;
+
     const now  = new Date();
     const hhmm = now.getHours()*60 + now.getMinutes();
+
     function toMin(t) {
       const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
       if (!m) return null;
@@ -780,23 +795,15 @@ async function showDashboard(email) {
       if (m[3].toUpperCase() === 'PM') h += 12;
       return h*60 + parseInt(m[2]);
     }
-    const lunchStart  = toMin(MEAL_TIMES.lunch?.start);
-    const lunchEnd    = toMin(MEAL_TIMES.lunch?.end);
-    const dinnerStart = toMin(MEAL_TIMES.dinner?.start);
-    const dinnerEnd   = toMin(MEAL_TIMES.dinner?.end);
 
-    if (lunchStart !== null && lunchEnd !== null && hhmm >= lunchStart && hhmm < lunchEnd)   return 'lunch';
-    if (dinnerStart !== null && dinnerEnd !== null && hhmm >= dinnerStart && hhmm < dinnerEnd) return 'dinner';
+    const lS = toMin(times.lunch.start);
+    const lE = toMin(times.lunch.end);
+    const dS = toMin(times.dinner.start);
+    const dE = toMin(times.dinner.end);
+
+    if (lS !== null && lE !== null && hhmm >= lS && hhmm < lE) return { key:'lunch',  end: lE, times };
+    if (dS !== null && dE !== null && hhmm >= dS && hhmm < dE) return { key:'dinner', end: dE, times };
     return null;
-  }
-
-  function mealEndMinutes(mealKey) {
-    const t = MEAL_TIMES[mealKey]?.end;
-    const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
-    if (!m) return 0;
-    let h = parseInt(m[1]) % 12;
-    if (m[3].toUpperCase() === 'PM') h += 12;
-    return h*60 + parseInt(m[2]);
   }
 
   // ── QR LIBRARY CHECK ──
