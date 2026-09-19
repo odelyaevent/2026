@@ -169,10 +169,10 @@ header h1{padding:0 74px 0 74px;}
     .req-badge{display:inline-block;background:#EEF4FF;color:var(--deep-blue);border-radius:6px;padding:2px 8px;font-size:0.75rem;font-weight:700;margin:2px;}
     .req-badge.selected{background:#D4EDDA;color:#155724;}
     /* STATS */
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
-    .stat-card{background:var(--white);border-radius:10px;border:1.5px solid var(--border);padding:14px;text-align:center;}
+    .stats-grid{display:grid;grid-template-columns:1fr;gap:14px;padding:14px;}
+    .stat-card{background:var(--white);border-radius:10px;border:1.5px solid var(--border);padding:18px;text-align:center;}
 	.stat-num{font-family:'Lato',serif;font-size:3.6rem;font-weight:900;color:var(--deep-blue);}
-	.stat-label{font-size:1.44rem;color:#777;margin-top:4px;}
+	.stat-label{font-size:1.2rem;color:#777;margin-top:4px;font-weight:700;}
     /* FOOD SUMMARY */
     .food-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:14px 0;}
     .food-table th{background:var(--deep-blue);color:var(--gold);padding:10px 12px;text-align:left;font-family:'Lato',serif;font-size:1.1rem;letter-spacing:0.03em;}
@@ -394,13 +394,15 @@ header h1{padding:0 74px 0 74px;}
   <!-- STATS TAB -->
   <div id="tab-stats" class="tab-content">
     <div class="config-box" id="event-config-display"></div>
-<button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;">Master Clear</button>    
+<button class="btn-excel" onclick="masterClear()" style="background:var(--red);margin-bottom:0;font-size:1.8rem;padding:20px;">Master Clear</button>
 	  <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-pending">—</div><div class="stat-label">Pending</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-family">—</div><div class="stat-label">Family Members</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-amount">—</div><div class="stat-label">Amount (Approved)</div></div>
-    </div>
+      <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved Guests</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-pending">—</div><div class="stat-label">Pending Guests</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-approved-family">—</div><div class="stat-label">Approved Family Members</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-pending-family">—</div><div class="stat-label">Pending Family Members</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-approved-amount">—</div><div class="stat-label">Approved Amount Rs.</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-pending-amount">—</div><div class="stat-label">Pending Amount Rs.</div></div>
+      </div>
   </div>
 
   <!-- REPORT TAB -->
@@ -1151,22 +1153,30 @@ async function loadStats() {
 
     try {
       const snap = await window._getDocs(window._collection(window._db,'guests'));
-      let approved=0, pending=0, familyMembers=0, approvedAmount=0;
+      let approved=0, pending=0;
+      let approvedFamily=0, pendingFamily=0;
+      let approvedAmount=0, pendingAmount=0;
+
       snap.docs.forEach(d => {
         const g = d.data();
         const gFamily = g.totalFamilyCount || ((g.familyCount||0) + (g.extraFamilyCount||0));
         if (g.approved) {
           approved++;
+          approvedFamily += gFamily;
           approvedAmount += g.amount || 0;
         } else {
           pending++;
+          pendingFamily += gFamily;
+          pendingAmount += g.amount || 0;
         }
-        familyMembers += gFamily;
       });
-      document.getElementById('st-approved').textContent = approved;
-      document.getElementById('st-pending').textContent  = pending;
-      document.getElementById('st-family').textContent   = familyMembers;
-           document.getElementById('st-amount').textContent   = approvedAmount;
+
+      document.getElementById('st-approved').textContent         = approved;
+      document.getElementById('st-pending').textContent          = pending;
+      document.getElementById('st-approved-family').textContent  = approvedFamily;
+      document.getElementById('st-pending-family').textContent   = pendingFamily;
+      document.getElementById('st-approved-amount').textContent  = approvedAmount;
+      document.getElementById('st-pending-amount').textContent   = pendingAmount;
     } catch(e) { console.error(e); }
   }
 
