@@ -252,6 +252,30 @@ header h1{padding:0 74px 0 74px;}
   </div>
 </div>
 
+<!-- MAKE PAYMENT POPUP -->
+<div id="makepayment-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
+  <div style="background:var(--white);border-radius:14px;max-width:420px;width:100%;padding:22px 18px;box-sizing:border-box;">
+    <h2 style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.5rem;text-align:center;margin-bottom:22px;">Make Payment</h2>
+
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:6px;">Amount</label>
+    <input type="text" id="mp-amount" inputmode="numeric" pattern="[0-9]*" placeholder="0" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;box-sizing:border-box;"/>
+
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:6px;">Email</label>
+    <input type="email" id="mp-email" placeholder="guest@email.com" autocomplete="off" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;box-sizing:border-box;text-transform:lowercase;"/>
+
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:6px;">Phone</label>
+    <input type="text" id="mp-phone" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="10-digit number" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;box-sizing:border-box;"/>
+
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1.1rem;margin-bottom:6px;">Name</label>
+    <input type="text" id="mp-name" placeholder="Full Name" autocomplete="off" style="width:100%;padding:14px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:1.2rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;box-sizing:border-box;"/>
+
+    <div id="mp-error" style="display:none;color:var(--red);font-weight:700;text-align:center;font-size:1rem;margin-bottom:14px;"></div>
+
+    <button onclick="submitMakePayment()" style="width:100%;padding:18px;background:var(--red);color:white;font-family:'Lato',serif;font-size:1.5rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:10px;">Make Payment</button>
+    <button onclick="closeMakePayment()" style="width:100%;padding:14px;background:transparent;border:2px solid var(--deep-blue);color:var(--deep-blue);font-family:'Lato',serif;font-size:1.2rem;font-weight:700;border-radius:10px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
 <!-- DASHBOARD -->
 <div id="dashboard-section" style="display:none;">
 
@@ -270,6 +294,7 @@ header h1{padding:0 74px 0 74px;}
     <div class="tab-btn" onclick="switchTab('food')">Estimate</div>
     <div class="tab-btn" onclick="switchTab('stats')">Stats</div>
     <div class="tab-btn" onclick="switchTab('report')">Report</div>
+    <div class="tab-btn" onclick="openMakePayment()">Make Payment</div>
   </div>
 
   <!-- TAB CONTENT -->
@@ -489,10 +514,12 @@ header h1{padding:0 74px 0 74px;}
       });
   }
 
-  function adminLogout() {
-    document.getElementById('header-person-menu').classList.remove('open');
-    window._signOut(window._auth);
-}
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const mp = document.getElementById('makepayment-overlay');
+      if (mp && mp.style.display === 'flex') closeMakePayment();
+    }
+  });
 
   function showLogin() {
     document.getElementById('login-section').style.display    = 'block';
@@ -548,6 +575,78 @@ async function showDashboard(email) {
     if (name === 'report') { /* Report tab — no load function yet */ }
   }
 
+  // ── MAKE PAYMENT ──
+  function openMakePayment() {
+    document.getElementById('header-person-menu').classList.remove('open');
+    document.getElementById('mp-amount').value = '';
+    document.getElementById('mp-email').value  = '';
+    document.getElementById('mp-phone').value  = '';
+    document.getElementById('mp-name').value   = '';
+    document.getElementById('mp-error').style.display = 'none';
+    document.getElementById('makepayment-overlay').style.display = 'flex';
+    history.pushState({ makepayment: true }, '', '');
+  }
+
+  function closeMakePayment(fromHistory) {
+    document.getElementById('makepayment-overlay').style.display = 'none';
+    if (!fromHistory && history.state && history.state.makepayment) {
+      history.back();
+    }
+  }
+
+  function toTitleCaseStr(str) {
+    return str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
+  function submitMakePayment() {
+    const errEl  = document.getElementById('mp-error');
+    errEl.style.display = 'none';
+
+    const amount = document.getElementById('mp-amount').value.trim();
+    const email  = document.getElementById('mp-email').value.trim().toLowerCase();
+    const phone  = document.getElementById('mp-phone').value.trim();
+    const rawName = document.getElementById('mp-name').value.trim();
+    const name   = toTitleCaseStr(rawName);
+
+    if (!/^\d+$/.test(amount) || parseInt(amount) <= 0) {
+      errEl.textContent = 'Enter a valid amount (digits only).';
+      errEl.style.display = 'block'; return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'Enter a valid email address.';
+      errEl.style.display = 'block'; return;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      errEl.textContent = 'Enter a valid 10-digit phone number.';
+      errEl.style.display = 'block'; return;
+    }
+    if (!name || !/^[A-Za-z ]+$/.test(rawName)) {
+      errEl.textContent = 'Enter a valid name (letters only).';
+      errEl.style.display = 'block'; return;
+    }
+
+    const url = 'https://pages.razorpay.com/pl_TcodATbXWASk9v/view'
+      + '?amount=' + encodeURIComponent(amount)
+      + '&email='  + encodeURIComponent(email)
+      + '&phone='  + encodeURIComponent(phone)
+      + '&name='   + encodeURIComponent(name);
+
+    window.location.href = url;
+  }
+
+  // Digit-only filter on Amount and Phone
+  document.addEventListener('input', function(e) {
+    const id = e.target && e.target.id;
+    if (id === 'mp-amount' || id === 'mp-phone') {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    }
+    if (id === 'mp-name') {
+      const pos = e.target.selectionStart;
+      e.target.value = e.target.value.replace(/[^A-Za-z ]/g, '');
+      e.target.setSelectionRange(pos, pos);
+    }
+  });
+
   function openCreateScanner() {
     alert('Create Scanner — coming soon.');
   }
@@ -572,6 +671,13 @@ async function showDashboard(email) {
   }
 
   window.addEventListener('popstate', () => {
+    // Close Make Payment popup if open
+    const mp = document.getElementById('makepayment-overlay');
+    if (mp && mp.style.display === 'flex') {
+      closeMakePayment(true);
+      return;
+    }
+
     // any browser-back press inside the dashboard closes the tab
     const wrapVisible = document.getElementById('tab-content-wrap').classList.contains('visible');
     if (wrapVisible) closeTab(true);
