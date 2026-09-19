@@ -1,0 +1,22 @@
+{
+  "id": "/2026/admin-normal.html",
+  "name": "RKMV Admin",
+  "short_name": "RKMV Admin",
+  "start_url": "/2026/admin-normal.html",
+  "scope": "/2026/",
+  "display": "standalone",
+  "background_color": "#FDF6E3",
+  "theme_color": "#0D2B5E",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
