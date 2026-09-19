@@ -1076,7 +1076,9 @@ function buildCard(docId, g) {
   async function toggleApprove(docId, current) {
     const newVal = !current;
     try {
-      await window._updateDoc(window._doc(window._db,'guests',docId), { approved: newVal });
+      const update = { approved: newVal };
+      if (newVal) update.paymentStatus = 'paid';
+      await window._updateDoc(window._doc(window._db,'guests',docId), update);
       clearSearchCache();
 
       document.getElementById('badge-'+docId).className   = `badge ${newVal?'badge-approved':'badge-pending'}`;
