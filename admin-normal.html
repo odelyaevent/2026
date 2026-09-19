@@ -257,6 +257,7 @@ header h1{padding:0 74px 0 74px;}
       <input type="email" id="admin-email" placeholder="admin@email.com" autocomplete="email"/>
       <label>Password</label>
       <input type="password" id="admin-pass" placeholder="Password" autocomplete="current-password"/>
+      <button class="btn-main" id="btn-login" onclick="adminLogin()">LOGIN</button>
 	  <button class="btn-main" id="btn-install-pwa" style="display:none;margin-top:10px;background:linear-gradient(135deg,var(--deep-blue),var(--light-blue));" onclick="installPWA()">INSTALL PWA</button>
     </div>
   </div>
@@ -524,14 +525,17 @@ header h1{padding:0 74px 0 74px;}
     const email = document.getElementById('admin-email').value.trim();
     const pass  = document.getElementById('admin-pass').value.trim();
     const err   = document.getElementById('login-err');
+    const btn   = document.getElementById('btn-login');
     if (!email || !pass) return;
 
     loginInFlight = true;
     err.style.display = 'none';
+    if (btn) { btn.disabled = true; btn.textContent = 'Logging in...'; }
 
     window._signIn(window._auth, email, pass)
       .then(() => {
         loginInFlight = false;
+        if (btn) { btn.disabled = false; btn.textContent = 'LOGIN'; }
       })
       .catch(() => {
         loginInFlight = false;
@@ -539,6 +543,7 @@ header h1{padding:0 74px 0 74px;}
         err.style.display = 'block';
         document.getElementById('admin-pass').value = '';
         document.getElementById('admin-pass').focus();
+        if (btn) { btn.disabled = false; btn.textContent = 'LOGIN'; }
       });
   }
 
@@ -565,6 +570,13 @@ header h1{padding:0 74px 0 74px;}
     loginInFlight = false;
     document.getElementById('admin-email').focus();
   }
+
+  // Manual login via button only
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('login-section').style.display !== 'none') {
+      adminLogin();
+    }
+  });
 
 async function showDashboard(email) {
     document.getElementById('login-section').style.display    = 'none';
@@ -2242,22 +2254,6 @@ async function saveEventConfig() {
     }
   });
 
-  // Enter key support
-  window.addEventListener('load', () => {
-    // Auto-login: fire when both email and password have a value
-    const emailEl = document.getElementById('admin-email');
-    const passEl  = document.getElementById('admin-pass');
-    function tryAutoLogin() {
-      const loginVisible = document.getElementById('login-section').style.display !== 'none';
-      if (!loginVisible) return;
-      const email = emailEl.value.trim();
-      const pass  = passEl.value.trim();
-      if (email && pass) adminLogin();
-    }
-    emailEl?.addEventListener('input', tryAutoLogin);
-    passEl?.addEventListener('input',  tryAutoLogin);
-  });
-  
 </script>
 
 <script>
