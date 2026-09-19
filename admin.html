@@ -240,7 +240,8 @@ header h1{padding:0 74px 0 74px;}
     <div class="header-person-wrap" id="person-wrap" style="display:none;">
       <button class="header-person-btn" onclick="togglePersonMenu()" aria-label="Menu">👤</button>
       <div class="header-person-menu" id="header-person-menu">
-        <button onclick="shareLink()">Share Link</button>
+        <button onclick="shareAdminLink()">Admin Share Link</button>
+        <button onclick="shareUserLink()">User Share Link</button>
         <button onclick="adminLogout()">Logout</button>
       </div>
     </div>
@@ -2429,7 +2430,18 @@ document.getElementById('header-person-menu').addEventListener('click', function
     if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
   });
 
-  async function shareLink() {
+  async function shareAdminLink() {
+    document.getElementById('header-person-menu').classList.remove('open');
+    const url = 'https://odelyaevent.github.io/2026/admin-normal.html';
+    if (navigator.share) {
+      try { await navigator.share({ url }); } catch(e) {}
+    } else {
+      try { await navigator.clipboard.writeText(url); alert('Link copied to clipboard!'); }
+      catch(e) { prompt('Copy this link:', url); }
+    }
+  }
+
+  async function shareUserLink() {
     document.getElementById('header-person-menu').classList.remove('open');
     const url = 'https://odelyaevent.github.io/2026/';
     if (navigator.share) {
