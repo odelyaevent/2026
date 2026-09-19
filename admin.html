@@ -524,16 +524,19 @@ header h1{padding:0 74px 0 74px;}
     window._signIn(window._auth, email, pass)
       .then(() => {
         loginInFlight = false;
-        // onAuthStateChanged will switch to dashboard automatically
       })
       .catch(() => {
         loginInFlight = false;
         err.textContent = 'Wrong Credentials';
         err.style.display = 'block';
-        // clear password so the user can retype
         document.getElementById('admin-pass').value = '';
         document.getElementById('admin-pass').focus();
       });
+  }
+
+  function adminLogout() {
+    document.getElementById('header-person-menu').classList.remove('open');
+    window._signOut(window._auth);
   }
 
   document.addEventListener('keydown', function(e) {
@@ -2369,7 +2372,6 @@ async function saveEventConfig() {
     navigator.serviceWorker.register('admin-sw.js', { scope: '/2026/' });
   }
 </script>
-
 <script>
   let deferredPrompt = null;
 
@@ -2413,6 +2415,7 @@ document.getElementById('header-person-menu').addEventListener('click', function
     const menu = document.getElementById('header-person-menu');
     if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
   });
+
   async function shareLink() {
     document.getElementById('header-person-menu').classList.remove('open');
     const url = 'https://odelyaevent.github.io/2026/';
@@ -2423,6 +2426,7 @@ document.getElementById('header-person-menu').addEventListener('click', function
       catch(e) { prompt('Copy this link:', url); }
     }
   }
+
 </script>
 
 </body>
