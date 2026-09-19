@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#0D2B5E"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -252,6 +253,27 @@ header h1{padding:0 74px 0 74px;}
   </div>
 </div>
 
+<!-- SHARE SCANNER POPUP -->
+<div id="sharescanner-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
+  <div style="background:var(--white);border-radius:14px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:22px 18px;box-sizing:border-box;">
+
+    <h2 style="font-family:'Lato',serif;color:var(--deep-blue);font-size:1.5rem;text-align:center;margin-bottom:8px;">Share Scanner</h2>
+    <p id="ss-meal-info" style="text-align:center;color:#555;font-size:1.1rem;font-weight:700;margin-bottom:18px;"></p>
+
+    <div id="ss-qr-wrap" style="text-align:center;margin-bottom:18px;">
+      <div id="ss-qr-canvas" style="display:inline-block;padding:10px;background:white;border:2px solid var(--deep-blue);border-radius:10px;"></div>
+    </div>
+
+    <label style="display:block;font-weight:700;color:var(--deep-blue);font-size:1rem;margin-bottom:6px;">Shareable Link</label>
+    <input type="text" id="ss-url" readonly style="width:100%;padding:12px;border:1.8px solid #C5D3E8;border-radius:8px;font-size:0.95rem;font-family:'Lato',sans-serif;background:#F7FAFF;margin-bottom:14px;box-sizing:border-box;" onclick="this.select();"/>
+
+    <button onclick="shareScannerLink()" style="width:100%;padding:16px;background:linear-gradient(135deg,var(--saffron),#C9400A);color:white;font-family:'Lato',serif;font-size:1.3rem;font-weight:700;border:none;border-radius:10px;cursor:pointer;letter-spacing:0.04em;margin-bottom:10px;">Share</button>
+    <button onclick="copyScannerLink()" style="width:100%;padding:14px;background:transparent;border:2px solid var(--deep-blue);color:var(--deep-blue);font-family:'Lato',serif;font-size:1.2rem;font-weight:700;border-radius:10px;cursor:pointer;margin-bottom:10px;">Copy Link</button>
+    <button onclick="closeShareScanner()" style="width:100%;padding:14px;background:transparent;border:2px solid #999;color:#666;font-family:'Lato',serif;font-size:1.2rem;font-weight:700;border-radius:10px;cursor:pointer;">Cancel</button>
+
+  </div>
+</div>
+
 <!-- MAKE PAYMENT POPUP -->
 <div id="makepayment-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000CC;z-index:10000;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;">
   <div style="background:var(--white);border-radius:14px;max-width:420px;width:100%;padding:22px 18px;box-sizing:border-box;">
@@ -288,7 +310,7 @@ header h1{padding:0 74px 0 74px;}
   <!-- VERTICAL TAB MENU -->
   <div id="tab-menu">
     <div class="tab-btn" onclick="window.location.href='https://odelyaevent.github.io/2026/scanner.html'">QR Scanner</div>
-    <div class="tab-btn" onclick="openCreateScanner()">Create Scanner</div>
+    <div class="tab-btn" onclick="openShareScanner()">Share Scanner</div>
     <div class="tab-btn" onclick="switchTab('event')">Event</div>
     <div class="tab-btn" onclick="switchTab('all')">Guests</div>
     <div class="tab-btn" onclick="switchTab('food')">Estimate</div>
@@ -516,6 +538,8 @@ header h1{padding:0 74px 0 74px;}
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+      const ss = document.getElementById('sharescanner-overlay');
+      if (ss && ss.style.display === 'flex') closeShareScanner();
       const mp = document.getElementById('makepayment-overlay');
       if (mp && mp.style.display === 'flex') closeMakePayment();
     }
@@ -649,9 +673,134 @@ async function showDashboard(email) {
     }
   });
 
-  function openCreateScanner() {
-    alert('Create Scanner — coming soon.');
+  // ── SHARE SCANNER ──
+  async function openShareScanner() {
+    document.getElementById('header-person-menu').classList.remove('open');
+
+    if (!window._firebaseReady) return;
+
+    // Determine current meal window
+    const currentMeal = getCurrentMealWindow();
+    if (!currentMeal) {
+      alert('No active meal window right now. Share Scanner can only be used during lunch or dinner hours.');
+      return;
+    }
+
+    // Get current event day
+    const eventDay = getEventDay();
+    if (!eventDay) {
+      alert('Today is not an event day.');
+      return;
+    }
+
+    // Generate random token credentials
+    const tokenId  = 'scan_' + Math.random().toString(36).substr(2,12) + '_' + Date.now();
+    const username = 'vol_'  + Math.random().toString(36).substr(2,8);
+    const password = Math.random().toString(36).substr(2,10);
+
+    const now      = new Date();
+    const endMin   = mealEndMinutes(currentMeal);
+    const expiresAt = new Date();
+    expiresAt.setHours(Math.floor(endMin/60), endMin%60, 0, 0);
+
+    // Save token to Firestore
+    try {
+      const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      await setDoc(window._doc(window._db,'scannerTokens',tokenId), {
+        username,
+        password,
+        meal:      currentMeal,
+        day:       eventDay.num,
+        createdAt: now.toISOString(),
+        expiresAt: expiresAt.toISOString()
+      });
+    } catch(e) {
+      console.error(e);
+      alert('Could not create scanner token. Try again.');
+      return;
+    }
+
+    // Build URL
+    const url = `https://odelyaevent.github.io/2026/scanner.html?t=${tokenId}`;
+
+    // Show popup
+    document.getElementById('ss-url').value = url;
+    document.getElementById('ss-meal-info').textContent =
+      `${currentMeal.charAt(0).toUpperCase() + currentMeal.slice(1)} — ${eventDay.label}`;
+
+    // QR
+    const qrDiv = document.getElementById('ss-qr-canvas');
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+      text: url,
+      width: 220,
+      height: 220,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    document.getElementById('sharescanner-overlay').style.display = 'flex';
+    history.pushState({ sharescanner: true }, '', '');
   }
+
+  function closeShareScanner(fromHistory) {
+    document.getElementById('sharescanner-overlay').style.display = 'none';
+    if (!fromHistory && history.state && history.state.sharescanner) {
+      history.back();
+    }
+  }
+
+  async function shareScannerLink() {
+    const url = document.getElementById('ss-url').value;
+    if (navigator.share) {
+      try { await navigator.share({ url }); } catch(e) {}
+    } else {
+      try { await navigator.clipboard.writeText(url); alert('Link copied to clipboard!'); }
+      catch(e) { prompt('Copy this link:', url); }
+    }
+  }
+
+  async function copyScannerLink() {
+    const url = document.getElementById('ss-url').value;
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    } catch(e) {
+      document.getElementById('ss-url').select();
+      alert('Press Ctrl+C to copy.');
+    }
+  }
+
+  function getCurrentMealWindow() {
+    const now  = new Date();
+    const hhmm = now.getHours()*60 + now.getMinutes();
+    function toMin(t) {
+      const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+      if (!m) return null;
+      let h = parseInt(m[1]) % 12;
+      if (m[3].toUpperCase() === 'PM') h += 12;
+      return h*60 + parseInt(m[2]);
+    }
+    const lunchStart  = toMin(MEAL_TIMES.lunch?.start);
+    const lunchEnd    = toMin(MEAL_TIMES.lunch?.end);
+    const dinnerStart = toMin(MEAL_TIMES.dinner?.start);
+    const dinnerEnd   = toMin(MEAL_TIMES.dinner?.end);
+
+    if (lunchStart !== null && lunchEnd !== null && hhmm >= lunchStart && hhmm < lunchEnd)   return 'lunch';
+    if (dinnerStart !== null && dinnerEnd !== null && hhmm >= dinnerStart && hhmm < dinnerEnd) return 'dinner';
+    return null;
+  }
+
+  function mealEndMinutes(mealKey) {
+    const t = MEAL_TIMES[mealKey]?.end;
+    const m = (t||'').match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+    if (!m) return 0;
+    let h = parseInt(m[1]) % 12;
+    if (m[3].toUpperCase() === 'PM') h += 12;
+    return h*60 + parseInt(m[2]);
+  }
+
+  // ── QR LIBRARY CHECK ──
+  // (Admin.html must include the qrcode.js library in <head>)
 
 
   function addBackButton() {
@@ -673,6 +822,13 @@ async function showDashboard(email) {
   }
 
   window.addEventListener('popstate', () => {
+    // Close Share Scanner popup if open
+    const ss = document.getElementById('sharescanner-overlay');
+    if (ss && ss.style.display === 'flex') {
+      closeShareScanner(true);
+      return;
+    }
+
     // Close Make Payment popup if open
     const mp = document.getElementById('makepayment-overlay');
     if (mp && mp.style.display === 'flex') {
