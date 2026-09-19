@@ -13,7 +13,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     // ── PASTE YOUR FIREBASE CONFIG HERE ──
   const firebaseConfig = {
     apiKey: "AIzaSyAAW9zZmE1cEUUWLEwT1hWtY1fQoiGt_No",
@@ -30,12 +30,29 @@
     window._doc=doc; window._getDoc=getDoc; window._updateDoc=updateDoc;
     window._collection=collection; window._getDocs=getDocs;
     window._signIn=signInWithEmailAndPassword;
+    window._signInAnon=signInAnonymously;
     window._signOut=signOut;
     window._firebaseReady=true;
-    onAuthStateChanged(auth, user => {
-      if (user) showScanner(user.email);
-      else showLogin();
-    });
+
+    // ── BOOT: check for token in URL first ──
+    const urlParams  = new URLSearchParams(window.location.search);
+    const tokenId    = urlParams.get('t');
+
+    if (tokenId) {
+      // Volunteer mode — sign in anonymously, then validate token
+      signInAnonymously(auth)
+        .then(() => validateScannerToken(tokenId))
+        .catch(err => {
+          console.error(err);
+          showInvalidLink();
+        });
+    } else {
+      // Admin mode — normal auth flow
+      onAuthStateChanged(auth, user => {
+        if (user) showScanner(user.email);
+        else showLogin();
+      });
+    }
   </script>
 
   <style>
@@ -125,6 +142,13 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
       <button class="btn-main" id="btn-login" onclick="attLogin()">LOGIN</button>
     </div>
   </div>
+</div>
+
+<!-- INVALID LINK -->
+<div id="invalid-link-box" style="display:none;margin:60px 18px 0;background:var(--white);border-radius:14px;border:2px solid var(--red);padding:36px 22px;text-align:center;">
+  <div style="font-size:4rem;margin-bottom:14px;">❌</div>
+  <h2 style="font-family:'Lato',serif;color:var(--red);font-size:1.8rem;font-weight:900;margin-bottom:14px;">Invalid Link</h2>
+  <p style="color:#555;font-size:1.2rem;line-height:1.7;font-weight:700;">This scanner link has expired or is no longer valid.<br>Please ask the admin for a new link.</p>
 </div>
 
 <!-- SCANNER -->
@@ -232,6 +256,34 @@ header h1{width:100%;display:block;font-family:'Lato',sans-serif;color:var(--whi
     document.getElementById('att-email').value = '';
     document.getElementById('att-pass').value  = '';
     document.getElementById('login-err').style.display = 'none';
+  }
+
+  // ── VALIDATE VOLUNTEER TOKEN ──
+  async function validateScannerToken(id) {
+    try {
+      const snap = await window._getDoc(window._doc(window._db,'scannerTokens',id));
+      if (!snap.exists()) { showInvalidLink(); return; }
+
+      const d = snap.data();
+      const expiresAt = new Date(d.expiresAt);
+
+      if (Date.now() > expiresAt.getTime()) { showInvalidLink(); return; }
+
+      // Valid — mark volunteer mode and go to scanner
+      window._volunteerMode = true;
+      showScanner('volunteer');
+    } catch(e) {
+      console.error(e);
+      showInvalidLink();
+    }
+  }
+
+  function showInvalidLink() {
+    document.getElementById('login-section').style.display  = 'none';
+    document.getElementById('scanner-section').style.display = 'none';
+
+    const box = document.getElementById('invalid-link-box');
+    if (box) box.style.display = 'block';
   }
 
 async function showScanner(email) {
